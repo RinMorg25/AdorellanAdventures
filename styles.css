@@ -1,24 +1,23 @@
 /* Ensure body and html take full viewport height and remove default margin */
 body, html {
     height: 100%;
-    margin: 0;
     font-family: Arial, sans-serif; /* Example font */
-    background-image: url('images/backgroundMap.png'); /* Add this line */
-    background-size: cover; /* Ensures the image covers the whole background */
-    background-repeat: no-repeat; /* Prevents the image from tiling */
-    background-position: center center; /* Centers the image */
 }
 
-/* This will help center the game container vertically and horizontally */
+/* This rule now handles all body styling, including background and layout */
 body {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh; /* Make sure the body fills the screen */
     margin: 0;
-    padding: 1rem; /* Add some padding so the container doesn't touch the edges */
+    padding: 1rem;     /* Add some padding so the container doesn't touch the edges */
     box-sizing: border-box;
-    background-color: #1a1a1a; /* A dark background helps the game stand out */
+    background-color: #1a1a1a; /* A dark fallback color */
+    background-image: url('images/backgroundMap.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
 .game-container {
