@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adorellan Adventures</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-main-title">Adorellan Adventures</h1>
+        <!-- Title Screen -->
+        <div id="titleScreen" class="screen active">
+            <img id="gameTitleImage" src="images/title icon.png" alt="Adorellan Adventures Title Image"> <!-- NOTE: Replace placeholder-title.png with your actual title image -->
+            <button id="startButton">Start My Adventure</button>
+        </div>
+
+        <!-- Character Selection Screen -->
+        <div id="characterSelectionScreen" class="screen">
+            <h2>Select Your Character</h2>
+            <div class="character-selection-content">
+                <div class="character-options">
+                    <button id="selectMaleButton">Male</button>
+                    <button id="selectFemaleButton">Female</button>
+                </div>
+                <div id="characterPortraits">
+                    <img id="portrait1" src="images/male/male_1.png" alt="Warrior">
+                    <img id="portrait2" src="images/male/male_2.png" alt="Rogue">
+                    <img id="portrait3" src="images/male/male_3.png" alt="Ranger">
+                    <img id="portrait4" src="images/male/male_4.png" alt="Bard">
+                    <img id="portrait5" src="images/male/male_5.png" alt="Healer">
+                    <img id="portrait6" src="images/male/male_6.png" alt="Mage">
+                </div>
+            </div>
+            <button id="confirmCharacterButton">Select Character</button>
+        </div>
+
+        <!-- Gameplay Screen (Existing UI) -->
+        <div id="gameplayScreen" class="screen">
+            <!-- Background Effect -->
+            <div class="background-effect"></div>
+
+            <!-- Left Panel: Main Text and Input Area -->
+            <div class="gameplay-left-panel">
+                <div class="text-area">
+                    <div class="output-text-container"> <!-- New container for scrolling -->
+                        <div class="output-text" id="gameOutput">
+                      
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <input type="text" id="commandInput" placeholder="Enter your command..." autofocus>
+            </div>
+            </div>
+
+            <!-- Center Panel: Monster Display Area -->
+            <div class="gameplay-center-panel">
+                <!-- Content for monster display will go here later -->
+                <div id="monsterDisplayArea" class="monster-display-area"></div>
+            </div>
+
+            <!-- Side Panel -->
+            <div class="side-panel">
+                <div id="playerDisplayBox" class="character-display-box">
+                    <img id="playerDisplayImage" alt="Player Character"> <!-- src is set by JS -->
+                </div>
+                <!-- Health Bar -->
+                <div class="stat-bar-container" id="healthBarContainer">
+                    <div class="stat-bar-label">Health</div>
+                    <div class="stat-bar-background">
+                        <div class="stat-bar-fill" id="healthBarFill"></div>
+                    </div>
+                    <div class="stat-bar-text" id="healthBarText">0 / 0</div>
+                </div>
+                <!-- Experience Bar -->
+                <div class="stat-bar-container" id="experienceBarContainer">
+                    <div class="stat-bar-label">Experience</div>
+                    <div class="stat-bar-background">
+                        <div class="stat-bar-fill" id="experienceBarFill"></div>
+                    </div>
+                    <div class="stat-bar-text" id="experienceBarText">0 / 0</div>
+                </div>
+                <div class="panel-item" id="mapButton">
+                    <div class="panel-icon">🗺️</div>
+                    <span>Location</span>
+                </div>
+                <div class="panel-item" id="inventoryButton">
+                    <div class="panel-icon">🎒</div>
+                    <span>Inventory</span>
+                </div>
+                <div class="panel-item" id="statsButton">
+                    <div class="panel-icon">📊</div>
+                    <span>Stats</span>
+                </div>
+                <div class="panel-item" id="helpButton">
+                    <div class="panel-icon">❓</div>
+                    <span>Help</span>
+                </div>
+            </div>
+        </div> <!-- gameplayScreen -->
+    </div>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
