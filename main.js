@@ -1,4 +1,3 @@
-import { GameEngine } from './game.js';
 import { Room, createWorld } from './room.js'; // Import createWorld
 import { Character, archetypeData } from './characters.js';
 import { Monster } from './monsters.js';
@@ -51,7 +50,6 @@ function appendText(text) {
 
     class AdventureGame {
         constructor(characterType) { // Accept characterType if needed for player setup
-            this.gameEngine = new GameEngine();
             this.currentRoom = null;
             this.roomHistory = []; // To track visited rooms for the 'back' command
             this.gameState = 'pre-start'; // Add game state: pre-start, intro, playing, ended
@@ -213,10 +211,13 @@ function appendText(text) {
 
             // Update Experience Bar
             if (expFill && expText) {
-                const expForNextLevel = this.player.level * 100; // XP needed for current level to level up
-                // Ensure expForNextLevel is not zero to prevent division by zero if level is 0 (though unlikely)
-                const currentLevelExp = this.player.experience - ((this.player.level -1) *100); // Exp accumulated in current level
-                const expPercent = expForNextLevel > 0 ? Math.max(0, (this.player.experience / expForNextLevel) * 100) : 0;
+                const expAtStartOfLevel = (this.player.level - 1) * 100;
+                const expForNextLevel = this.player.level * 100;
+                const expGainedThisLevel = this.player.experience - expAtStartOfLevel;
+                const expNeededThisLevel = expForNextLevel - expAtStartOfLevel;
+
+                // This correctly calculates the percentage of progress within the current level.
+                const expPercent = expNeededThisLevel > 0 ? Math.max(0, (expGainedThisLevel / expNeededThisLevel) * 100) : 0;
                 expFill.style.width = `${expPercent}%`;
                 expText.textContent = `${this.player.experience} / ${expForNextLevel}`;
             }
