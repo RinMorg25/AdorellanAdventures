@@ -6,7 +6,6 @@
 # Parcel cache and build output
 /.parcel-cache
 /dist/
-/docs/
 
 # Logs
 npm-debug.log*
