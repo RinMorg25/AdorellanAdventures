@@ -41,19 +41,4 @@ export class DisplayManager {
         statsInfo += `Gold: ${stats.gold}\n`;
         this.appendText(statsInfo);
     }
-
-    displayHelp() {
-        let helpInfo = "--- Help ---\n\n";
-        helpInfo += "Available commands:\n";
-        helpInfo += "- go [direction] (e.g., go forward, go left)\n";
-        helpInfo += "- look (describes the room)\n";
-        helpInfo += "- inspect [object/monster] (describes an item or monster)\n";
-        helpInfo += "- search (finds items/monsters in the room)\n";
-        helpInfo += "- take [item] (picks up an item)\n";
-        helpInfo += "- use [item] (uses an item from your inventory)\n";
-        helpInfo += "- attack [monster] / fight [monster] / battle [monster]\n";
-        helpInfo += "- flee (attempts to escape from battle)\n";
-        helpInfo += "\nSide Panel Buttons: Location, Inventory, Stats, Help.\n";
-        this.appendText(helpInfo);
-    }
 }

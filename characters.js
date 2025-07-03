@@ -44,7 +44,7 @@ export class Character {
     }
     
     getItem(itemName) {
-        return this.inventory.find(item => item.name === itemName);
+        return this.inventory.find(item => item.name.toLowerCase() === itemName.toLowerCase());
     }
     
     gainExperience(exp) {
