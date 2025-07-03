@@ -9,6 +9,31 @@ body, html {
     background-position: center center; /* Centers the image */
 }
 
+/* This will help center the game container vertically and horizontally */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Make sure the body fills the screen */
+    margin: 0;
+    padding: 1rem; /* Add some padding so the container doesn't touch the edges */
+    box-sizing: border-box;
+    background-color: #1a1a1a; /* A dark background helps the game stand out */
+}
+
+.game-container {
+    /* --- The Core of the Fix --- */
+    /* 1. Set a maximum size for your game on large screens. */
+    max-width: 1400px;
+    /* 2. Allow the container to shrink on smaller screens. */
+    width: 100%;
+    /* 3. Maintain a consistent shape (e.g., 16:9). Adjust this to fit your layout. */
+    aspect-ratio: 16 / 9;
+    /* 4. Prevent the game from being taller than the screen. */
+    max-height: 95vh;
+}
+    /* --- End of Fix --- */
+
 .game-container {
     position: relative; /* Remains crucial for absolute positioning of screens within */
     /* Adjust width and height to be less than full viewport */
