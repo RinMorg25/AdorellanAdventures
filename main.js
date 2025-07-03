@@ -235,7 +235,9 @@ function appendText(text) {
         portraitImages.forEach((imgElement, index) => {
             // Assumes filenames like 'male_1.png', 'female_1.png' inside respective folders
             const filename = `${genderLower}_${index + 1}.png`;
-            imgElement.src = `${folderPath}${filename}`;
+            // Using the `URL` constructor is the modern, reliable way to ask Parcel
+            // to resolve asset paths, especially when they are constructed dynamically.
+            imgElement.src = new URL(`${folderPath}${filename}`, import.meta.url);
             // Use archetype name for alt text
             imgElement.alt = archetypeData[index] ? archetypeData[index].name : `${gender} Portrait ${index + 1}`;
         });
@@ -260,7 +262,9 @@ function appendText(text) {
                 const genderLower = selectedCharacterType.toLowerCase();
                 // Construct the image path based on selected gender and archetype index
                 const imageName = `${genderLower}_${selectedArchetypeIndex + 1}.png`; // e.g., male_1.png
-                playerDisplayImgElement.src = `images/${genderLower}/${imageName}`;
+                // Using the `URL` constructor ensures Parcel correctly bundles and links the image,
+                // even with a dynamically generated path.
+                playerDisplayImgElement.src = new URL(`images/${genderLower}/${imageName}`, import.meta.url);
                 playerDisplayImgElement.alt = characterType.name; // Use archetype name for alt text
             }
 
