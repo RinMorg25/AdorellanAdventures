@@ -21,33 +21,20 @@ body {
 }
 
 .game-container {
-    /* --- The Core of the Fix --- */
-    /* 1. Set a maximum size for your game on large screens. */
-    max-width: 1400px;
-    /* 2. Allow the container to shrink on smaller screens. */
-    width: 100%;
-    /* 3. Maintain a consistent shape (e.g., 16:9). Adjust this to fit your layout. */
-    aspect-ratio: 16 / 9;
-    /* 4. Prevent the game from being taller than the screen. */
-    max-height: 95vh;
-}
-    /* --- End of Fix --- */
+    position: relative;   /* Crucial for absolute positioning of child screens */
+    overflow: hidden;     /* Prevents scrollbars if content overflows */
 
-.game-container {
-    position: relative; /* Remains crucial for absolute positioning of screens within */
-    /* Adjust width and height to be less than full viewport */
-    width: 98vw; /* Increased width */
-    height: 90vh; /* Example: 90% of viewport height */
-    max-width: 1400px; /* Increased max-width */
-    max-height: 900px; /* Optional: adjusted max height slightly */
-    margin: auto; /* Centers the container on the page */
-    top: 50%; /* Part of the centering trick */
-    transform: translateY(-50%); /* Part of the centering trick */
-    overflow: hidden; /* Prevents scrollbars if content overflows */
-    border: 2px solid #555; /* Solid border */
-    border-radius: 15px; /* Slightly curved corners */
-    background-color: #0f0c27b6; /* Optional: A dark background for the game area, more visible now */
-    box-shadow: 0 0 75px rgb(255, 255, 255); /* Optional: Adds a subtle shadow for depth */
+    /* --- Responsive Sizing & Shape --- */
+    width: 100%;          /* Allow the container to shrink on smaller screens */
+    max-width: 1400px;    /* Set a maximum size for the game on large screens */
+    aspect-ratio: 16 / 9; /* Maintain a consistent widescreen shape */
+    max-height: 95vh;     /* Prevent the game from being taller than the screen */
+
+    /* --- Styling --- */
+    border: 2px solid #555;
+    border-radius: 15px;
+    background-color: #0f0c27b6;
+    box-shadow: 0 0 75px rgb(255, 255, 255);
 }
 
 .game-main-title {
