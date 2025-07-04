@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Adorellan Adventures</title><link rel=stylesheet href=AdorellanAdventures.b22c714a.css><body>
+    <div class=game-container>
+        <h1 class=game-main-title>Adorellan Adventures</h1>
+        
+        <div id=titleScreen class="active screen">
+            <img id=gameTitleImage src=title%20icon.1ec73da4.png alt="Adorellan Adventures Title Image"> 
+            <button id=startButton>Start My Adventure</button>
+        </div>
+
+        
+        <div id=characterSelectionScreen class=screen>
+            <h2>Select Your Character</h2>
+            <div class=character-selection-content>
+                <div class=character-options>
+                    <button id=selectMaleButton>Male</button>
+                    <button id=selectFemaleButton>Female</button>
+                    <button id=confirmCharacterButton>Select Character</button>
+                </div>
+                <div id=characterPortraits>
+                    <img id=portrait1 src=01.8143eba8.png alt=Warrior>
+                    <img id=portrait2 src=02.9abab052.png alt=Rogue>
+                    <img id=portrait3 src=03.74c44ef4.png alt=Ranger>
+                    <img id=portrait4 src=04.eb714742.png alt=Bard>
+                    <img id=portrait5 src=05.281ba4ef.png alt=Healer>
+                    <img id=portrait6 src=06.468254fc.png alt=Mage>
+                </div>
+            </div>
+        </div>
+
+        
+        <div id=gameplayScreen class=screen>
+            
+            <div class=background-effect></div>
+
+            
+            <div class=gameplay-left-panel>
+                <div class=text-area>
+                    <div class=output-text-container> 
+                        <div class=output-text id=gameOutput>
+                      
+                        </div>
+                    </div>
+                </div>
+
+            
+            <div class=input-area>
+                <input id=commandInput placeholder="Enter your command..." autofocus>
+            </div>
+            </div>
+
+            
+            <div class=gameplay-center-panel>
+                
+                <div id=monsterDisplayArea class=monster-display-area></div>
+            </div>
+
+            
+            <div class=side-panel>
+                <div id=playerDisplayBox class=character-display-box>
+                    <img id=playerDisplayImage alt="Player Character"> 
+                </div>
+                
+                <div class=stat-bar-container id=healthBarContainer>
+                    <div class=stat-bar-label>Health</div>
+                    <div class=stat-bar-background>
+                        <div class=stat-bar-fill id=healthBarFill></div>
+                        <div class=stat-bar-text id=healthBarText>0 / 0</div>
+                    </div>
+                </div>
+                
+                <div class=stat-bar-container id=experienceBarContainer>
+                    <div class=stat-bar-label>Experience</div>
+                    <div class=stat-bar-background>
+                        <div class=stat-bar-fill id=experienceBarFill></div>
+                        <div class=stat-bar-text id=experienceBarText>0 / 0</div>
+                    </div>
+                </div>
+                <div class=panel-item id=mapButton>
+                    <div class=panel-icon>🗺️</div>
+                    <span>Location</span>
+                </div>
+                <div class=panel-item id=inventoryButton>
+                    <div class=panel-icon>🎒</div>
+                    <span>Inventory</span>
+                </div>
+                <div class=panel-item id=statsButton>
+                    <div class=panel-icon>📊</div>
+                    <span>Stats</span>
+                </div>
+                <div class=panel-item id=helpButton>
+                    <div class=panel-icon>❓</div>
+                    <span>Help</span>
+                </div>
+            </div>
+        </div> 
+    </div>
+
+    
+    <div style=display:none>
+        <img src=07.5caccdc4.png alt>
+        <img src=08.3173c31d.png alt>
+        <img src=09.2aba3bbb.png alt>
+        <img src=10.491fa6a5.png alt>
+        <img src=11.03104cfc.png alt>
+        <img src=12.54f882e7.png alt>
+    </div>
+    <script type=module src=AdorellanAdventures.9bd8c5d3.js></script>
+
