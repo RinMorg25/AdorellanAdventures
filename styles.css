@@ -157,7 +157,6 @@ body {
 /* This is now just a container for the portrait grids */
 .portrait-grid {
     display: none; /* Hide grids by default */
-    display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3 columns of equal flexible width */
     grid-template-rows: repeat(2, auto);   /* 2 rows, height determined by content */
     /* Make gap responsive */
