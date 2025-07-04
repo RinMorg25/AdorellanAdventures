@@ -1,12 +1,14 @@
-function _setupPortraitListeners(portraitImages, archetypeData, statTooltipElement, onPortraitClickCallback) {
-    portraitImages.forEach((imgElement, index) => {
+function _setupPortraitListeners(allPortraitImages, archetypeData, statTooltipElement, onPortraitClickCallback) {
+    allPortraitImages.forEach((imgElement) => {
+        const archetypeIndex = parseInt(imgElement.dataset.index, 10);
+
         imgElement.addEventListener('click', () => {
             // The callback will handle updating selectedArchetypeIndex and visual .selected class
-            onPortraitClickCallback(imgElement, index, portraitImages);
+            onPortraitClickCallback(imgElement);
         });
 
         imgElement.addEventListener('mouseenter', (event) => {
-            const stats = archetypeData[index];
+            const stats = archetypeData[archetypeIndex];
             if (stats) {
                 statTooltipElement.innerHTML = `
                     <strong>${stats.name}</strong><br>
@@ -41,7 +43,7 @@ export function setupPreGameplayEventListeners({
     selectMaleButton,
     selectFemaleButton,
     confirmCharacterButton,
-    portraitImages,
+    allPortraitImages,
     statTooltip,
     // Data
     archetypeData,
@@ -68,7 +70,7 @@ export function setupPreGameplayEventListeners({
     }
 
     _setupPortraitListeners(
-        portraitImages,
+        allPortraitImages,
         archetypeData,
         statTooltip,
         onPortraitClicked

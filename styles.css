@@ -154,18 +154,24 @@ body {
     flex-shrink: 0; /* Prevent button area from shrinking */
 }
 
-#characterPortraits {
+/* This is now just a container for the portrait grids */
+.portrait-grid {
+    display: none; /* Hide grids by default */
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3 columns of equal flexible width */
     grid-template-rows: repeat(2, auto);   /* 2 rows, height determined by content */
     /* Make gap responsive */
     gap: clamp(10px, 2.5vw, 25px); /* Made gap significantly smaller */
-    flex-grow: 1;                           /* Allow portrait area to expand */
-    min-width: 0; /* Important for flex children with grid to prevent overflow */
-    max-width: 550px; /* Further reduced max-width to make portraits smaller */
+    flex-grow: 1;
+    min-width: 0;
+    max-width: 550px;
 }
 
-#characterPortraits img {
+.portrait-grid.active {
+    display: grid; /* Show the active grid */
+}
+
+.portrait-img {
     width: 100%;                            /* Fill the width of the grid cell */
     aspect-ratio: 4 / 5;                    /* Adjust aspect ratio (e.g., 4:5 or 3:4 for portrait). This makes them less square. */
     object-fit: contain;                    /* Show full image, may leave empty space if aspect ratios don't match. */
@@ -173,9 +179,10 @@ body {
     background-color: transparent;
     /* Use a responsive border size that scales with the viewport */
     border: clamp(3px, 0.5vw, 6px) solid gold;
+    cursor: pointer; /* Add cursor to indicate they are clickable */
 }
 
-#characterPortraits img.selected {
+.portrait-img.selected {
     border-color: #00ff00; /* Bright green border for selected portrait */
     box-shadow: 0 0 15px #00ff00; /* Optional: add a glow effect */
 }

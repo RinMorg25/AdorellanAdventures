@@ -7,26 +7,18 @@ import { BattleSystem } from './battle.js';
 import { DisplayManager } from './displayIt.js'; // Import DisplayManager
 import { setupPreGameplayEventListeners, setupGameplayEventListeners } from './eventListeners.js'; // Import event listener setup functions
 
-// --- Vite Glob Import for Dynamic Assets ---
-// This imports all portrait images and makes their resolved URLs available in an object.
-const portraitImageUrls = import.meta.glob('./images/portraits/*.png', { eager: true, as: 'url' });
-
 document.addEventListener('DOMContentLoaded', () => {
     const titleScreen = document.getElementById('titleScreen');
     const startButton = document.getElementById('startButton');
     const characterSelectionScreen = document.getElementById('characterSelectionScreen');
     const selectMaleButton = document.getElementById('selectMaleButton');
     const selectFemaleButton = document.getElementById('selectFemaleButton');
+    const malePortraitsGrid = document.getElementById('malePortraits');
+    const femalePortraitsGrid = document.getElementById('femalePortraits');
+    const allPortraitImages = document.querySelectorAll('.portrait-img');
     const gameplayScreen = document.getElementById('gameplayScreen');
     const confirmCharacterButton = document.getElementById('confirmCharacterButton');
     const commandInput = document.getElementById('commandInput'); // For re-focusing
-
-    // Get portrait image elements
-    const portraitImages = [];
-    for (let i = 1; i <= 6; i++) {
-        const portraitImg = document.getElementById(`portrait${i}`);
-        if (portraitImg) portraitImages.push(portraitImg);
-    }
 
     // Create the tooltip element
     const statTooltip = document.createElement('div');
@@ -228,34 +220,6 @@ function appendText(text) {
         }
     }
 
-    function handleUpdateCharacterPortraits(gender) {
-        // Remove 'selected' class from all portraits first
-        portraitImages.forEach(img => img.classList.remove('selected'));
-
-        portraitImages.forEach((imgElement, index) => {
-            let fileNumber;
-            if (gender.toLowerCase() === 'male') {
-                fileNumber = index + 1;
-            } else { // female
-                fileNumber = index + 7;
-            }
-            const filename = `${fileNumber.toString().padStart(2, '0')}.png`;
-            // Construct the key to look up the pre-imported URL from our glob import.
-            const imageKey = `./images/portraits/${filename}`;
-            // Set the src to the resolved URL provided by Vite.
-            imgElement.src = portraitImageUrls[imageKey];
-            imgElement.alt = archetypeData[index] ? archetypeData[index].name : `${gender} Portrait ${index + 1}`;
-        });
- 
-        // Automatically select the first portrait of the new gender if it exists
-        if (portraitImages.length > 0) {
-            selectedArchetypeIndex = 0; // Select the first one by default for the new gender
-            portraitImages[0].classList.add('selected');
-        } else {
-            selectedArchetypeIndex = null;
-        }
-    }
-
     function handleTransitionToGameplay(characterType) {
         // characterType is the selectedArchetype object
         console.log(characterType.name + " character selected.");
@@ -263,19 +227,14 @@ function appendText(text) {
         if (characterSelectionScreen && gameplayScreen) {
             // Set the player display image on the gameplay screen
             const playerDisplayImgElement = document.getElementById('playerDisplayImage');
-            if (playerDisplayImgElement && selectedCharacterType && selectedArchetypeIndex !== null) {
-                let fileNumber;
-                if (selectedCharacterType.toLowerCase() === 'male') {
-                    fileNumber = selectedArchetypeIndex + 1;
-                } else { // female
-                    fileNumber = selectedArchetypeIndex + 7;
-                }
-                const imageName = `${fileNumber.toString().padStart(2, '0')}.png`;
-                // Construct the key and look up the correct, resolved URL.
-                const imageKey = `./images/portraits/${imageName}`;
-                // Set the src to the resolved URL provided by Vite.
-                playerDisplayImgElement.src = portraitImageUrls[imageKey];
-                playerDisplayImgElement.alt = characterType.name; // Use archetype name for alt text
+            // Find the selected portrait in the active grid
+            const activeGrid = document.querySelector('.portrait-grid.active');
+            const selectedPortrait = activeGrid.querySelector('.portrait-img.selected');
+
+            if (playerDisplayImgElement && selectedPortrait) {
+                // Just copy the src and alt directly! So much simpler.
+                playerDisplayImgElement.src = selectedPortrait.src;
+                playerDisplayImgElement.alt = selectedPortrait.alt;
             }
 
             characterSelectionScreen.classList.remove('active');
@@ -311,12 +270,36 @@ function appendText(text) {
         },
         onGenderSelected: (gender) => {
             selectedCharacterType = gender;
-            handleUpdateCharacterPortraits(gender);
+            // Remove 'selected' from all portraits
+            allPortraitImages.forEach(img => img.classList.remove('selected'));
+
+            if (gender === 'Male') {
+                malePortraitsGrid.classList.add('active');
+                femalePortraitsGrid.classList.remove('active');
+                // Select the first male portrait
+                if (malePortraitsGrid.children.length > 0) {
+                    malePortraitsGrid.children[0].classList.add('selected');
+                    selectedArchetypeIndex = 0;
+                }
+            } else { // Female
+                malePortraitsGrid.classList.remove('active');
+                femalePortraitsGrid.classList.add('active');
+                // Select the first female portrait
+                if (femalePortraitsGrid.children.length > 0) {
+                    femalePortraitsGrid.children[0].classList.add('selected');
+                    selectedArchetypeIndex = 0;
+                }
+            }
         },
-        onPortraitClicked: (clickedImgElement, index, allPortraits) => {
-            allPortraits.forEach(img => img.classList.remove('selected'));
+        onPortraitClicked: (clickedImgElement) => {
+            // Find all portraits in the currently active grid
+            const activeGrid = clickedImgElement.parentElement;
+            const activePortraits = activeGrid.querySelectorAll('.portrait-img');
+
+            activePortraits.forEach(img => img.classList.remove('selected'));
             clickedImgElement.classList.add('selected');
-            selectedArchetypeIndex = index;
+            // Get the index from the data attribute
+            selectedArchetypeIndex = parseInt(clickedImgElement.dataset.index, 10);
         },
         onConfirmCharacterClicked: () => {
             if (selectedArchetypeIndex !== null && archetypeData[selectedArchetypeIndex]) {
@@ -335,13 +318,17 @@ function appendText(text) {
         selectMaleButton,
         selectFemaleButton,
         confirmCharacterButton,
-        portraitImages,
+        allPortraitImages,
         statTooltip,
         archetypeData,
         ...preGameplayCallbacks
     });
 
-    // Initial setup: Render the default (Male) portraits and select the first one.
-    // This ensures the initial image `src` attributes are set by our Vite-aware JS logic.
-    handleUpdateCharacterPortraits('Male');
+    // Initial setup: select the first male portrait by default.
+    // The 'active' class is already on the male grid in the HTML,
+    // so we just need to handle the JS selection state.
+    if (malePortraitsGrid.children.length > 0) {
+        malePortraitsGrid.children[0].classList.add('selected');
+        selectedArchetypeIndex = 0;
+    }
 });
