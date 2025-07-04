@@ -236,11 +236,13 @@ function appendText(text) {
                 fileNumber = index + 7;
             }
             const filename = `${fileNumber.toString().padStart(2, '0')}.png`;
-            // Use a relative path. This is more flexible for hosting in subdirectories.
-            imgElement.src = `images/portraits/${filename}`;
+            // Use `new URL` to ensure Vite correctly bundles and resolves the asset path,
+            // which is crucial for deployments in subdirectories like GitHub Pages.
+            const imageUrl = new URL(`./images/portraits/${filename}`, import.meta.url).href;
+            imgElement.src = imageUrl;
             imgElement.alt = archetypeData[index] ? archetypeData[index].name : `${gender} Portrait ${index + 1}`;
         });
-
+ 
         // Automatically select the first portrait of the new gender if it exists
         if (portraitImages.length > 0) {
             selectedArchetypeIndex = 0; // Select the first one by default for the new gender
@@ -265,8 +267,9 @@ function appendText(text) {
                     fileNumber = selectedArchetypeIndex + 7;
                 }
                 const imageName = `${fileNumber.toString().padStart(2, '0')}.png`;
-                // Use a relative path here as well for consistency.
-                playerDisplayImgElement.src = `images/portraits/${imageName}`;
+                // Use `new URL` to correctly resolve the path for production builds.
+                const imageUrl = new URL(`./images/portraits/${imageName}`, import.meta.url).href;
+                playerDisplayImgElement.src = imageUrl;
                 playerDisplayImgElement.alt = characterType.name; // Use archetype name for alt text
             }
 
