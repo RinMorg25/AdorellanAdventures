@@ -43,7 +43,8 @@ body {
     left: 50%;
     transform: translateX(-50%);
     color: white; /* Or your desired title color */
-    font-size: 2.5em; /* Adjust font size as needed */
+    /* Use clamp for responsive font size: min, preferred (viewport-based), max */
+    font-size: clamp(1.5em, 4vw, 2.5em);
     text-align: center;
     margin: 0; /* Reset default margin */
     padding: 0;
@@ -82,8 +83,9 @@ body {
 
 #titleScreen button#startButton,
 #characterSelectionScreen .character-options button {
-    padding: 15px 30px;
-    font-size: 1.2em; /* Existing font size */
+    /* Make padding and font-size responsive */
+    padding: clamp(10px, 2vh, 15px) clamp(20px, 4vw, 30px);
+    font-size: clamp(1em, 2.5vw, 1.5em);
     cursor: pointer;
     border: none;
     border-radius: 8px;
@@ -130,8 +132,9 @@ body {
     color: white; /* Make text white */
     text-align: center; /* Ensure text is centered */
     width: 100%; /* Take full width for centering */
-    font-size: 2em;
-    margin-bottom: 50px; /* Space below the title */
+    font-size: clamp(1.2em, 3vw, 2em);
+    /* Make margin responsive */
+    margin-bottom: clamp(20px, 5vh, 50px);
 }
 
 /* This div wraps the buttons and portraits for layout */
@@ -141,7 +144,8 @@ body {
     width: 95%;               /* Adjust width as needed, e.g., 90% or 100% */
     max-width: 1100px;        /* Optional: max width for very large screens */
     align-items: flex-start;  /* Align the top of button group and portrait grid */
-    gap: 175px;                /* Space between the button group and the portraits */
+    /* Make gap responsive */
+    gap: clamp(20px, 10vw, 175px);
     /* margin: 0 auto; /* Uncomment to center this whole content block if width is less than 100% */
 }
 
@@ -157,8 +161,9 @@ body {
 #characterPortraits {
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3 columns of equal flexible width */
-    grid-template-rows: repeat(2, auto);    /* 2 rows, height determined by content */
-    gap: 75px;                              /* Reduced space between portrait images */
+    grid-template-rows: repeat(2, auto);   /* 2 rows, height determined by content */
+    /* Make gap responsive */
+    gap: clamp(15px, 5vw, 75px);
     flex-grow: 1;                           /* Allow portrait area to expand */
     min-width: 0; /* Important for flex children with grid to prevent overflow */
     max-width: 700px; /* Add a max-width to control overall size of the grid */
