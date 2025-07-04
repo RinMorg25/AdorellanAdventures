@@ -173,9 +173,10 @@ body {
     width: 100%;                            /* Fill the width of the grid cell */
     aspect-ratio: 4 / 5;                    /* Adjust aspect ratio (e.g., 4:5 or 3:4 for portrait). This makes them less square. */
     object-fit: contain;                    /* Show full image, may leave empty space if aspect ratios don't match. */
-    border-radius: 6px;                     /* Optional: slightly rounded corners for portraits - keep if desired */
-    background-color: transparent;          /* Make background of the image container transparent */
-    border: 6px solid gold; /* Optional: Add a subtle border if you want to see the box outline */
+    border-radius: 6px;
+    background-color: transparent;
+    /* Use a responsive border size that scales with the viewport */
+    border: clamp(3px, 0.5vw, 6px) solid gold;
 }
 
 #characterPortraits img.selected {
