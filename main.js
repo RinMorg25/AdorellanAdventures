@@ -36,12 +36,9 @@ const gameOutput = document.getElementById('gameOutput');
 const outputContainer = document.querySelector('.output-text-container'); // Get the container
 
 function appendText(text) {
-    // Using `appendChild` is more performant than `innerHTML +=` as it avoids
-    // re-parsing the entire container's content on each call.
-    const p = document.createElement('p');
     // Replace all newline characters with <br> tags for proper HTML rendering
-    p.innerHTML = text.replace(/\n/g, '<br>');
-    gameOutput.appendChild(p);
+    const formattedText = text.replace(/\n/g, '<br>');
+    gameOutput.innerHTML += `<p>${formattedText}</p>`; // Append as a paragraph
 
     // After adding text, scroll to the bottom
     outputContainer.scrollTop = outputContainer.scrollHeight; 
@@ -228,19 +225,20 @@ function appendText(text) {
     }
 
     function handleUpdateCharacterPortraits(gender) {
-        const genderLower = gender.toLowerCase();
-        // Path to the gender-specific folder (e.g., 'images/male/')
-        const folderPath = `images/${genderLower}/`;
+        const folderPath = 'images/portraits/';
 
         // Remove 'selected' class from all portraits first
         portraitImages.forEach(img => img.classList.remove('selected'));
 
         portraitImages.forEach((imgElement, index) => {
-            // Assumes filenames like 'male_1.png', 'female_1.png' inside respective folders
-            const filename = `${genderLower}_${index + 1}.png`;
-            // Using the `URL` constructor is the modern, reliable way to ask Parcel
-            // to resolve asset paths, especially when they are constructed dynamically.
-            imgElement.src = new URL(`${folderPath}${filename}`, import.meta.url);
+            let fileNumber;
+            if (gender.toLowerCase() === 'male') {
+                fileNumber = index + 1;
+            } else { // female
+                fileNumber = index + 7;
+            }
+            const filename = `${fileNumber.toString().padStart(2, '0')}.png`;
+            imgElement.src = `${folderPath}${filename}`;
             // Use archetype name for alt text
             imgElement.alt = archetypeData[index] ? archetypeData[index].name : `${gender} Portrait ${index + 1}`;
         });
@@ -262,12 +260,15 @@ function appendText(text) {
             // Set the player display image on the gameplay screen
             const playerDisplayImgElement = document.getElementById('playerDisplayImage');
             if (playerDisplayImgElement && selectedCharacterType && selectedArchetypeIndex !== null) {
-                const genderLower = selectedCharacterType.toLowerCase();
-                // Construct the image path based on selected gender and archetype index
-                const imageName = `${genderLower}_${selectedArchetypeIndex + 1}.png`; // e.g., male_1.png
-                // Using the `URL` constructor ensures Parcel correctly bundles and links the image,
-                // even with a dynamically generated path.
-                playerDisplayImgElement.src = new URL(`images/${genderLower}/${imageName}`, import.meta.url);
+                const folderPath = 'images/portraits/';
+                let fileNumber;
+                if (selectedCharacterType.toLowerCase() === 'male') {
+                    fileNumber = selectedArchetypeIndex + 1;
+                } else { // female
+                    fileNumber = selectedArchetypeIndex + 7;
+                }
+                const imageName = `${fileNumber.toString().padStart(2, '0')}.png`;
+                playerDisplayImgElement.src = `${folderPath}${imageName}`;
                 playerDisplayImgElement.alt = characterType.name; // Use archetype name for alt text
             }
 

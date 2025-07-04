@@ -1,71 +1,42 @@
 export class ActionHandler {
     constructor(gameInstance) {
         this.game = gameInstance; // Provides access to game.player, game.currentRoom, game.battleSystem etc.
+        this.commands = {
+            'go': this._handleMovement,
+            'look': this._handleLook,
+            'inspect': this._handleInspect,
+            'search': this._handleSearch,
+            'take': this._handleTake,
+            'use': this._handleUse,
+            'drop': this._handleDrop,
+            'attack': this._handleBattle,
+            'fight': this._handleBattle,
+            'battle': this._handleBattle,
+            'flee': this._handleFlee,
+            'left': this._handleMovement,
+            'right': this._handleMovement,
+            'forward': this._handleMovement,
+            'back': this._handleMovement,
+            'pick': this._handlePick,
+            'help': this._handleHelp,
+            'play': this._handlePlay,
+            'talk': this._handleTalk,
+            'list': this._handleList,
+            'buy': this._handleBuy,
+        };
     }
 
     processCommand(verb, object) {
-        let response = '';
-
-        switch (verb) {
-            case 'go':
-                response = this._handleMovement(object);
-                break;
-            case 'look':
-                response = this._handleLook(object);
-                break;
-            case 'inspect':
-                response = this._handleInspect(object);
-                break;
-            case 'search':
-                response = this._handleSearch();
-                break;
-            case 'take':
-                response = this._handleTake(object);
-                break;
-            case 'use':
-                response = this._handleUse(object);
-                break;
-            case 'drop':
-                response = this._handleDrop(object);
-                break;
-            case 'attack':
-            case 'fight':
-            case 'battle':
-                response = this._handleBattle(object);
-                break;
-            case 'flee':
-                // This handles 'flee' outside of combat.
-                // Fleeing during combat is handled by BattleSystem.processBattleTurn
-                response = this._handleFlee();
-                break;
-            case 'left':
-            case 'right':
-            case 'forward':
-            case 'back':
-                response = this._handleMovement(verb);
-                break;
-            case 'pick':
-                response = this._handlePick(object);
-                break;
-            case 'help':
-                response = this._handleHelp();
-                break;
-            case 'play':
-                response = this._handlePlay(object);
-                break;
-            case 'talk':
-                response = this._handleTalk(object);
-                break;
-            case 'list':
-                response = this._handleList();
-                break;
-            case 'buy':
-                response = this._handleBuy(object);
-                break;
-            default:
-                response = "I don't understand that command. Try 'help' to see a list of available commands.";
+        const handler = this.commands[verb];
+        if (handler) {
+            // For movement aliases like 'left', 'right', etc., the verb itself is the direction.
+            if (['left', 'right', 'forward', 'back'].includes(verb)) {
+                return handler.call(this, verb);
+            }
+            // For other commands, pass the object/target.
+            return handler.call(this, object);
         }
-        return response;
+        return "I don't understand that command. Try 'help' to see a list of available commands.";
     }
 
     _handleMovement(direction) {
