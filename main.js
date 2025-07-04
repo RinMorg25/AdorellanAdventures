@@ -36,9 +36,12 @@ const gameOutput = document.getElementById('gameOutput');
 const outputContainer = document.querySelector('.output-text-container'); // Get the container
 
 function appendText(text) {
+    // Using `appendChild` is more performant than `innerHTML +=` as it avoids
+    // re-parsing the entire container's content on each call.
+    const p = document.createElement('p');
     // Replace all newline characters with <br> tags for proper HTML rendering
-    const formattedText = text.replace(/\n/g, '<br>');
-    gameOutput.innerHTML += `<p>${formattedText}</p>`; // Append as a paragraph
+    p.innerHTML = text.replace(/\n/g, '<br>');
+    gameOutput.appendChild(p);
 
     // After adding text, scroll to the bottom
     outputContainer.scrollTop = outputContainer.scrollHeight; 

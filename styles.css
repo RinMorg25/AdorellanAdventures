@@ -26,7 +26,7 @@ body {
 
     /* --- Responsive Sizing & Shape --- */
     width: 100%;          /* Allow the container to shrink on smaller screens */
-    max-width: 1400px;    /* Set a maximum size for the game on large screens */
+    max-width: 1150px;    /* Set a maximum size for the game on large screens */
     aspect-ratio: 16 / 9; /* Maintain a consistent widescreen shape */
     max-height: 95vh;     /* Prevent the game from being taller than the screen */
 
@@ -142,10 +142,10 @@ body {
     display: flex;            /* Arrange button group and portrait grid in a row */
     flex-direction: row;
     width: 95%;               /* Adjust width as needed, e.g., 90% or 100% */
-    max-width: 1100px;        /* Optional: max width for very large screens */
+    max-width: 1000px;        /* Reduced max-width to fit smaller container */
     align-items: flex-start;  /* Align the top of button group and portrait grid */
     /* Make gap responsive */
-    gap: clamp(20px, 10vw, 175px);
+    gap: clamp(20px, 8vw, 100px); /* Reduced max gap for better fit */
     /* margin: 0 auto; /* Uncomment to center this whole content block if width is less than 100% */
 }
 
@@ -188,8 +188,10 @@ body {
 #gameplayScreen.active {
     display: flex;          /* Use flexbox to arrange children in a row */
     flex-direction: row;    /* Left panel and side panel side-by-side */
-    justify-content: space-between; /* Distribute space, pushing left and side panels apart */
-    padding: 10px;          /* Add some padding around the gameplay area */
+    align-items: stretch;   /* Make all panels stretch to the container's height */
+    gap: 1.5%;              /* Use percentage for responsive spacing between panels */
+    /* Add padding that accounts for the absolute-positioned title and edges */
+    padding: 70px 2% 2% 2%;
 }
 
 /* Tooltip for character stats */
@@ -209,16 +211,14 @@ body {
 
 /* Styles for the left panel containing text and input areas */
 .gameplay-left-panel {
-    flex-grow: 1; /* Allows this panel to take up available space */
-    height: 600px;
     display: flex;
     flex-direction: column; /* Stack text area and input area vertically */
-    padding: 10px; /* Inner padding for this panel */
-    margin-right: 10px; /* Add some space before the center panel */
-    margin-top: 55px;
+    flex: 1 1 auto;         /* Let this panel grow and shrink to fill remaining space */
+    min-width: 0;           /* Crucial for flex children to shrink properly */
     background-color: rgba(10, 10, 30, 0.7); /* Darker, slightly transparent background */
     border-radius: 8px;
     overflow: hidden; /* Ensures its children don't break its bounds */
+    padding: 10px; /* Inner padding for this panel */
 }
 
 .text-area {
@@ -256,17 +256,15 @@ body {
 
 /* Styles for the new center panel */
 .gameplay-center-panel {
-    width: 350px; /* Adjust width as needed for monster display */
-    height: 400px;
-    flex-shrink: 0; /* Prevent this panel from shrinking */
-    padding: 10px;
-    margin-right: 75px; /* Add some space before the side panel */
-    margin-left: 75px;
-    background-color: rgba(15, 15, 35, 0.7); /* Slightly different background */
-    border-radius: 8px;
-    display: flex; /* For centering content later if needed */
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    flex: 0 0 25%; /* Don't grow, don't shrink, basis of 25% of the container */
+    max-width: 350px; /* But don't get wider than 350px */
+    background-color: rgba(15, 15, 35, 0.7); /* Slightly different background */
+    border-radius: 8px;
+    padding: 10px;
 }
 
 .monster-display-area {
@@ -301,13 +299,13 @@ body {
 }
 
 .side-panel {
-    width: 220px; /* Adjust width as needed */
-    flex-shrink: 0; /* Prevent side panel from shrinking */
-    padding: 15px;
-    background-color: rgba(20, 20, 40, 0.8);
-    border-radius: 8px;
     display: flex;
     flex-direction: column;
+    flex: 0 0 18%; /* Don't grow, don't shrink, basis of 18% of the container */
+    max-width: 220px; /* But don't get wider than 220px */
+    background-color: rgba(20, 20, 40, 0.8);
+    border-radius: 8px;
+    padding: 15px;
     gap: 15px;
 }
 
