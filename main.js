@@ -36,13 +36,25 @@ const gameOutput = document.getElementById('gameOutput');
 const outputContainer = document.querySelector('.output-text-container'); // Get the container
 
 function appendText(text) {
+    // Using `appendChild` is more performant than `innerHTML +=` as it avoids
+    // re-parsing the entire container's content on each call.
+    const p = document.createElement('p');
     // Replace all newline characters with <br> tags for proper HTML rendering
-    const formattedText = text.replace(/\n/g, '<br>');
-    gameOutput.innerHTML += `<p>${formattedText}</p>`; // Append as a paragraph
+    p.innerHTML = text.replace(/\n/g, '<br>');
+    gameOutput.appendChild(p);
 
     // After adding text, scroll to the bottom
     outputContainer.scrollTop = outputContainer.scrollHeight; 
 }
+
+const introText = [
+    "In the shadowed alleys of the local bazaar, amidst discarded trinkets and whispered secrets, you find it: a tattered journal, its leather cover cracked with age. The pages are brittle, stained, and filled with a frantic, faded script. It speaks of a place of legend, Adorellan's most ancient site—the Labyrinth of Lyre.",
+    "The author writes of unimaginable treasure and riches waiting in its depths, but also of a challenge that has broken all who came before. It is a legendary, dangerous place, where the very walls are said to test the sanity of those who walk them.",
+    "Beyond the promise of gold, the journal hints at a greater prize: the chance to uncover lost knowledge and solve a mystery buried for millennia. The final entries are a scrawl of fear and regret, a tale of an expedition lost to the darkness.",
+    "The last legible line is not a plea, but a direct challenge that seems to lift from the page and settle upon you:",
+    "<strong>Will you succeed where they have failed?</strong>",
+    "<em>Type 'venture forth' to begin your adventure, or 'give up' to walk away.</em>"
+];
 
     let gameInstance = null; // To hold the AdventureGame instance
     let selectedCharacterType = 'Male'; // Default to Male as male portraits are shown first
@@ -54,18 +66,16 @@ function appendText(text) {
             this.roomHistory = []; // To track visited rooms for the 'back' command
             this.gameState = 'pre-start'; // Add game state: pre-start, intro, playing, ended
             this.interactionState = null; // For special interactions like RPS door
-            // Potentially use characterType to customize the player
-            this.player = new Character(characterType || 'Player', 100, 10, 5);
-            // If characterType is an archetype object, use its stats
-            if (typeof characterType === 'object' && characterType !== null && characterType.name) {
-                this.player = new Character(
-                    characterType.name,
-                    characterType.health,
-                    characterType.strength, // strength maps to attack
-                    characterType.dexterity, // dexterity maps to defense
-                    25 // Starting gold
-                );
-            }
+
+            // The characterType is always a valid archetype object from the selection screen.
+            // This simplifies player creation and removes redundant code.
+            this.player = new Character(
+                characterType.name,
+                characterType.health,
+                characterType.strength, // strength maps to attack
+                characterType.dexterity, // dexterity maps to defense
+                25 // Starting gold
+            );
             this.battleSystem = new BattleSystem();
             
             // DOM elements guaranteed to exist if gameplayScreen is active
@@ -88,13 +98,7 @@ function appendText(text) {
 
             // Initial message for the game start
             if (this.gameOutput) { // Ensure gameOutput is available
-                // Use appendText for initial messages
-                appendText("In the shadowed alleys of the local bazaar, amidst discarded trinkets and whispered secrets, you find it: a tattered journal, its leather cover cracked with age. The pages are brittle, stained, and filled with a frantic, faded script. It speaks of a place of legend, Adorellan's most ancient site—the Labyrinth of Lyre.");
-                appendText("The author writes of unimaginable treasure and riches waiting in its depths, but also of a challenge that has broken all who came before. It is a legendary, dangerous place, where the very walls are said to test the sanity of those who walk them.");
-                appendText("Beyond the promise of gold, the journal hints at a greater prize: the chance to uncover lost knowledge and solve a mystery buried for millennia. The final entries are a scrawl of fear and regret, a tale of an expedition lost to the darkness.");
-                appendText("The last legible line is not a plea, but a direct challenge that seems to lift from the page and settle upon you:");
-                appendText("<strong>Will you succeed where they have failed?</strong>");
-                appendText("<em>Type 'venture forth' to begin your adventure, or 'give up' to walk away.</em>");
+                introText.forEach(line => appendText(line));
                 this.updateStatusBars(); // Update bars after player is fully initialized
             }
         }
