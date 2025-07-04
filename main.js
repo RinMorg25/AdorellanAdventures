@@ -36,25 +36,13 @@ const gameOutput = document.getElementById('gameOutput');
 const outputContainer = document.querySelector('.output-text-container'); // Get the container
 
 function appendText(text) {
-    // Using `appendChild` is more performant than `innerHTML +=` as it avoids
-    // re-parsing the entire container's content on each call.
-    const p = document.createElement('p');
     // Replace all newline characters with <br> tags for proper HTML rendering
-    p.innerHTML = text.replace(/\n/g, '<br>');
-    gameOutput.appendChild(p);
+    const formattedText = text.replace(/\n/g, '<br>');
+    gameOutput.innerHTML += `<p>${formattedText}</p>`; // Append as a paragraph
 
     // After adding text, scroll to the bottom
     outputContainer.scrollTop = outputContainer.scrollHeight; 
 }
-
-const introText = [
-    "In the shadowed alleys of the local bazaar, amidst discarded trinkets and whispered secrets, you find it: a tattered journal, its leather cover cracked with age. The pages are brittle, stained, and filled with a frantic, faded script. It speaks of a place of legend, Adorellan's most ancient site—the Labyrinth of Lyre.",
-    "The author writes of unimaginable treasure and riches waiting in its depths, but also of a challenge that has broken all who came before. It is a legendary, dangerous place, where the very walls are said to test the sanity of those who walk them.",
-    "Beyond the promise of gold, the journal hints at a greater prize: the chance to uncover lost knowledge and solve a mystery buried for millennia. The final entries are a scrawl of fear and regret, a tale of an expedition lost to the darkness.",
-    "The last legible line is not a plea, but a direct challenge that seems to lift from the page and settle upon you:",
-    "<strong>Will you succeed where they have failed?</strong>",
-    "<em>Type 'venture forth' to begin your adventure, or 'give up' to walk away.</em>"
-];
 
     let gameInstance = null; // To hold the AdventureGame instance
     let selectedCharacterType = 'Male'; // Default to Male as male portraits are shown first
@@ -66,16 +54,18 @@ const introText = [
             this.roomHistory = []; // To track visited rooms for the 'back' command
             this.gameState = 'pre-start'; // Add game state: pre-start, intro, playing, ended
             this.interactionState = null; // For special interactions like RPS door
-
-            // The characterType is always a valid archetype object from the selection screen.
-            // This simplifies player creation and removes redundant code.
-            this.player = new Character(
-                characterType.name,
-                characterType.health,
-                characterType.strength, // strength maps to attack
-                characterType.dexterity, // dexterity maps to defense
-                25 // Starting gold
-            );
+            // Potentially use characterType to customize the player
+            this.player = new Character(characterType || 'Player', 100, 10, 5);
+            // If characterType is an archetype object, use its stats
+            if (typeof characterType === 'object' && characterType !== null && characterType.name) {
+                this.player = new Character(
+                    characterType.name,
+                    characterType.health,
+                    characterType.strength, // strength maps to attack
+                    characterType.dexterity, // dexterity maps to defense
+                    25 // Starting gold
+                );
+            }
             this.battleSystem = new BattleSystem();
             
             // DOM elements guaranteed to exist if gameplayScreen is active
@@ -98,7 +88,13 @@ const introText = [
 
             // Initial message for the game start
             if (this.gameOutput) { // Ensure gameOutput is available
-                introText.forEach(line => appendText(line));
+                // Use appendText for initial messages
+                appendText("In the shadowed alleys of the local bazaar, amidst discarded trinkets and whispered secrets, you find it: a tattered journal, its leather cover cracked with age. The pages are brittle, stained, and filled with a frantic, faded script. It speaks of a place of legend, Adorellan's most ancient site—the Labyrinth of Lyre.");
+                appendText("The author writes of unimaginable treasure and riches waiting in its depths, but also of a challenge that has broken all who came before. It is a legendary, dangerous place, where the very walls are said to test the sanity of those who walk them.");
+                appendText("Beyond the promise of gold, the journal hints at a greater prize: the chance to uncover lost knowledge and solve a mystery buried for millennia. The final entries are a scrawl of fear and regret, a tale of an expedition lost to the darkness.");
+                appendText("The last legible line is not a plea, but a direct challenge that seems to lift from the page and settle upon you:");
+                appendText("<strong>Will you succeed where they have failed?</strong>");
+                appendText("<em>Type 'venture forth' to begin your adventure, or 'give up' to walk away.</em>");
                 this.updateStatusBars(); // Update bars after player is fully initialized
             }
         }
@@ -229,20 +225,19 @@ const introText = [
     }
 
     function handleUpdateCharacterPortraits(gender) {
-        const genderLower = gender.toLowerCase();
-        // Path to the gender-specific folder (e.g., 'images/male/')
-        const folderPath = `images/${genderLower}/`;
-
         // Remove 'selected' class from all portraits first
         portraitImages.forEach(img => img.classList.remove('selected'));
 
         portraitImages.forEach((imgElement, index) => {
-            // Assumes filenames like 'male_1.png', 'female_1.png' inside respective folders
-            const filename = `${genderLower}_${index + 1}.png`;
-            // Using the `URL` constructor is the modern, reliable way to ask Parcel
-            // to resolve asset paths, especially when they are constructed dynamically.
-            imgElement.src = new URL(`${folderPath}${filename}`, import.meta.url);
-            // Use archetype name for alt text
+            let fileNumber;
+            if (gender.toLowerCase() === 'male') {
+                fileNumber = index + 1;
+            } else { // female
+                fileNumber = index + 7;
+            }
+            const filename = `${fileNumber.toString().padStart(2, '0')}.png`;
+            // Use a relative path. This is more flexible for hosting in subdirectories.
+            imgElement.src = `images/portraits/${filename}`;
             imgElement.alt = archetypeData[index] ? archetypeData[index].name : `${gender} Portrait ${index + 1}`;
         });
 
@@ -263,12 +258,15 @@ const introText = [
             // Set the player display image on the gameplay screen
             const playerDisplayImgElement = document.getElementById('playerDisplayImage');
             if (playerDisplayImgElement && selectedCharacterType && selectedArchetypeIndex !== null) {
-                const genderLower = selectedCharacterType.toLowerCase();
-                // Construct the image path based on selected gender and archetype index
-                const imageName = `${genderLower}_${selectedArchetypeIndex + 1}.png`; // e.g., male_1.png
-                // Using the `URL` constructor ensures Parcel correctly bundles and links the image,
-                // even with a dynamically generated path.
-                playerDisplayImgElement.src = new URL(`images/${genderLower}/${imageName}`, import.meta.url);
+                let fileNumber;
+                if (selectedCharacterType.toLowerCase() === 'male') {
+                    fileNumber = selectedArchetypeIndex + 1;
+                } else { // female
+                    fileNumber = selectedArchetypeIndex + 7;
+                }
+                const imageName = `${fileNumber.toString().padStart(2, '0')}.png`;
+                // Use a relative path here as well for consistency.
+                playerDisplayImgElement.src = `images/portraits/${imageName}`;
                 playerDisplayImgElement.alt = characterType.name; // Use archetype name for alt text
             }
 

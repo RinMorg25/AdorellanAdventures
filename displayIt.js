@@ -6,10 +6,15 @@ export class DisplayManager {
 
     displayMap() {
         let mapInfo = "--- Location ---\n\n";
-        mapInfo += `Your current location is the ${this.game.currentRoom.name}\n. `;
+        mapInfo += `Your current location is the ${this.game.currentRoom.name}. `;
         const exits = Object.keys(this.game.currentRoom.exits);
         if (exits.length > 0) {
-            mapInfo += "Exits: " + exits.map(exit => `${exit} to ${this.game.currentRoom.exits[exit].name}`).join(', ') + '\n';
+            const exitDescriptions = exits.map(direction => {
+                const roomName = this.game.currentRoom.exits[direction].name;
+                const isLocked = this.game.currentRoom.lockedExits[direction];
+                return `${direction} to ${roomName}${isLocked ? ' (locked)' : ''}`;
+            });
+            mapInfo += "Exits: " + exitDescriptions.join(', ') + '\n';
         } else {
             mapInfo += "No obvious exits from here.\n";
         }
@@ -31,14 +36,24 @@ export class DisplayManager {
 
     displayStats() {
         const stats = this.game.player.getStats();
-        let statsInfo = "--- Character Stats ---\n\n";
-        statsInfo += `Name: ${stats.name}\n`;
-        statsInfo += `Level: ${stats.level}\n`;
-        statsInfo += `Health: ${stats.health} / ${stats.maxHealth}\n`;
-        statsInfo += `Attack: ${stats.attack}\n`;
-        statsInfo += `Defense: ${stats.defense}\n`;
-        statsInfo += `Experience: ${stats.experience} / ${stats.level * 100}\n`;
-        statsInfo += `Gold: ${stats.gold}\n`;
+        const expForNextLevel = stats.level * 100;
+
+        // Using a map makes the display logic more data-driven and easier to maintain.
+        const statsMap = {
+            'Name': stats.name,
+            'Level': stats.level,
+            'Health': `${stats.health} / ${stats.maxHealth}`,
+            'Attack': stats.attack,
+            'Defense': stats.defense,
+            'Experience': `${stats.experience} / ${expForNextLevel}`,
+            'Gold': stats.gold
+        };
+
+        const statsInfo = "--- Character Stats ---\n\n" + 
+            Object.entries(statsMap)
+                  .map(([label, value]) => `${label}: ${value}`)
+                  .join('\n');
+
         this.appendText(statsInfo);
     }
 }

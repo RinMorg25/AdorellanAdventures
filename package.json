@@ -2,14 +2,13 @@
   "name": "adorellan-adventures",
   "version": "1.0.0",
   "description": "A text-based adventure game.",
-  "source": "index.html",
   "scripts": {
-    "start": "parcel",
-    "build": "parcel build --dist-dir docs --public-url ./"
+    "start": "vite",
+    "build": "vite build --outDir docs --base ./"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "parcel": "^2.12.0"
+    "vite": "latest"
   }
 }

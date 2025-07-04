@@ -25,12 +25,12 @@
                     <button id="confirmCharacterButton">Select Character</button>
                 </div>
                 <div id="characterPortraits">
-                    <img id="portrait1" src="images/male/male_1.png" alt="Warrior">
-                    <img id="portrait2" src="images/male/male_2.png" alt="Rogue">
-                    <img id="portrait3" src="images/male/male_3.png" alt="Ranger">
-                    <img id="portrait4" src="images/male/male_4.png" alt="Bard">
-                    <img id="portrait5" src="images/male/male_5.png" alt="Healer">
-                    <img id="portrait6" src="images/male/male_6.png" alt="Mage">
+                    <img id="portrait1" src="images/portraits/01.png" alt="Warrior">
+                    <img id="portrait2" src="images/portraits/02.png" alt="Rogue">
+                    <img id="portrait3" src="images/portraits/03.png" alt="Ranger">
+                    <img id="portrait4" src="images/portraits/04.png" alt="Bard">
+                    <img id="portrait5" src="images/portraits/05.png" alt="Healer">
+                    <img id="portrait6" src="images/portraits/06.png" alt="Mage">
                 </div>
             </div>
         </div>
@@ -102,6 +102,17 @@
             </div>
         </div> <!-- gameplayScreen -->
     </div>
-    <script type="module" src="main.js"></script>
+
+    <!-- Asset Preloading for Parcel: This hidden div ensures that the bundler
+         detects and includes the female portraits, which are loaded dynamically. -->
+    <div style="display: none;">
+        <img src="images/portraits/07.png" alt="">
+        <img src="images/portraits/08.png" alt="">
+        <img src="images/portraits/09.png" alt="">
+        <img src="images/portraits/10.png" alt="">
+        <img src="images/portraits/11.png" alt="">
+        <img src="images/portraits/12.png" alt="">
+    </div>
+    <script type="module" src="./main.js"></script>
 </body>
 </html>
