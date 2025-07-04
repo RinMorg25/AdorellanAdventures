@@ -7,6 +7,10 @@ import { BattleSystem } from './battle.js';
 import { DisplayManager } from './displayIt.js'; // Import DisplayManager
 import { setupPreGameplayEventListeners, setupGameplayEventListeners } from './eventListeners.js'; // Import event listener setup functions
 
+// --- Vite Glob Import for Dynamic Assets ---
+// This imports all portrait images and makes their resolved URLs available in an object.
+const portraitImageUrls = import.meta.glob('./images/portraits/*.png', { eager: true, as: 'url' });
+
 document.addEventListener('DOMContentLoaded', () => {
     const titleScreen = document.getElementById('titleScreen');
     const startButton = document.getElementById('startButton');
@@ -236,10 +240,10 @@ function appendText(text) {
                 fileNumber = index + 7;
             }
             const filename = `${fileNumber.toString().padStart(2, '0')}.png`;
-            // Use `new URL` to ensure Vite correctly bundles and resolves the asset path,
-            // which is crucial for deployments in subdirectories like GitHub Pages.
-            const imageUrl = new URL(`./images/portraits/${filename}`, import.meta.url).href;
-            imgElement.src = imageUrl;
+            // Construct the key to look up the pre-imported URL from our glob import.
+            const imageKey = `./images/portraits/${filename}`;
+            // Set the src to the resolved URL provided by Vite.
+            imgElement.src = portraitImageUrls[imageKey];
             imgElement.alt = archetypeData[index] ? archetypeData[index].name : `${gender} Portrait ${index + 1}`;
         });
  
@@ -267,9 +271,10 @@ function appendText(text) {
                     fileNumber = selectedArchetypeIndex + 7;
                 }
                 const imageName = `${fileNumber.toString().padStart(2, '0')}.png`;
-                // Use `new URL` to correctly resolve the path for production builds.
-                const imageUrl = new URL(`./images/portraits/${imageName}`, import.meta.url).href;
-                playerDisplayImgElement.src = imageUrl;
+                // Construct the key and look up the correct, resolved URL.
+                const imageKey = `./images/portraits/${imageName}`;
+                // Set the src to the resolved URL provided by Vite.
+                playerDisplayImgElement.src = portraitImageUrls[imageKey];
                 playerDisplayImgElement.alt = characterType.name; // Use archetype name for alt text
             }
 
