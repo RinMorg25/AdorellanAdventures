@@ -1,29 +1,40 @@
 /* Ensure body and html take full viewport height and remove default margin */
 body, html {
     height: 100%;
-    margin: 0;
     font-family: Arial, sans-serif; /* Example font */
-    background-image: url('images/backgroundMap.png'); /* Add this line */
-    background-size: cover; /* Ensures the image covers the whole background */
-    background-repeat: no-repeat; /* Prevents the image from tiling */
-    background-position: center center; /* Centers the image */
+}
+
+/* This rule now handles all body styling, including background and layout */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Make sure the body fills the screen */
+    margin: 0;
+    padding: 1rem;     /* Add some padding so the container doesn't touch the edges */
+    box-sizing: border-box;
+    background-color: #1a1a1a; /* A dark fallback color */
+    background-image: url('images/backgroundMap.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
 .game-container {
-    position: relative; /* Remains crucial for absolute positioning of screens within */
-    /* Adjust width and height to be less than full viewport */
-    width: 98vw; /* Increased width */
-    height: 90vh; /* Example: 90% of viewport height */
-    max-width: 1400px; /* Increased max-width */
-    max-height: 900px; /* Optional: adjusted max height slightly */
-    margin: auto; /* Centers the container on the page */
-    top: 50%; /* Part of the centering trick */
-    transform: translateY(-50%); /* Part of the centering trick */
-    overflow: hidden; /* Prevents scrollbars if content overflows */
-    border: 2px solid #555; /* Solid border */
-    border-radius: 15px; /* Slightly curved corners */
-    background-color: #0f0c27b6; /* Optional: A dark background for the game area, more visible now */
-    box-shadow: 0 0 75px rgb(255, 255, 255); /* Optional: Adds a subtle shadow for depth */
+    position: relative;   /* Crucial for absolute positioning of child screens */
+    overflow: hidden;     /* Prevents scrollbars if content overflows */
+
+    /* --- Responsive Sizing & Shape --- */
+    width: 100%;          /* Allow the container to shrink on smaller screens */
+    max-width: 1400px;    /* Set a maximum size for the game on large screens */
+    aspect-ratio: 16 / 9; /* Maintain a consistent widescreen shape */
+    max-height: 95vh;     /* Prevent the game from being taller than the screen */
+
+    /* --- Styling --- */
+    border: 2px solid #555;
+    border-radius: 15px;
+    background-color: #0f0c27b6;
+    box-shadow: 0 0 75px rgb(255, 255, 255);
 }
 
 .game-main-title {
@@ -32,7 +43,8 @@ body, html {
     left: 50%;
     transform: translateX(-50%);
     color: white; /* Or your desired title color */
-    font-size: 2.5em; /* Adjust font size as needed */
+    /* Use clamp for responsive font size: min, preferred (viewport-based), max */
+    font-size: clamp(1.5em, 4vw, 2.5em);
     text-align: center;
     margin: 0; /* Reset default margin */
     padding: 0;
@@ -71,8 +83,9 @@ body, html {
 
 #titleScreen button#startButton,
 #characterSelectionScreen .character-options button {
-    padding: 15px 30px;
-    font-size: 1.2em; /* Existing font size */
+    /* Make padding and font-size responsive */
+    padding: clamp(10px, 2vh, 15px) clamp(20px, 4vw, 30px);
+    font-size: clamp(1em, 2.5vw, 1.5em);
     cursor: pointer;
     border: none;
     border-radius: 8px;
@@ -119,8 +132,9 @@ body, html {
     color: white; /* Make text white */
     text-align: center; /* Ensure text is centered */
     width: 100%; /* Take full width for centering */
-    font-size: 2em;
-    margin-bottom: 50px; /* Space below the title */
+    font-size: clamp(1.2em, 3vw, 2em);
+    /* Make margin responsive */
+    margin-bottom: clamp(20px, 5vh, 50px);
 }
 
 /* This div wraps the buttons and portraits for layout */
@@ -130,7 +144,8 @@ body, html {
     width: 95%;               /* Adjust width as needed, e.g., 90% or 100% */
     max-width: 1100px;        /* Optional: max width for very large screens */
     align-items: flex-start;  /* Align the top of button group and portrait grid */
-    gap: 175px;                /* Space between the button group and the portraits */
+    /* Make gap responsive */
+    gap: clamp(20px, 10vw, 175px);
     /* margin: 0 auto; /* Uncomment to center this whole content block if width is less than 100% */
 }
 
@@ -146,8 +161,9 @@ body, html {
 #characterPortraits {
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3 columns of equal flexible width */
-    grid-template-rows: repeat(2, auto);    /* 2 rows, height determined by content */
-    gap: 75px;                              /* Reduced space between portrait images */
+    grid-template-rows: repeat(2, auto);   /* 2 rows, height determined by content */
+    /* Make gap responsive */
+    gap: clamp(15px, 5vw, 75px);
     flex-grow: 1;                           /* Allow portrait area to expand */
     min-width: 0; /* Important for flex children with grid to prevent overflow */
     max-width: 700px; /* Add a max-width to control overall size of the grid */
@@ -157,9 +173,10 @@ body, html {
     width: 100%;                            /* Fill the width of the grid cell */
     aspect-ratio: 4 / 5;                    /* Adjust aspect ratio (e.g., 4:5 or 3:4 for portrait). This makes them less square. */
     object-fit: contain;                    /* Show full image, may leave empty space if aspect ratios don't match. */
-    border-radius: 6px;                     /* Optional: slightly rounded corners for portraits - keep if desired */
-    background-color: transparent;          /* Make background of the image container transparent */
-    border: 6px solid gold; /* Optional: Add a subtle border if you want to see the box outline */
+    border-radius: 6px;
+    background-color: transparent;
+    /* Use a responsive border size that scales with the viewport */
+    border: clamp(3px, 0.5vw, 6px) solid gold;
 }
 
 #characterPortraits img.selected {
