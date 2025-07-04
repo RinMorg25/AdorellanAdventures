@@ -341,8 +341,7 @@ function appendText(text) {
         ...preGameplayCallbacks
     });
 
-    // Initial setup: select the first male portrait by default
-    if (portraitImages.length > 0) {
-        portraitImages[0].classList.add('selected');
-    }
+    // Initial setup: Render the default (Male) portraits and select the first one.
+    // This ensures the initial image `src` attributes are set by our Vite-aware JS logic.
+    handleUpdateCharacterPortraits('Male');
 });
