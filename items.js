@@ -23,6 +23,12 @@ export class Item {
                 return this.useKey(player, room);
             case 'potion':
                 return this.usePotion(player, room);
+            case 'leather vest':
+                return this.useLeatherVest(player, room);
+            case 'piece of candy':
+                return this.usePieceOfCandy(player, room);
+            case 'red apple':
+                return this.useRedApple(player, room);
             default:
                 return `You use the ${this.name}, but nothing happens.`;
         }
@@ -50,7 +56,27 @@ export class Item {
         this.isConsumed = true;
         return 'You drink the potion and feel refreshed. Your health is restored!';
     }
-    
+
+    useLeatherVest(player, room) {
+        player.defense += 2;
+        this.isConsumed = true; // The vest is "consumed" to provide a permanent stat boost
+        return 'You put on the leather vest. It feels sturdy. Your defense increases!';
+    }
+
+    usePieceOfCandy(player, room) {
+        const expGained = Math.floor(Math.random() * 20) + 4; // Random experience between 4 and 23
+        player.gainExperience(expGained);
+        this.isConsumed = true;
+        return `You eat the piece of candy. It's surprisingly energizing! You gained ${expGained} experience points.`;
+    }
+
+    useRedApple(player, room) {
+        if (room.name === 'The Vault') {
+            return 'It seems to fit in the hollow of the tree carving on the vault door.';
+        }
+        return "You can't find a use for that here.";
+    }
+
     examine() {
         return this.description;
     }

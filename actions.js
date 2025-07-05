@@ -1,3 +1,5 @@
+import { Item } from './items.js';
+
 export class ActionHandler {
     constructor(gameInstance) {
         this.game = gameInstance; // Provides access to game.player, game.currentRoom, game.battleSystem etc.
@@ -86,6 +88,27 @@ export class ActionHandler {
             return "What do you want to inspect?";
         }
 
+        // Special case for the fruit bowl in The Cabin
+        if (this.game.currentRoom.name === 'The Cabin' && target.toLowerCase() === 'fruit bowl') {
+            const fruitBowl = this.game.currentRoom.items.find(i => i.name.toLowerCase() === 'fruit bowl');
+            if (fruitBowl) {
+                this.game.currentRoom.removeItem(fruitBowl);
+                // The apple is takeable and usable, the other fruits are just for flavor.
+                const apple = new Item('red apple', 'A shiny red apple that emits a faint, warm glow.', true, true);
+                this.game.currentRoom.addItem(apple);
+                return 'you empty the fruit bowl on to the table. It holds 3 peaches, 2 bananas, a bushel of green grapes, 1 kiwi and a red apple that seems to have a faint glow about it.';
+            }
+        }
+
+        // Special case for the cabin in Haven Shield
+        if (this.game.currentRoom.name === 'Haven Shield' && target.toLowerCase() === 'cabin') {
+            // If the forward exit is locked, unlock it upon inspection.
+            if (this.game.currentRoom.lockedExits['forward'] === 'inspect_cabin') {
+                this.game.currentRoom.unlockExit('forward');
+            }
+            return "You approach the rustic cabin. The wooden planks are weathered but sturdy. You notice the door is slightly ajar, inviting you to go forward.";
+        }
+
         const item = this.game.currentRoom.items.find(i => i.name.toLowerCase() === target.toLowerCase());
         if (item) {
             return item.examine(); // Use item.examine() for consistency
@@ -127,14 +150,25 @@ export class ActionHandler {
 
     _handleTake(itemName) {
         const item = this.game.currentRoom.items.find(i => i.name.toLowerCase() === itemName.toLowerCase());
-        if (item && item.canTake) {
-            this.game.player.addItem(item); // Use player's addItem method
-            this.game.currentRoom.removeItem(item);
-            return `You take the ${itemName}.`;
-        } else if (item) {
-            return `You cannot take the ${itemName}.`;
+
+        if (!item) {
+            return `There is no ${itemName} here.`;
         }
-        return `There is no ${itemName} here.`;
+
+        if (!item.canTake) {
+            return "You cannot take that item";
+        }
+
+        // Special handling for gold coins to be added directly to player's gold
+        if (item.name.toLowerCase() === 'gold coins') {
+            this.game.player.gold += 2; // The item's description implies 2 gold coins
+            this.game.currentRoom.removeItem(item);
+            return `You take the 2 gold coins and add them to your pouch. You now have ${this.game.player.gold} gold.`;
+        }
+
+        this.game.player.addItem(item); // Use player's addItem method
+        this.game.currentRoom.removeItem(item);
+        return `You take the ${itemName}.`;
     }
 
     _handleUse(itemName) {

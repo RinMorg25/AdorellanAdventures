@@ -54,7 +54,7 @@ export class Room {
         let baseDesc = this.description;
 
         // Dynamic description for the Vault based on player inventory
-        if (this.name === 'The Vault' && player && player.hasItem('red key') && player.hasItem('blue key')) {
+        if (this.name === 'The Vault' && player && player.hasItem('red apple') && player.hasItem('blue key')) {
             baseDesc = 'A massive, circular iron door dominates one wall of this room. It is sealed shut with no obvious handle or lock. Finely etched into its surface is the depiction of a great tree, its branches heavy with what look like round fruit. A small, empty nest is tucked among the boughs, and a dark, fist-sized hollow is visible in the trunk. The entire etching now emits a strong pulse, almost like a heartbeat, bathing the room in a rhythmic purple glow.';
         }
 
@@ -136,13 +136,14 @@ export function createWorld() {
         'temple': { name: 'The Forgotten Temple', description: 'An eerie silence hangs in this grand temple. Faded murals on the walls depict forgotten gods.' },
         'safezone': { name: 'Haven Shield', description: 'The narrow corridor opens into a breathtaking, sun-dappled glade that feels entirely separate from the labyrinth. The walls are lined with ancient, towering trees, their leaves forming a dense canopy overhead. In the center of the glade is a serene, crystal-clear lake. On the far side of the lake stands a single, rustic-looking cabin. There are signs of others who have made it this far: the remnants of abandoned campfires and a discarded waterskin near the cabin\'s entrance.' },
         'grebs': { name: 'Greb\'s Grotto', description: 'This small, surprisingly cozy cavern is a chaotic mess of discarded adventuring gear. Piles of dented helmets, mismatched boots, and chipped shields are stacked against the walls. A small, friendly-looking red imp with large, curious eyes tends to a makeshift counter made from a large, flat rock. He seems to be sorting through a pile of rusty keys.' },
-        'scriptorium': { name: 'The Scriptorium', description: 'Rotting shelves filled with decaying books and scrolls line the walls. The air is thick with the smell of dust and old paper.' },
+        'scriptorium': { name: 'The Scriptorium', description: 'You enter a large, almost grand chamber that feels like a sanctuary of knowledge. The walls are lined from floor to ceiling with towering shelves, heavy with ancient books, leather-bound tomes, and countless scrolls. In the center of the room, a large, imposing, writing desk stands beside a shorter shelf stacked high with fresh parchments and pots of ink. The air is still, carrying the faint scent of old paper and wax. Flickering lamps mounted on the walls cast a warm, dancing light across the room, making the shadows themselves seem to hold forgotten secrets.' },
         'chamber': { name: 'The Mercurial Den', description: 'A vast, circular chamber where the walls shimmer with thousands of luminescent crystals, casting a beautiful, eerie light.' },
         'grottoHallway': { name: 'Cluttered Passageway', description: 'A short passageway littered with discarded items - a broken lantern, a tattered cloak, and other adventuring debris. It seems to be a well-traveled route.' },
         'bendyHallway': { name: 'Winding Corridor', description: 'A long, winding corridor that bends out of sight. The air feels strangely calm and quiet here.' },
         'rockCrevice': { name: 'Rock Crevice', description: 'A narrow crevice in the rock face, almost hidden by overgrown vines. It looks like a tight squeeze.' },
         'hiddenCavern': { name: 'Hidden Cavern', description: 'The crevice opens into a small, damp cavern. A crude, heavy wooden door is set into the far wall.' },
-        'windingPassage': { name: 'Winding Passage', description: 'Beyond the door is a long, winding passage carved from the rock. It slopes gently downwards and ends at another door, which looks like it can only be opened from this side.' }
+        'windingPassage': { name: 'Winding Passage', description: 'Beyond the door is a long, winding passage carved from the rock. It slopes gently downwards and ends at another door, which looks like it can only be opened from this side.' },
+        'cabin': { name: 'The Cabin', description: 'The interior of the cabin is a single, cluttered room. Pots and pans hang from the low ceiling, and shelves are crammed with a mix of food supplies—some look recently gathered, while others are long past their prime, hinting at a hurried or inconsistent inhabitant. A small fireplace sits to the left as you enter, with a small space cleared before it, A likely place where past adventurers have slept in safety and warmth.\n\nA small wooden table with two chairs sits in the center of the room; a leather vest is slung carelessly over the back of one. A wall cabinet with a door hanging precariously from a single hinge reveals a surprisingly well-stocked fruit bowl. In the sink, a glint of something colorful inside a glass catches your eye.' }
     };
 
     const connectionData = [
@@ -171,6 +172,7 @@ export function createWorld() {
         { from: 'grottoHallway', to: 'grebs', direction: 'forward', returnDirection: 'back' },
         { from: 'chamber', to: 'bendyHallway', direction: 'right', returnDirection: 'back' },
         { from: 'bendyHallway', to: 'safezone', direction: 'forward', returnDirection: 'back' },
+        { from: 'safezone', to: 'cabin', direction: 'forward', returnDirection: 'back', locked: 'inspect_cabin' },
         // New one-way path from Haven Shield to the Temple
         { from: 'safezone', to: 'rockCrevice', direction: 'right', returnDirection: 'back' },
         { from: 'rockCrevice', to: 'hiddenCavern', direction: 'forward', returnDirection: 'back' },
@@ -184,9 +186,14 @@ export function createWorld() {
         'clinkers': [new Item('sword', 'An ancient sword with mysterious runes etched into the blade.', true)],
         'armouryHallway': [new Item('lockpick', 'A set of lock picks, half-hidden under some debris. Useful for opening locked doors.', true)],
         'market': [new Item('potion', 'A healing potion, left behind on a stall.', true)], // Added a reward for getting into the market
-        'scriptorium': [new Item('red key', 'A key crafted from a single piece of ruby, warm to the touch.', true)],
         'grottoHallway': [new Item('potion', 'A healing potion, dropped carelessly on the floor.', true)],
-        'safezone': [new Item('waterskin', 'A discarded waterskin, still half-full of clean water.', true)]
+        'safezone': [new Item('waterskin', 'A discarded waterskin, still half-full of clean water.', true)],
+        'cabin': [
+            new Item('leather vest', 'A simple vest made of hardened leather.', true),
+            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper.', true),
+            new Item('fruit bowl', 'A well-stocked fruit bowl. It looks delicious.', false),
+            new Item('gold coins', 'Two shiny gold coins.', true, false)
+        ]
     };
 
 
