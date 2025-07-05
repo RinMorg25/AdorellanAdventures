@@ -58,9 +58,10 @@ export class ActionHandler {
             }
         }
 
-        // Handle all other directions
         const exit = this.game.currentRoom.getExit(direction);
         if (exit) {
+            const previousRoom = this.game.currentRoom;
+
             // CRITICAL: Check if the exit is locked before moving
             if (this.game.currentRoom.lockedExits[direction]) {
                 return "That way is locked.";
@@ -69,6 +70,22 @@ export class ActionHandler {
             // Add the current room to history before moving
             this.game.roomHistory.push(this.game.currentRoom);
             this.game.currentRoom = exit;
+
+            // --- Dynamic Exit Logic ---
+            // When entering the Temple from the Winding Passage, set new exits.
+            if (this.game.currentRoom.name === 'The Forgotten Temple' && previousRoom.name === 'Winding Passage') {
+                const temple = this.game.currentRoom;
+                const market = this.game.worldMap['market'];
+                const scriptorium = this.game.worldMap['scriptorium'];
+
+                // Clear existing exits and set new ones
+                temple.exits = {};
+                temple.lockedExits = {};
+                temple.setExit('left', market);
+                temple.setExit('right', scriptorium);
+                temple.setLockedExit('back', previousRoom, true); // Lock the way back
+            }
+
             return `You move ${direction}.\n\n${this.game.currentRoom.getDescription(this.game.player)}`;
         }
         return `You cannot go ${direction} from here.`;

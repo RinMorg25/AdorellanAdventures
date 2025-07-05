@@ -259,5 +259,8 @@ export function createWorld() {
     }
 
     // --- 3. Return the Starting Room ---
-    return rooms['entrance'];
+    return {
+        startRoom: rooms['entrance'],
+        rooms: rooms
+    };
 }

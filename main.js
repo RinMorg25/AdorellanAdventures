@@ -47,6 +47,7 @@ function appendText(text) {
     class AdventureGame {
         constructor(characterType) { // Accept characterType if needed for player setup
             this.currentRoom = null;
+            this.worldMap = {}; // To store all rooms by ID
             this.roomHistory = []; // To track visited rooms for the 'back' command
             this.gameState = 'pre-start'; // Add game state: pre-start, intro, playing, ended
             this.interactionState = null; // For special interactions like RPS door
@@ -79,7 +80,9 @@ function appendText(text) {
         }
         
         initializeGame() {
-            this.currentRoom = createWorld(); // Initialize the world and get the starting room
+            const world = createWorld();
+            this.worldMap = world.rooms;
+            this.currentRoom = world.startRoom;
             this.gameState = 'intro'; // Set state to intro
 
             // Initial message for the game start
