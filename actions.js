@@ -3,6 +3,25 @@ import { Item } from './items.js';
 export class ActionHandler {
     constructor(gameInstance) {
         this.game = gameInstance; // Provides access to game.player, game.currentRoom, game.battleSystem etc.
+        this.mercurialDenStates = [
+            {
+                description: 'You seem to be stood in the centre of a small island of calm. Here, an armchair, a side table, and a lamp rest on a worn rug, creating a single point of order in a room that has otherwise exploded into a chaos of costumes. Gowns, glittering jewellery, feather boas, and masks are strewn everywhere, spilling from wardrobes and covering every available surface in a colourful, cluttered mess.',
+                items: () => [
+                    new Item('coin purse', 'A small, heavy leather purse.', false, false),
+                    new Item('blue feather hand fan', 'An elegant hand fan made with large, deep blue feathers.', false, false),
+                    new Item('medium health potion', 'A vial containing a swirling, red liquid.', true, true),
+                    new Item('piece of candy', 'A piece of candy in a blue and purple wrapper.', true, true)
+                ]
+            },
+            {
+                description: 'This is the second state of the Mercurial Den. The air is cold.',
+                items: () => [new Item('singing stone', 'A smooth, grey stone that vibrates gently.', true, true)]
+            },
+            {
+                description: 'This is the third state of the Mercurial Den. It is unnervingly silent and empty.',
+                items: () => []
+            }
+        ];
         this.commands = {
             'go': this._handleMovement,
             'look': this._handleLook,
@@ -41,24 +60,27 @@ export class ActionHandler {
         return "I don't understand that command. Try 'help' to see a list of available commands.";
     }
 
-    _handleMovement(direction) {
-        // --- Mercurial Den Logic ---
-        // If in the Mercurial Den and the crystal has been taken, movement is unpredictable.
-        if (this.game.currentRoom.name === 'The Mercurial Den' && this.game.gameStateFlags.mercurialDenActive) {
-            const possibleDestinations = ['courtyard', 'bunkers', 'market', 'temple', 'safezone'];
-            const randomIndex = Math.floor(Math.random() * possibleDestinations.length);
-            const destinationId = possibleDestinations[randomIndex];
-            const destinationRoom = this.game.worldMap[destinationId];
-
-            if (destinationRoom) {
-                this.game.roomHistory.push(this.game.currentRoom); // Still track history
-                this.game.currentRoom = destinationRoom;
-                return `The moment you try to move, the crystals on the walls pulse violently. The world dissolves into a swirl of light and color, and you find yourself in a new location, completely disoriented.\n\n${this.game.currentRoom.getDescription(this.game.player)}`;
-            }
-            // Fallback in case the destination room doesn't exist for some reason
-            return "The crystals flare, but nothing happens. You remain in the Mercurial Den.";
+    _changeMercurialDen() {
+        const den = this.game.worldMap['chamber']; // 'chamber' is the ID for Mercurial Den
+        if (!this.game.gameStateFlags.hasOwnProperty('mercurialDenStateIndex')) {
+            // This is set when the crystal is first taken.
+            this.game.gameStateFlags.mercurialDenStateIndex = 0;
         }
 
+        const currentStateIndex = this.game.gameStateFlags.mercurialDenStateIndex;
+        const newState = this.mercurialDenStates[currentStateIndex];
+
+        // Update room description and items
+        // The name stays the same, so the player knows they are in the Mercurial Den.
+        den.description = newState.description;
+        den.items = []; // Clear old items
+        newState.items().forEach(item => den.addItem(item)); // Use function to get new instances
+
+        // Cycle to the next state for the next visit
+        this.game.gameStateFlags.mercurialDenStateIndex = (currentStateIndex + 1) % this.mercurialDenStates.length;
+    }
+
+    _handleMovement(direction) {
         const allowedDirections = ['forward', 'back', 'left', 'right'];
         if (!allowedDirections.includes(direction)) {
             return `You can only move in these directions: forward, back, left, right.`;
@@ -87,6 +109,12 @@ export class ActionHandler {
             // Add the current room to history before moving
             this.game.roomHistory.push(this.game.currentRoom);
             this.game.currentRoom = exit;
+
+            // --- Mercurial Den Change Logic ---
+            // When entering the Mercurial Den after taking the crystal, change its state.
+            if (this.game.currentRoom.name === 'The Mercurial Den' && this.game.gameStateFlags.mercurialDenActive) {
+                this._changeMercurialDen();
+            }
 
             // --- Dynamic Exit Logic ---
             // When entering the Temple from the Winding Passage, set new exits.
@@ -120,6 +148,26 @@ export class ActionHandler {
     _handleInspect(target) {
         if (!target) {
             return "What do you want to inspect?";
+        }
+
+        if (this.game.currentRoom.name === 'The Mercurial Den') {
+            if (target.toLowerCase() === 'coin purse') {
+                const purse = this.game.currentRoom.items.find(i => i.name.toLowerCase() === 'coin purse');
+                if (purse) {
+                    this.game.currentRoom.removeItem(purse);
+                    this.game.currentRoom.addItem(new Item('4 gold coins', 'A small pile of four gold coins.', true, false));
+                    return 'You open the purse and find four gold coins inside.';
+                }
+            }
+            if (target.toLowerCase() === 'blue feather hand fan') {
+                const fan = this.game.currentRoom.items.find(i => i.name.toLowerCase() === 'blue feather hand fan');
+                if (fan) {
+                    this.game.currentRoom.removeItem(fan);
+                    // The blue feather acts as the new blue key
+                    this.game.currentRoom.addItem(new Item('blue feather', 'A single, large feather that seems to have a faint blue glow about it. It feels strangely sturdy.', true, true));
+                    return "You pick up the hand fan for a closer look. As you handle it, one of the feathers comes loose and falls onto the chair. It seems to have a faint blue glow about it. The rest of the fan feels mundane.";
+                }
+            }
         }
 
         // Special case for the fruit bowl in The Cabin
@@ -194,8 +242,10 @@ export class ActionHandler {
             this.game.player.addItem(item);
             this.game.currentRoom.removeItem(item);
             this.game.gameStateFlags.mercurialDenActive = true;
-            // This message hints at the new room behavior
-            return `You take the glowing crystal. As your fingers touch it, the air in the chamber hums and the other crystals on the walls flare with a blinding light. You feel a strange, disorienting energy wash over you.`;
+            // Initialize the state index for the den changes.
+            this.game.gameStateFlags.mercurialDenStateIndex = 0;
+            // This message hints at the new room behavior.
+            return `You take the glowing crystal. As your fingers touch it, the air in the chamber hums and the other crystals on the walls flare with a blinding light. You feel a strange, disorienting energy wash over you. The room seems to settle, but you have a feeling it will not remain the same.`;
         }
 
         if (!item.canTake) {
@@ -207,6 +257,13 @@ export class ActionHandler {
             this.game.player.gold += 2; // The item's description implies 2 gold coins
             this.game.currentRoom.removeItem(item);
             return `You take the 2 gold coins and add them to your pouch. You now have ${this.game.player.gold} gold.`;
+        }
+
+        // Special handling for the 4 gold coins from the coin purse
+        if (item.name.toLowerCase() === '4 gold coins') {
+            this.game.player.gold += 4;
+            this.game.currentRoom.removeItem(item);
+            return `You take the 4 gold coins and add them to your pouch. You now have ${this.game.player.gold} gold.`;
         }
 
         this.game.player.addItem(item); // Use player's addItem method

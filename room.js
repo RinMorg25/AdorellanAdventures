@@ -54,7 +54,7 @@ export class Room {
         let baseDesc = this.description;
 
         // Dynamic description for the Vault based on player inventory
-        if (this.name === 'The Vault' && player && player.hasItem('red apple') && player.hasItem('blue key')) {
+        if (this.name === 'The Vault' && player && player.hasItem('red apple') && player.hasItem('blue feather')) {
             baseDesc = 'A massive, circular iron door dominates one wall of this room. It is sealed shut with no obvious handle or lock. Finely etched into its surface is the depiction of a great tree, its branches heavy with what look like round fruit. A small, empty nest is tucked among the boughs, and a dark, fist-sized hollow is visible in the trunk. The entire etching now emits a strong pulse, almost like a heartbeat, bathing the room in a rhythmic purple glow.';
         }
 
@@ -211,7 +211,6 @@ export function createWorld() {
             'shop': ["Everything here is for sale, friend! If you've got the coin, I've got the... well, the 'stuff'!", "Just 'list' what I've got, or 'buy [item name]' if you see something you fancy!"]
         },
         [ // Shop Inventory
-            { item: new Item('blue key', 'A key made of sapphire, cool and smooth in your hand.', true), price: 25 },
             { item: new Item('skeleton key', 'A key made from bone, said to open any locked chest.', true), price: 50 },
             { item: new Item('potion', 'A healing potion, brewed by Grebgela himself. Smells faintly of swamp water.', true), price: 15 }
         ])],

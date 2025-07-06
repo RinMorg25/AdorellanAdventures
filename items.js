@@ -29,6 +29,10 @@ export class Item {
                 return this.usePieceOfCandy(player, room);
             case 'red apple':
                 return this.useRedApple(player, room);
+            case 'medium health potion':
+                return this.useMediumHealthPotion(player, room);
+            case 'blue feather':
+                return this.useBlueFeather(player, room);
             default:
                 return `You use the ${this.name}, but nothing happens.`;
         }
@@ -73,6 +77,22 @@ export class Item {
     useRedApple(player, room) {
         if (room.name === 'The Vault') {
             return 'It seems to fit in the hollow of the tree carving on the vault door.';
+        }
+        return "You can't find a use for that here.";
+    }
+
+    useMediumHealthPotion(player, room) {
+        const healthGained = Math.floor(Math.random() * (25 - 18 + 1)) + 18; // Random health between 18 and 25
+        player.heal(healthGained);
+        this.isConsumed = true;
+        return `You drink the medium health potion and feel a surge of vitality. You recovered ${healthGained} health points.`;
+    }
+
+    useBlueFeather(player, room) {
+        // The user said this is the "new blue key". It's a key item for the vault.
+        // The actual unlock logic is likely handled by checking player inventory in the vault room description or a special command.
+        if (room.name === 'The Vault') {
+            return 'The feather seems to resonate with the empty nest carving on the vault door.';
         }
         return "You can't find a use for that here.";
     }
