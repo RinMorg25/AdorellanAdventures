@@ -42,6 +42,23 @@ export class ActionHandler {
     }
 
     _handleMovement(direction) {
+        // --- Mercurial Den Logic ---
+        // If in the Mercurial Den and the crystal has been taken, movement is unpredictable.
+        if (this.game.currentRoom.name === 'The Mercurial Den' && this.game.gameStateFlags.mercurialDenActive) {
+            const possibleDestinations = ['courtyard', 'bunkers', 'market', 'temple', 'safezone'];
+            const randomIndex = Math.floor(Math.random() * possibleDestinations.length);
+            const destinationId = possibleDestinations[randomIndex];
+            const destinationRoom = this.game.worldMap[destinationId];
+
+            if (destinationRoom) {
+                this.game.roomHistory.push(this.game.currentRoom); // Still track history
+                this.game.currentRoom = destinationRoom;
+                return `The moment you try to move, the crystals on the walls pulse violently. The world dissolves into a swirl of light and color, and you find yourself in a new location, completely disoriented.\n\n${this.game.currentRoom.getDescription(this.game.player)}`;
+            }
+            // Fallback in case the destination room doesn't exist for some reason
+            return "The crystals flare, but nothing happens. You remain in the Mercurial Den.";
+        }
+
         const allowedDirections = ['forward', 'back', 'left', 'right'];
         if (!allowedDirections.includes(direction)) {
             return `You can only move in these directions: forward, back, left, right.`;
@@ -170,6 +187,15 @@ export class ActionHandler {
 
         if (!item) {
             return `There is no ${itemName} here.`;
+        }
+
+        // --- Special trigger for the crystal in The Mercurial Den ---
+        if (item.name.toLowerCase() === 'crystal' && this.game.currentRoom.name === 'The Mercurial Den') {
+            this.game.player.addItem(item);
+            this.game.currentRoom.removeItem(item);
+            this.game.gameStateFlags.mercurialDenActive = true;
+            // This message hints at the new room behavior
+            return `You take the glowing crystal. As your fingers touch it, the air in the chamber hums and the other crystals on the walls flare with a blinding light. You feel a strange, disorienting energy wash over you.`;
         }
 
         if (!item.canTake) {

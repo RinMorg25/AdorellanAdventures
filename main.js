@@ -51,6 +51,7 @@ function appendText(text) {
             this.roomHistory = []; // To track visited rooms for the 'back' command
             this.gameState = 'pre-start'; // Add game state: pre-start, intro, playing, ended
             this.interactionState = null; // For special interactions like RPS door
+            this.gameStateFlags = {}; // For tracking special world states
             // Potentially use characterType to customize the player
             this.player = new Character(characterType || 'Player', 100, 10, 5);
             // If characterType is an archetype object, use its stats
