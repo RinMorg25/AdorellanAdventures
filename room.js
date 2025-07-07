@@ -144,7 +144,8 @@ export function createWorld() {
         'hiddenCavern': { name: 'Hidden Cavern', description: 'The crevice opens into a small, damp cavern. A crude, heavy wooden door is set into the far wall.' },
         'windingPassage': { name: 'Winding Passage', description: 'Beyond the door is a long, winding passage carved from the rock. It slopes gently downwards and ends at another door, which looks like it can only be opened from this side.' },
         'cabin': { name: 'The Cabin', description: 'The interior of the cabin is a single, cluttered room. Pots and pans hang from the low ceiling, and shelves are crammed with a mix of food supplies—some look recently gathered, while others are long past their prime, hinting at a hurried or inconsistent inhabitant. A small fireplace sits to the left as you enter, with a small space cleared before it, A likely place where past adventurers have slept in safety and warmth.\n\nA small wooden table with two chairs sits in the center of the room; a leather vest is slung carelessly over the back of one. A wall cabinet with a door hanging precariously from a single hinge reveals a surprisingly well-stocked fruit bowl. In the sink, a glint of something colorful inside a glass catches your eye.' }
-    };
+    ,
+'treasureRoom': { name: 'The Treasure Room', description: 'The room is filled with glittering piles of gold, ancient artifacts, and chests overflowing with jewels. You have found the legendary treasure of the Labyrinth of Lyre!' }};
 
     const connectionData = [
         { from: 'entrance', to: 'courtyard', direction: 'forward', returnDirection: 'back' },
@@ -164,6 +165,7 @@ export function createWorld() {
         // Path from the Market to the Vault
         { from: 'market', to: 'vaultHallway', direction: 'right', returnDirection: 'back' },
         { from: 'vaultHallway', to: 'vault', direction: 'forward', returnDirection: 'back' },
+        { from: 'vault', to: 'treasureRoom', direction: 'forward', returnDirection: 'back', locked: 'vault_puzzle' },
         // Path from the Market to the Bunkers (via a locked door from Bunkers)
         { from: 'market', to: 'zHallway', direction: 'left', returnDirection: 'back' },
         { from: 'bunkers', to: 'zHallway', direction: 'forward', returnDirection: 'back', locked: true, twoWayLock: true },
