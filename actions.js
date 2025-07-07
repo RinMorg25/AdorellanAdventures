@@ -83,40 +83,24 @@ export class ActionHandler {
     }
 
     _changeMercurialDen() {
-        const den = this.game.worldMap['chamber']; // 'chamber' is the ID for Mercurial Den
-        if (!this.game.gameStateFlags.hasOwnProperty('mercurialDenStateIndex')) {
-            // This is set when the crystal is first taken.
-            this.game.gameStateFlags.mercurialDenStateIndex = 0;
-        }
+        const den = this.game.worldMap['chamber'];
+        const numStates = this.mercurialDenStates.length;
+        if (numStates <= 1) return; // Cannot change state if there's only one or zero states.
 
         const currentStateIndex = this.game.gameStateFlags.mercurialDenStateIndex;
-        const newState = this.mercurialDenStates[currentStateIndex];
+
+        let newStateIndex;
+        do {
+            newStateIndex = Math.floor(Math.random() * numStates);
+        } while (newStateIndex === currentStateIndex); // Ensure the new state is different
+
+        this.game.gameStateFlags.mercurialDenStateIndex = newStateIndex;
+        const newState = this.mercurialDenStates[newStateIndex];
 
         // Update room description and items
-        // The name stays the same, so the player knows they are in the Mercurial Den.
         den.description = newState.description;
         den.items = []; // Clear old items
         newState.items().forEach(item => den.addItem(item)); // Use function to get new instances
-
-        // Cycle to the next state for the next visit
-        this.game.gameStateFlags.mercurialDenStateIndex = (currentStateIndex + 1) % this.mercurialDenStates.length;
-    }
-
-    _resetMercurialDen() {
-        const den = this.game.worldMap['chamber'];
-        // This is the original description from room.js
-        den.description = 'A vast, circular chamber where the walls shimmer with thousands of luminescent crystals, casting a beautiful, eerie light.';
-        den.items = []; // Clear any items from other states.
-
-        // The crystal should only be present if the player hasn't taken it yet.
-        // The mercurialDenActive flag is a good proxy for this.
-        if (!this.game.gameStateFlags.mercurialDenActive) {
-            den.addItem(new Item('crystal', 'A glowing blue crystal that pulses with mystical energy.', true));
-        }
-
-        // Also reset the state index so the next random change isn't predictable.
-        // Using -1 ensures that any random state (from 0 to n-1) can be picked next.
-        this.game.gameStateFlags.mercurialDenStateIndex = -1;
     }
 
     _handleMovement(direction) {
@@ -157,29 +141,9 @@ export class ActionHandler {
         // --- Post-movement triggers ---
 
         const isEnteringMercurialDen = this.game.currentRoom.name === 'The Mercurial Den';
-
-        if (isEnteringMercurialDen) {
-            const cameFromBendyHallway = previousRoom.name === 'Winding Corridor';
-            const cameFromClutteredPassageway = previousRoom.name === 'Cluttered Passageway';
-
-            if (cameFromClutteredPassageway) {
-                // Always reset the den to its original state from this path.
-                this._resetMercurialDen();
-            } else if (cameFromBendyHallway) {
-                // Initialize the counter if it doesn't exist.
-                if (!this.game.gameStateFlags.hasOwnProperty('bendyHallwayReturnCount')) {
-                    this.game.gameStateFlags.bendyHallwayReturnCount = 0;
-                }
-                this.game.gameStateFlags.bendyHallwayReturnCount++;
-
-                // Change the den only on even-numbered returns (2nd, 4th, etc.).
-                if (this.game.gameStateFlags.bendyHallwayReturnCount % 2 === 0 && this.game.gameStateFlags.mercurialDenActive) {
-                    this._changeMercurialDen();
-                }
-            } else if (this.game.gameStateFlags.mercurialDenActive) {
-                // This handles all other entrances (e.g., from the Scriptorium) to change every time.
-                this._changeMercurialDen();
-            }
+        // If the den has been activated (crystal taken), it should change state upon entry.
+        if (isEnteringMercurialDen && this.game.gameStateFlags.mercurialDenActive) {
+            this._changeMercurialDen();
         }
 
         // Dynamic Exit Logic for Forgotten Temple
@@ -306,8 +270,8 @@ export class ActionHandler {
             this.game.player.addItem(item);
             this.game.currentRoom.removeItem(item);
             this.game.gameStateFlags.mercurialDenActive = true;
-            // Initialize the state index for the den changes.
-            this.game.gameStateFlags.mercurialDenStateIndex = 0;
+            // Set state index to -1 so the first change can be to any state.
+            this.game.gameStateFlags.mercurialDenStateIndex = -1;
             // This message hints at the new room behavior.
             return `You take the glowing crystal. As your fingers touch it, the air in the chamber hums and the other crystals on the walls flare with a blinding light. You feel a strange, disorienting energy wash over you. The room seems to settle, but you have a feeling it will not remain the same.`;
         }
