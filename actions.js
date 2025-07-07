@@ -64,9 +64,6 @@ export class ActionHandler {
             'list': this._handleList,
             'buy': this._handleBuy,
         };
-        // Add aliases for unlock
-        this.commands['unlock'] = this._handleUnlock;
-        this.commands['open'] = this._handleUnlock;
     }
 
     processCommand(verb, object) {
@@ -300,11 +297,39 @@ export class ActionHandler {
     }
 
     _handleUse(itemName) {
-        const item = this.game.player.getItem(itemName.toLowerCase()); // Use player's getItem
+        const player = this.game.player;
+        const room = this.game.currentRoom;
+        const item = player.getItem(itemName.toLowerCase());
+
         if (item) {
-            const usageResult = item.use(this.game.player, this.game.currentRoom);
+            // --- Special Case: Vault Puzzle ---
+            if (room.name === 'The Vault') {
+                if (item.name.toLowerCase() === 'red apple') {
+                    // Check if door is locked and player has the other key
+                    if (player.hasItem('blue feather') && room.lockedExits['forward'] === 'vault_puzzle') {
+                        player.removeItem(item); // Consume the apple
+                        this.game.gameStateFlags.vaultAppleUsed = true;
+                        return "You notice the image changing, the fruits, now clearer, hanging on the tree are indeed big red apples.";
+                    }
+                }
+                if (item.name.toLowerCase() === 'blue feather') {
+                    // Check if apple has been used
+                    if (this.game.gameStateFlags.vaultAppleUsed) {
+                        player.removeItem(item); // Consume the feather
+                        room.unlockExit('forward');
+                        const newDescription = "You watch as a small blue bird flits from the nest. The door gives one final pulse of light, and begins to shift and spiral open from the center, towards its outer frame, revealing a single simple stained glass door.";
+                        room.description = newDescription;
+                        this.game.gameStateFlags.vaultAppleUsed = false; // Reset flag
+                        return newDescription;
+                    }
+                }
+            }
+            // --- End Special Case ---
+
+            const usageResult = item.use(player, room);
+
             if (item.isConsumed) {
-                this.game.player.removeItem(item); // Use player's removeItem
+                player.removeItem(item);
             }
             return usageResult;
         }
@@ -398,39 +423,6 @@ export class ActionHandler {
         return resultMessage;
     }
 
-    _handleUnlock(target) {
-        if (target.toLowerCase() !== 'door') {
-            return "What are you trying to unlock?";
-        }
-
-        const room = this.game.currentRoom;
-        if (room.name !== 'The Vault') {
-            return "There is nothing here to unlock in that way.";
-        }
-
-        const player = this.game.player;
-        if (player.hasItem('red apple') && player.hasItem('blue feather')) {
-            // Check if the door is still locked with the specific key
-            if (!room.lockedExits['forward'] || room.lockedExits['forward'] !== 'vault_puzzle') {
-                return "The door is already unlocked.";
-            }
-
-            // Consume items
-            player.removeItem(player.getItem('red apple'));
-            player.removeItem(player.getItem('blue feather'));
-
-            // Unlock door
-            room.unlockExit('forward');
-
-            // Update description
-            const newDescription = "The door gives one final pulse of light as the hollow disappears. You notice the image changing, the fruit, now clearer, hanging on the tree are big red apples. You watch as a small blue bird flits from the nest. The door begins to shift and spiral open from the center, towards its outer frame, revealing a single simple stained glass door.";
-            room.description = newDescription;
-
-            return newDescription;
-        }
-        return "You feel a faint energy from the door, but nothing happens. It seems you are missing something to complete the puzzle.";
-    }
-
     _handleTalk(fullTarget) {
         if (!fullTarget) {
             return "Who do you want to talk to?";
@@ -511,7 +503,6 @@ export class ActionHandler {
             "<strong>drop [item]</strong>: Remove an item from your inventory and leave it in the room.",
             "<strong>use [item]</strong>: Use an item from your inventory. Some items have special effects.",
             "<strong>pick [direction]</strong>: Attempt to pick a locked door in a given direction (e.g., 'pick left'). This requires a 'lockpick' in your inventory.",
-            "<strong>unlock door / open door</strong>: Attempts to unlock a special door using items in your inventory.",
             "<strong>attack [monster]</strong>: Engage in combat with a monster.",
             "<strong>flee</strong>: Attempt to run away from a battle.",
             "<strong>play [choice]</strong>: Play a game of chance when prompted (e.g., 'play rock').",
