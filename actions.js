@@ -5,7 +5,7 @@ export class ActionHandler {
         this.game = gameInstance; // Provides access to game.player, game.currentRoom, game.battleSystem etc.
         this.mercurialDenStates = [
             {
-                description: 'You seem to be stood in the centre of a small island of calm. Here, an armchair, a side table, and a lamp rest on a worn rug, creating a single point of order in a room that has otherwise exploded into a chaos of costumes. Gowns, glittering jewellery, feather boas, and masks are strewn everywhere, spilling from wardrobes and covering every available surface in a colourful, cluttered mess.',
+                description: `You seem to be stood in the centre of a small island of calm. Here, an armchair, a side table, and a lamp rest on a worn rug, creating a single point of order in a room that has otherwise exploded into a chaos of costumes. Gowns, glittering jewellery, feather boas, and masks are strewn everywhere, spilling from wardrobes and covering every available surface in a colourful, cluttered mess.`,
                 items: () => [
                     new Item('coin purse', 'A small, heavy leather purse.', false, false),
                     new Item('blue feather hand fan', 'An elegant hand fan made with large, deep blue feathers.', false, false),
@@ -14,11 +14,30 @@ export class ActionHandler {
                 ]
             },
             {
-                description: 'This is the second state of the Mercurial Den. The air is cold.',
+                // State 2: The Fungi Forest
+                description: `The air grows damp and earthy as you push through a curtain of thick, hanging moss. You enter a cavern that glows with an eerie, beautiful light. The entire room is a forest of fungi, towering mushrooms, some as tall as trees, form a canopy of pulsating, bioluminescent caps in shades of deep blue, vibrant purple, and sickly green. The ground is a soft, springy carpet of white mycelium that muffles your footsteps. The air hums with a low, resonant frequency, and the only other sound is the slow drip-drip-drip of condensation falling from the giant caps onto smaller mushroom clusters below.
+                In the centre of the room, a ring of flat-topped, waist-high toadstools are arranged like chairs around a single, petrified stump that serves as a table. Upon this stump sits a half-finished game of chess, but the pieces are carved from different-coloured mushrooms.
+                Near the far wall, a small waterfall of phosphorescent slime trickles down the rock face into a crystal-clear pool, illuminating a skeleton lying at the bottom, its bony arms wrapped around a heavy-looking chest.`,
                 items: () => [new Item('singing stone', 'A smooth, grey stone that vibrates gently.', true, true)]
             },
             {
-                description: 'This is the third state of the Mercurial Den. It is unnervingly silent and empty.',
+                // State 3: The Geyser Powered Bathhouse
+                description: `You are in a large, circular chamber filled with warm, humid steam. The room now seems to be a bathhouse, with walls and floors made of smooth, colorful tiles. In the center, a natural geyser is capped with an intricate bronze grille. Every minute or so, it erupts with a gentle whoosh, sending a plume of clean, hot water into a series of stone basins and pools around the room. The walls are covered in mosaics depicting krakens, mermen, and other aquatic creatures enjoying a spa day. The air smells of sulfur and lavender soap.`,
+                items: () => []
+            },
+            {
+                // State 4: The Goblin Casino
+                description: `The room is a disaster. It was clearly once a makeshift, low-rent casino run by goblins. A roulette wheel made from a painted shield lies on its side, a card table is covered in crude, goblin-drawn cards depicting leering faces, and a "slot machine" built from scrap metal, gears, and a large bear trap for a lever stands in the corner. The floor is sticky with spilled grog, and the air smells of rust and disappointment.`,
+                items: () => []
+            },
+            {
+                // State 5: A Mini Metropolis
+                description: `What a breathtaking sight! You are in a cavernous chamber, but you stand like a giant overlooking a miniature, bustling city that covers a massive, table-like plateau in the centre of the room. Tiny, perfect cobblestone streets, multi-story buildings, and a grand castle are all laid out below. The city is alive with the movement of thousands of tiny, inch-tall figures going about their day. A tiny river of actual, flowing water bisects the city, crossed by delicate arching bridges. The only sounds are the faint, collective hum of the city's mechanisms and the drip of water from a distant stalactite.`,
+                items: () => []
+            },
+            {
+                // State 6: The Hall of Living Memories
+                description: `You enter a long, quiet hall lined with featureless, humanoid statues carved from pale, smooth stone. As you draw near a statue, it shimmers, and a memory plays out across its surface like a silent film projection: a soldier's tearful farewell, a scholar's moment of discovery, a thief's narrow escape. The memories are silent but emotionally potent. The air is still and carries the faint scent of dust and forgotten tears.`,
                 items: () => []
             }
         ];
