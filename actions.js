@@ -99,60 +99,102 @@ export class ActionHandler {
         this.game.gameStateFlags.mercurialDenStateIndex = (currentStateIndex + 1) % this.mercurialDenStates.length;
     }
 
+    _resetMercurialDen() {
+        const den = this.game.worldMap['chamber'];
+        // This is the original description from room.js
+        den.description = 'A vast, circular chamber where the walls shimmer with thousands of luminescent crystals, casting a beautiful, eerie light.';
+        den.items = []; // Clear any items from other states.
+
+        // The crystal should only be present if the player hasn't taken it yet.
+        // The mercurialDenActive flag is a good proxy for this.
+        if (!this.game.gameStateFlags.mercurialDenActive) {
+            den.addItem(new Item('crystal', 'A glowing blue crystal that pulses with mystical energy.', true));
+        }
+
+        // Also reset the state index so the next random change isn't predictable.
+        // Using -1 ensures that any random state (from 0 to n-1) can be picked next.
+        this.game.gameStateFlags.mercurialDenStateIndex = -1;
+    }
+
     _handleMovement(direction) {
         const allowedDirections = ['forward', 'back', 'left', 'right'];
         if (!allowedDirections.includes(direction)) {
             return `You can only move in these directions: forward, back, left, right.`;
         }
 
-        // Handle the 'back' command dynamically
+        let newRoom = null;
+        const previousRoom = this.game.currentRoom;
+
+        // Determine the new room
         if (direction === 'back') {
             if (this.game.roomHistory.length > 0) {
-                // Pop the last room from history to go back
-                this.game.currentRoom = this.game.roomHistory.pop();
-                return `You go back.\n\n${this.game.currentRoom.getDescription(this.game.player)}`;
+                newRoom = this.game.roomHistory.pop();
             } else {
                 return "You can't go back any further.";
             }
-        }
-
-        const exit = this.game.currentRoom.getExit(direction);
-        if (exit) {
-            const previousRoom = this.game.currentRoom;
-
-            // CRITICAL: Check if the exit is locked before moving
-            if (this.game.currentRoom.lockedExits[direction]) {
+        } else {
+            newRoom = this.game.currentRoom.getExit(direction);
+            if (newRoom && this.game.currentRoom.lockedExits[direction]) {
                 return "That way is locked.";
             }
+        }
 
-            // Add the current room to history before moving
+        if (!newRoom) {
+            return `You cannot go ${direction} from here.`;
+        }
+
+        // Add to history only for forward/left/right movements, not for 'back'
+        if (direction !== 'back') {
             this.game.roomHistory.push(this.game.currentRoom);
-            this.game.currentRoom = exit;
+        }
 
-            // --- Mercurial Den Change Logic ---
-            // When entering the Mercurial Den after taking the crystal, change its state.
-            if (this.game.currentRoom.name === 'The Mercurial Den' && this.game.gameStateFlags.mercurialDenActive) {
+        // Update the current room
+        this.game.currentRoom = newRoom;
+
+        // --- Post-movement triggers ---
+
+        const isEnteringMercurialDen = this.game.currentRoom.name === 'The Mercurial Den';
+
+        if (isEnteringMercurialDen) {
+            const cameFromBendyHallway = previousRoom.name === 'Winding Corridor';
+            const cameFromClutteredPassageway = previousRoom.name === 'Cluttered Passageway';
+
+            if (cameFromClutteredPassageway) {
+                // Always reset the den to its original state from this path.
+                this._resetMercurialDen();
+            } else if (cameFromBendyHallway) {
+                // Initialize the counter if it doesn't exist.
+                if (!this.game.gameStateFlags.hasOwnProperty('bendyHallwayReturnCount')) {
+                    this.game.gameStateFlags.bendyHallwayReturnCount = 0;
+                }
+                this.game.gameStateFlags.bendyHallwayReturnCount++;
+
+                // Change the den only on even-numbered returns (2nd, 4th, etc.).
+                if (this.game.gameStateFlags.bendyHallwayReturnCount % 2 === 0 && this.game.gameStateFlags.mercurialDenActive) {
+                    this._changeMercurialDen();
+                }
+            } else if (this.game.gameStateFlags.mercurialDenActive) {
+                // This handles all other entrances (e.g., from the Scriptorium) to change every time.
                 this._changeMercurialDen();
             }
-
-            // --- Dynamic Exit Logic ---
-            // When entering the Temple from the Winding Passage, set new exits.
-            if (this.game.currentRoom.name === 'The Forgotten Temple' && previousRoom.name === 'Winding Passage') {
-                const temple = this.game.currentRoom;
-                const market = this.game.worldMap['market'];
-                const scriptorium = this.game.worldMap['scriptorium'];
-
-                // Clear existing exits and set new ones
-                temple.exits = {};
-                temple.lockedExits = {};
-                temple.setExit('left', market);
-                temple.setExit('right', scriptorium);
-                temple.setLockedExit('back', previousRoom, true); // Lock the way back
-            }
-
-            return `You move ${direction}.\n\n${this.game.currentRoom.getDescription(this.game.player)}`;
         }
-        return `You cannot go ${direction} from here.`;
+
+        // Dynamic Exit Logic for Forgotten Temple
+        if (this.game.currentRoom.name === 'The Forgotten Temple' && previousRoom.name === 'Winding Passage') {
+            const temple = this.game.currentRoom;
+            const market = this.game.worldMap['market'];
+            const scriptorium = this.game.worldMap['scriptorium'];
+
+            temple.exits = {};
+            temple.lockedExits = {};
+            temple.setExit('left', market);
+            temple.setExit('right', scriptorium);
+            temple.setLockedExit('back', previousRoom, true);
+        }
+
+        // Generate response message
+        const moveMessage = direction === 'back' ? 'You go back.' : `You move ${direction}.`;
+        return `${moveMessage}\n\n${this.game.currentRoom.getDescription(this.game.player)}`;
     }
 
     _handleLook(target) {
