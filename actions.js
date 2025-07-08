@@ -69,6 +69,12 @@ export class ActionHandler {
             'talk': this._handleTalk,
             'list': this._handleList,
             'buy': this._handleBuy,
+            'inventory': this._handleInventory,
+            'inv': this._handleInventory,
+            'i': this._handleInventory,
+            'stats': this._handleStats,
+            'status': this._handleStats,
+            'st': this._handleStats,
         };
     }
 
@@ -683,6 +689,24 @@ export class ActionHandler {
         return `You bought the ${itemToBuy.item.name} for ${itemToBuy.price} gold. You have ${this.game.player.gold} gold left.`;
     }
 
+    _handleInventory() {
+        let inventoryText = this.game.player.getInventoryList();
+        inventoryText += `\n\nGold: ${this.game.player.gold}`;
+        return inventoryText;
+    }
+
+    _handleStats() {
+        const player = this.game.player;
+        const expForNextLevel = player.level * 100;
+        let statsText = `<strong>--- ${player.name}'s Stats ---</strong>\n\n`;
+        statsText += `Level: ${player.level}\n`;
+        statsText += `Experience: ${player.experience}/${expForNextLevel}\n`;
+        statsText += `Health: ${player.health}/${player.maxHealth}\n`;
+        statsText += `Attack: ${player.attack}\n`;
+        statsText += `Defense: ${player.defense}`;
+        return statsText;
+    }
+
     _handleHelp() {
         const helpTitle = "<strong>--- Help: Available Commands ---</strong>\n\n";
         const commands = [
@@ -693,6 +717,8 @@ export class ActionHandler {
             "<strong>take [item]</strong>: Add an item from the room to your inventory.",
             "<strong>drop [item]</strong>: Remove an item from your inventory and leave it in the room.",
             "<strong>use [item]</strong>: Use an item from your inventory. Some items have special effects.",
+            "<strong>inventory (or inv, i)</strong>: Check the items you are carrying.",
+            "<strong>stats (or status, st)</strong>: Check your character's current stats.",
             "<strong>pick [direction]</strong>: Attempt to pick a locked door in a given direction (e.g., 'pick left'). This requires a 'lockpick' in your inventory.",
             "<strong>attack [monster]</strong>: Engage in combat with a monster.",
             "<strong>flee</strong>: Attempt to run away from a battle.",
