@@ -142,11 +142,11 @@ body {
 #characterSelectionScreen .character-selection-content {
     display: flex;            /* Arrange button group and portrait grid in a row */
     flex-direction: row;
-    width: 90%;               /* Adjust width as needed, e.g., 90% or 100% */
-    max-width: 850px;         /* Further reduced max-width for a more compact layout */
+    width: 85%;               /* Adjust width as needed, e.g., 90% or 100% */
+    max-width: 800px;         /* Further reduced max-width for a more compact layout */
     align-items: flex-start;  /* Align the top of button group and portrait grid */
     /* Make gap responsive */
-    gap: clamp(20px, 4vw, 50px); /* Further reduced max gap for better fit */
+    gap: clamp(20px, 3vw, 40px); /* Further reduced max gap for better fit */
     /* margin: 0 auto; /* Uncomment to center this whole content block if width is less than 100% */
 }
 
@@ -165,10 +165,10 @@ body {
     grid-template-columns: repeat(3, 1fr); /* 3 columns of equal flexible width */
     grid-template-rows: repeat(2, auto);   /* 2 rows, height determined by content */
     /* Make gap responsive */
-    gap: clamp(10px, 2vw, 20px); /* Made gap significantly smaller */
+    gap: clamp(10px, 1.5vw, 15px); /* Made gap significantly smaller */
     flex-grow: 1;
     min-width: 0;
-    max-width: 500px;
+    max-width: 480px;
 }
 
 .portrait-grid.active {
