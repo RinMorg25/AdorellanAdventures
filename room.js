@@ -144,7 +144,7 @@ export function createWorld() {
         'hiddenCavern': { name: 'Hidden Cavern', description: 'The crevice opens into a small, damp cavern. A crude, heavy wooden door is set into the far wall.' },
         'windingPassage': { name: 'Winding Passage', description: 'Beyond the door is a long, winding passage carved from the rock. It slopes gently downwards and ends at another door, which looks like it can only be opened from this side.' },
         'cabin': { name: 'The Cabin', description: 'The interior of the cabin is a single, cluttered room. Pots and pans hang from the low ceiling, and shelves are crammed with a mix of food supplies—some look recently gathered, while others are long past their prime, hinting at a hurried or inconsistent inhabitant. A small fireplace sits to the left as you enter, with a small space cleared before it, A likely place where past adventurers have slept in safety and warmth.\n\nA small wooden table with two chairs sits in the center of the room; a leather vest is slung carelessly over the back of one. A wall cabinet with a door hanging precariously from a single hinge reveals a surprisingly well-stocked fruit bowl. In the sink, a glint of something colorful inside a glass catches your eye.' },
-        'treasureRoom': { name: 'The Treasure Room', description: 'The room is filled with glittering piles of gold, ancient artifacts, and chests overflowing with jewels. You have found the legendary treasure of the Labyrinth of Lyre! \n\nIn the centre of the room stands a large carved marble podium, atop it lay three objects with little plaques in front of them. To the left is an ornate compass, the plaques reads: Stay and Explore. To the right, a autumnal coloured, metal locket sits atop a small old leather journal, on a plush blue cushion, its plaque states: Knowledge is Power. In the centre, proudly presented on its own little platform sits a pocket-sized Treasure chest. You look down at its plaque and read: For your grit & determination Brave Adventure. May all the treasures of Lyre ever be in your pocket. Congratulations you have won!\n\nWhat do you do? Take the compass, and stay to explore, the treasure isn’t going anywhere, or take the chest and leave?' },
+        'treasureRoom': { name: 'The Treasure Room', description: 'The room is filled with glittering piles of gold, ancient artifacts, and chests overflowing with jewels. You have found the legendary treasure of the Labyrinth of Lyre! \n\nIn the centre of the room stands a large carved marble podium, atop it lay three objects with little plaques in front of them. To the left is an ornate compass, the plaques reads: Stay and Explore. To the right, a small old leather journal, similar to the one that led you here, sits on a plush blue cushion, its plaque states: Knowledge is Power. In the centre, proudly presented on its own little platform sits a pocket-sized Treasure chest. You look down at its plaque and read: For your grit & determination Brave Adventure. May all the treasures of Lyre ever be in your pocket. Congratulations you have won!\n\nWhat do you do? Take the compass, and stay to explore, the treasure isn’t going anywhere, or take the chest and leave?' },
     };
 
     const connectionData = [
@@ -182,6 +182,10 @@ export function createWorld() {
         { from: 'windingPassage', to: 'temple', direction: 'forward', oneWay: true },
     ];
 
+    // Create a special journal item for the treasure room
+    const specialJournal = new Item('old journal', 'A small old leather journal, similar to the one that led you here. The plaque states: Knowledge is Power.', false);
+    specialJournal.onTakeFailMessage = 'This Adventure is not ready for you YET Brave Adventurer!';
+
     const itemPlacement = {
         'courtyard': [new Item('torch', 'A flickering torch that provides light in dark places.', true)],
         'chamber': [new Item('crystal', 'A glowing blue crystal that pulses with mystical energy.', true)],
@@ -195,7 +199,12 @@ export function createWorld() {
             new Item('piece of candy', 'A piece of candy in a blue and purple wrapper.', true),
             new Item('fruit bowl', 'A well-stocked fruit bowl. It looks delicious.', false),
             new Item('gold coins', 'Two shiny gold coins.', true, false)
-        ]
+        ],
+        'treasureRoom': [
+            new Item('ornate compass', 'An ornate compass. The plaque in front of it reads: Stay and Explore.', true),
+            new Item('treasure chest', 'A pocket-sized treasure chest. The plaque in front of it reads: For your grit & determination Brave Adventure. May all the treasures of Lyre ever be in your pocket.', true),
+            specialJournal
+        ],
     };
 
 

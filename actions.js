@@ -274,7 +274,11 @@ export class ActionHandler {
         }
 
         if (!item.canTake) {
-            return "You cannot take that item";
+            // Check for a custom "can't take" message
+            if (item.onTakeFailMessage) {
+                return item.onTakeFailMessage;
+            }
+            return `You cannot take the ${item.name}.`;
         }
 
         // Special handling for gold coins to be added directly to player's gold
@@ -289,6 +293,32 @@ export class ActionHandler {
             this.game.player.gold += 4;
             this.game.currentRoom.removeItem(item);
             return `You take the 4 gold coins and add them to your pouch. You now have ${this.game.player.gold} gold.`;
+        }
+
+        // --- Special trigger for the Ornate Compass in the Treasure Room ---
+        if (item.name.toLowerCase() === 'ornate compass' && this.game.currentRoom.name === 'The Treasure Room') {
+            this.game.player.addItem(item);
+            this.game.currentRoom.removeItem(item);
+            this.game.gameStateFlags.hasOrnateCompassQuest = true; // This flag will be used later for new content
+            return "You take the ornate compass. It feels warm to the touch and the needle spins wildly for a moment before settling. You feel a sense of new purpose, as if unseen paths are now open to you. The treasure can wait; adventure calls.";
+        }
+
+        // --- Special trigger for the Treasure Chest (Game End) ---
+        if (item.name.toLowerCase() === 'treasure chest' && this.game.currentRoom.name === 'The Treasure Room') {
+            const gameplayScreen = document.getElementById('gameplayScreen');
+            const endGameScreen = document.getElementById('endGameScreen');
+            const playAgainButton = document.getElementById('playAgainButton');
+
+            if (gameplayScreen && endGameScreen && playAgainButton) {
+                gameplayScreen.classList.remove('active');
+                endGameScreen.classList.add('active');
+
+                // Add a one-time event listener to the button to prevent multiple bindings.
+                playAgainButton.addEventListener('click', () => {
+                    location.reload(); // Reload the page to restart the game.
+                }, { once: true });
+            }
+            return ' '; // Return a space to prevent "You take the..." message from appearing.
         }
 
         this.game.player.addItem(item); // Use player's addItem method
