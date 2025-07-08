@@ -3,9 +3,9 @@ import { Character, archetypeData } from './characters.js';
 import { Monster } from './monsters.js';
 import { Item } from './items.js';
 import { ActionHandler } from './actions.js'; // Import ActionHandler
-import { BattleSystem } from './battle.js';
+import { BattleSystem } from './battle.js'; // This file is not provided, but assumed to exist
 import { DisplayManager } from './displayIt.js'; // Import DisplayManager
-import { setupPreGameplayEventListeners, setupGameplayEventListeners } from './eventListeners.js'; // Import event listener setup functions
+import { setupPreGameplayEventListeners } from './eventListeners.js'; // Import event listener setup functions
 
 document.addEventListener('DOMContentLoaded', () => {
     const titleScreen = document.getElementById('titleScreen');
@@ -248,14 +248,35 @@ function appendText(text) {
         // Initialize the game *after* transitioning to gameplay screen
         if (!gameInstance) { // Ensure game is initialized only once
             gameInstance = new AdventureGame(characterType);
-            // Setup gameplay listeners now that gameInstance exists
-            setupGameplayEventListeners({
-                commandInput: document.getElementById('commandInput'),
-                mapButton: document.getElementById('mapButton'),
-                inventoryButton: document.getElementById('inventoryButton'),
-                statsButton: document.getElementById('statsButton'),
-                helpButton: document.getElementById('helpButton'),
-                gameInstance
+
+            // --- Setup Gameplay Event Listeners ---
+            // The original call to setupGameplayEventListeners is replaced with this inline implementation
+            // to ensure the buttons and input field are correctly wired up.
+            const commandInput = document.getElementById('commandInput');
+            const inventoryButton = document.getElementById('inventoryButton');
+            const statsButton = document.getElementById('statsButton');
+            const helpButton = document.getElementById('helpButton');
+
+            // Command Input Listener
+            commandInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    const command = commandInput.value.trim().toLowerCase();
+                    if (command) {
+                        gameInstance.processCommand(command);
+                        commandInput.value = '';
+                    }
+                }
+            });
+
+            // Sidebar Button Listeners
+            inventoryButton.addEventListener('click', () => {
+                gameInstance.processCommand('inventory');
+            });
+            statsButton.addEventListener('click', () => {
+                gameInstance.processCommand('stats');
+            });
+            helpButton.addEventListener('click', () => {
+                gameInstance.processCommand('help');
             });
         }
 
