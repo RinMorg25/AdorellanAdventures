@@ -165,7 +165,7 @@ body {
     grid-template-columns: repeat(3, 1fr); /* 3 columns of equal flexible width */
     grid-template-rows: repeat(2, auto);   /* 2 rows, height determined by content */
     /* Make gap responsive */
-    gap: clamp(15px, 4vw, 25px); /* Increased gap for more space between portraits */
+    gap: clamp(15px, 2.5vw, 25px); /* Increased gap for more space between portraits */
     flex-grow: 1;
     min-width: 0;
     max-width: 600px; /* Increased max-width to allow grid to expand */
