@@ -232,24 +232,21 @@ export class ActionHandler {
             // Mercurial Den Items
             if (roomName === 'The Mercurial Den') {
                 if (itemName === 'coin purse') {
+                    const goldCoinItem = new Item('gold coin', 'A shiny gold coin.', true, true, false, 1);
                     this.game.currentRoom.removeItem(item);
-                    const gold = new Item('4 gold coins', 'A small pile of four gold coins.', true, false);
-                    gold.goldValue = 4; // Add goldValue property for the take handler
-                    this.game.currentRoom.addItem(gold);
+                    this.game.currentRoom.addItem(goldCoinItem, 4);
                     return 'You open the purse and find four gold coins inside.';
                 }
                 if (itemName === 'blue feather hand fan') {
                     this.game.currentRoom.removeItem(item);
                     // The blue feather acts as the new blue key
-                    this.game.currentRoom.addItem(new Item('blue feather', 'A single, large feather that seems to have a faint blue glow about it. It feels strangely sturdy.', true, true));
+                    this.game.currentRoom.addItem(new Item('blue feather', 'A vibrant blue feather that seems to hum with a faint energy.', false, true, true));
                     return "You pick up the hand fan for a closer look. As you handle it, one of the feathers comes loose and falls onto the chair. It seems to have a faint blue glow about it. The rest of the fan feels mundane.";
                 }
                 if (itemName === 'sticky leather pouch') {
-                    // The pouch is removed and replaced with gold. No flag is needed as the room state resets on re-entry.
+                    const goldCoinItem = new Item('gold coin', 'A shiny gold coin.', true, true, false, 1);
                     this.game.currentRoom.removeItem(item);
-                    const gold = new Item('13 gold coins', 'A small pile of thirteen gold coins.', true, false);
-                    gold.goldValue = 13;
-                    this.game.currentRoom.addItem(gold);
+                    this.game.currentRoom.addItem(goldCoinItem, 13);
                     return 'You untie the rotting twine on the greasy pouch. It falls apart in your hands, revealing 13 gold coins!';
                 }
             }
@@ -361,6 +358,30 @@ export class ActionHandler {
             return "What do you want to take?";
         }
 
+        // Special case to "take all gold"
+        if (itemName === 'gold' || itemName === 'gold coin' || itemName === 'coins') {
+            const goldStacks = this.game.currentRoom.items.filter(stack => stack.item.goldValue > 0);
+            if (goldStacks.length === 0) {
+                return "There is no gold here.";
+            }
+
+            let totalGoldTaken = 0;
+            // Find the canonical 'gold coin' item to add to the player's inventory
+            const goldCoinItem = goldStacks.find(stack => stack.item.name === 'gold coin')?.item || new Item('gold coin', 'A shiny gold coin.', true, true, false, 1);
+
+            goldStacks.forEach(stack => {
+                totalGoldTaken += stack.item.goldValue * stack.quantity;
+            });
+
+            // Remove all gold stacks from the room
+            this.game.currentRoom.items = this.game.currentRoom.items.filter(stack => !stack.item.goldValue || stack.item.goldValue <= 0);
+
+            // Add the total to the player's inventory
+            this.game.player.addItem(goldCoinItem, totalGoldTaken);
+
+            return `You scoop up all the gold, adding ${totalGoldTaken} coins to your pouch. You now have ${this.game.player.getGold()} gold.`;
+        }
+
         // Step 2: Find the item stack in the room
         const roomItemStack = this._findItemStack(itemName, this.game.currentRoom.items);
 
@@ -414,14 +435,13 @@ export class ActionHandler {
 
         // --- Refactored Gold Handling (works with quantities) ---
         if (item.goldValue && item.goldValue > 0) {
-            const totalGoldValue = item.goldValue * amountToTake;
-            this.game.player.gold += totalGoldValue;
+            // The item being taken IS the gold, so add it directly to inventory.
+            this.game.player.addItem(item, amountToTake);
             roomItemStack.quantity -= amountToTake;
             if (roomItemStack.quantity <= 0) {
                 this.game.currentRoom.items = this.game.currentRoom.items.filter(stack => stack !== roomItemStack);
             }
-            const coinString = totalGoldValue === 1 ? 'coin' : 'coins';
-            return `You take the ${totalGoldValue} gold ${coinString} and add it to your pouch. You now have ${this.game.player.gold} gold.`;
+            return `You take ${amountToTake} ${item.name}(s). You now have ${this.game.player.getGold()} gold.`;
         }
 
         // --- Default item transfer ---
@@ -621,7 +641,7 @@ export class ActionHandler {
         shopkeeper.shopInventory.forEach(stock => {
             response += `- ${stock.item.name} (${stock.price} gold): ${stock.item.description}\n`;
         });
-        response += `\nYou have ${this.game.player.gold} gold.`;
+        response += `\nYou have ${this.game.player.getGold()} gold.`;
         response += `\n(Type 'buy [item name]' to purchase)`;
 
         return response;
@@ -650,19 +670,23 @@ export class ActionHandler {
             return `${shopkeeper.name} doesn't have a "${itemName}" for sale.`;
         }
 
-        if (this.game.player.gold < itemToBuy.price) {
-            return `You don't have enough gold. You need ${itemToBuy.price} gold, but you only have ${this.game.player.gold}.`;
+        const playerGold = this.game.player.getGold();
+        if (playerGold < itemToBuy.price) {
+            return `You don't have enough gold. You need ${itemToBuy.price} gold, but you only have ${playerGold}.`;
         }
 
-        this.game.player.gold -= itemToBuy.price;
-        this.game.player.addItem(itemToBuy.item);
-        shopkeeper.shopInventory = shopkeeper.shopInventory.filter(stock => stock.item.name.toLowerCase() !== itemName.toLowerCase());
-        return `You bought the ${itemToBuy.item.name} for ${itemToBuy.price} gold. You have ${this.game.player.gold} gold left.`;
+        if (this.game.player.spendGold(itemToBuy.price)) {
+            this.game.player.addItem(itemToBuy.item);
+            // Remove the purchased item from the shop's inventory
+            shopkeeper.shopInventory = shopkeeper.shopInventory.filter(stock => stock.item.name.toLowerCase() !== itemToBuy.item.name.toLowerCase());
+            return `You bought the ${itemToBuy.item.name} for ${itemToBuy.price} gold. You have ${this.game.player.getGold()} gold left.`;
+        }
+        return "An unknown error occurred during your purchase."; // Fallback
     }
 
     _handleInventory() {
         let inventoryText = this.game.player.getInventoryList();
-        inventoryText += `\n\nGold: ${this.game.player.gold}`;
+        inventoryText += `\n\nGold: ${this.game.player.getGold()}`;
         return inventoryText;
     }
 
@@ -675,6 +699,8 @@ export class ActionHandler {
         statsText += `Health: ${player.health}/${player.maxHealth}\n`;
         statsText += `Attack: ${player.attack}\n`;
         statsText += `Defense: ${player.defense}`;
+        // Total gold is shown in the inventory, not in stats.
+        // statsText += `\n\nGold: ${this.game.player.gold}`;
         return statsText;
     }
 

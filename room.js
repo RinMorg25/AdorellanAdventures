@@ -154,7 +154,7 @@ export function createWorld() {
         // Stackable Consumables & Currency
         smallHealthPotion: new Item('small health potion', 'A small vial of green liquid that restores a minor amount of health.', true, true, true),
         pieceOfCandy: new Item('piece of candy', 'A piece of candy in a blue and purple wrapper. Restores a bit of energy.', true, true, true),
-        goldCoin: new Item('gold coin', 'A shiny gold coin.', true, true, false), // Gold is now a stackable item
+        goldCoin: new Item('gold coin', 'A shiny gold coin.', true, true, false, 1), // Gold is now a stackable item
         potion: new Item('potion', 'A healing potion, brewed by an unknown hand.', true, true, true),
         mediumHealthPotion: new Item('medium health potion', 'A vial of shimmering red liquid that restores a moderate amount of health.', true, true, true),
 

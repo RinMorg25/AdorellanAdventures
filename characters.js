@@ -9,14 +9,13 @@ export const archetypeData = [
 ];
 
 export class Character {
-    constructor(name, health, attack, defense, gold = 0) {
+    constructor(name, health, attack, defense) {
         this.name = name;
         this.maxHealth = health;
         this.health = health;
         this.attack = attack;
         this.defense = defense;
         this.inventory = []; // Will now store { item, quantity }
-        this.gold = gold; // Note: Gold is now handled as a stackable item. This property can be deprecated.
         this.level = 1;
         this.experience = 0;
         this.isAlive = true;
@@ -106,6 +105,32 @@ export class Character {
         });
 
         return 'You are carrying:\n' + itemDescriptions.join('\n');
+    }
+
+    /**
+     * Calculates the total amount of gold the character has.
+     * @returns {number} The total gold amount.
+     */
+    getGold() {
+        const goldStack = this.inventory.find(stack => stack.item.name === 'gold coin');
+        return goldStack ? goldStack.quantity : 0;
+    }
+
+    /**
+     * Spends a specified amount of gold from the character's inventory.
+     * @param {number} amount - The amount of gold to spend.
+     * @returns {boolean} - True if the gold was spent successfully, false otherwise.
+     */
+    spendGold(amount) {
+        const goldStack = this.inventory.find(stack => stack.item.name === 'gold coin');
+        if (!goldStack || goldStack.quantity < amount) {
+            return false; // Not enough gold
+        }
+        goldStack.quantity -= amount;
+        if (goldStack.quantity <= 0) {
+            this.inventory = this.inventory.filter(stack => stack.item.name !== 'gold coin');
+        }
+        return true; // Success
     }
 
     heal(amount) {

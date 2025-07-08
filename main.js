@@ -60,9 +60,11 @@ function appendText(text) {
                     characterType.name,
                     characterType.health,
                     characterType.strength, // strength maps to attack
-                    characterType.dexterity, // dexterity maps to defense
-                    25 // Starting gold
+                    characterType.dexterity // dexterity maps to defense
                 );
+                // Manually add starting gold as an item
+                const startingGold = new Item('gold coin', 'A shiny gold coin.', true, true, false, 1);
+                this.player.addItem(startingGold, 25);
             }
             this.battleSystem = new BattleSystem();
             

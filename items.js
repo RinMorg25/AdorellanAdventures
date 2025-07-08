@@ -1,11 +1,12 @@
 export class Item {
-    constructor(name, description, stackable = false, canTake = true, isUsable = true) {
+    constructor(name, description, stackable = false, canTake = true, isUsable = true, goldValue = 0) {
         this.name = name;
         this.description = description;
         this.canTake = canTake;
         this.stackable = stackable;
         this.isUsable = isUsable;
         this.isConsumed = false;
+        this.goldValue = goldValue;
     }
     
     use(player, room) {
