@@ -1,8 +1,10 @@
 import { Item } from './items.js';
+import { MonsterFactory } from './monsters.js';
 
 export class ActionHandler {
     constructor(gameInstance) {
         this.game = gameInstance; // Provides access to game.player, game.currentRoom, game.battleSystem etc.
+        this.randomEncounterChance = 0.25; // <-- Adjust this value for encounter rate (e.g., 0.1 for 10%, 0.5 for 50%)
         this.mercurialDenStates = [
             {
                 description: `You seem to be stood in the centre of a small island of calm. Here, an armchair, a side table, and a lamp rest on a worn rug, creating a single point of order in a room that has otherwise exploded into a chaos of costumes. Gowns, glittering jewellery, feather boas, and masks are strewn everywhere, spilling from wardrobes and covering every available surface in a colourful, cluttered mess.`,
@@ -120,6 +122,39 @@ export class ActionHandler {
         return list.find(s => s.item.name.toLowerCase().includes(lowerCasePartialName));
     }
 
+    _handleRandomEncounter() {
+        // Find the ID of the current room.
+        const currentRoomId = Object.keys(this.game.worldMap).find(key => this.game.worldMap[key] === this.game.currentRoom);
+
+        // Define safe zones where encounters should not happen.
+        const SAFE_ROOM_IDS = ['entrance', 'courtyard', 'grebs', 'safezone', 'cabin', 'treasureRoom', 'chamber'];
+
+        // 1. Check if the room is a safe zone or already has monsters/NPCs.
+        if (!currentRoomId || SAFE_ROOM_IDS.includes(currentRoomId) || this.game.currentRoom.monsters.length > 0 || this.game.currentRoom.npcs.length > 0) {
+            return ''; // No encounter.
+        }
+
+        // 2. Roll for an encounter using the configurable chance.
+        if (Math.random() < this.randomEncounterChance) {
+            // 3. An encounter happens! Select a random monster factory function.
+            const randomMonsterFactories = [
+                MonsterFactory.createGoblin,
+                MonsterFactory.createSpider,
+                MonsterFactory.createGreyImp
+            ];
+            const monsterFactoryFunction = randomMonsterFactories[Math.floor(Math.random() * randomMonsterFactories.length)];
+            const newMonster = monsterFactoryFunction();
+
+            // 4. Add the monster to the room.
+            this.game.currentRoom.addMonster(newMonster);
+
+            // 5. Return a message to be appended to the room description.
+            return `\n\nSuddenly, a wild ${newMonster.name} appears from the shadows!`;
+        }
+
+        return ''; // No encounter.
+    }
+
     _changeMercurialDen() {
         const den = this.game.worldMap['chamber'];
         const numStates = this.mercurialDenStates.length;
@@ -200,9 +235,14 @@ export class ActionHandler {
             temple.setLockedExit('back', previousRoom, true);
         }
 
+        // --- Random Encounter Trigger ---
+        const encounterMessage = this._handleRandomEncounter();
+
         // Generate response message
         const moveMessage = direction === 'back' ? 'You go back.' : `You move ${direction}.`;
-        return `${moveMessage}\n\n${this.game.currentRoom.getDescription(this.game.player)}`;
+        const roomDescription = this.game.currentRoom.getDescription(this.game.player);
+
+        return `${moveMessage}\n\n${roomDescription}${encounterMessage}`;
     }
 
     _handleLook(target) {
@@ -528,7 +568,7 @@ export class ActionHandler {
             monster = this.game.currentRoom.monsters[0];
         }
         if (monster) {
-            return this.game.battleSystem.startBattle(this.game.player, monster);
+            return this.game.battleSystem.startBattle(this.game.player, monster, this.game.currentRoom);
         }
         return 'There is nothing to fight here, or no specific target mentioned.';
     }

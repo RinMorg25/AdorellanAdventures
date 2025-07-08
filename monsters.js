@@ -74,12 +74,23 @@ export class MonsterFactory {
     static createGoblin() {
         const goblin = new Monster(
             'Goblin',
-            30,
+            35,
             8,
             3,
             'A small, green creature with glowing red eyes and sharp claws.'
         );
         return goblin;
+    }
+
+    static createGreyImp() {
+        const greyimp = new Monster(
+            'Grey Imp',
+            25,
+            6,
+            1,
+            'A small, grey imp, almost rock like in appearance, with large ears, and little horns its head. You notice a shiny red gem in the middle of it forehead.'
+        );
+        return greyimp;
     }
     
     static createTroll() {
@@ -96,7 +107,7 @@ export class MonsterFactory {
     static createBat() {
         const bat = new Monster(
             'Giant Bat',
-            20,
+            30,
             6,
             2,
             'A large bat with leathery wings and glowing eyes.'
@@ -121,7 +132,7 @@ export class MonsterFactory {
             100,
             25,
             15,
-            'An ancient dragon made of living crystal, guardian of the deepest treasures.'
+            'An ancient dragon made of living crystal, guardian of the deepest treasures. It appears to be in a deep slumber.'
         );
         return dragon;
     }

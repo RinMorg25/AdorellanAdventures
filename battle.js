@@ -2,12 +2,14 @@ export class BattleSystem {
     constructor() {
         this.inBattle = false;
         this.currentEnemy = null;
+        this.currentRoom = null; // To hold the room where the battle occurs
         this.battleLog = [];
     }
     
-    startBattle(player, monster) {
+    startBattle(player, monster, room) {
         this.inBattle = true;
         this.currentEnemy = monster;
+        this.currentRoom = room;
         this.battleLog = [];
         
         let result = `\n=== BATTLE BEGINS ===\n`;
@@ -48,7 +50,7 @@ export class BattleSystem {
         
         if (!monster.isAlive) {
             result += '\n' + this.endBattle(player, monster, 'victory');
-        } else if (!player.isAlive()) {
+        } else if (!player.isAlive) {
             result += '\n' + this.endBattle(player, monster, 'defeat');
         } else {
             result += '\n\n' + this.getBattleStatus(player, monster);
@@ -106,7 +108,7 @@ export class BattleSystem {
         }
         result += `\nThe ${monster.name} hits you for ${actualDamage} damage!`; // Clarified who hits
         
-        if (!player.isAlive()) {
+        if (!player.isAlive) {
             result += '\nYou have been defeated!';
         }
         
@@ -126,15 +128,15 @@ export class BattleSystem {
     }
     
     useItemInBattle(player, itemName) {
-        const item = player.getItem(itemName);
+        const item = player.findItem(itemName);
         if (!item) {
             return `You don't have a ${itemName}.`;
         }
         
         let result = item.use(player, null);
         
-        if (item.isConsumed) {
-            player.removeItem(item);
+        if (item.isConsumed) { // Assumes use() method sets this flag
+            player.removeItem(item, 1);
         }
         
         return result;
@@ -149,7 +151,6 @@ export class BattleSystem {
     
     endBattle(player, monster, outcome) {
         this.inBattle = false;
-        this.currentEnemy = null;
         
         let result = '\n=== BATTLE END ===\n';
         
@@ -157,13 +158,22 @@ export class BattleSystem {
             case 'victory':
                 const exp = monster.experienceValue;
                 player.gainExperience(exp);
-                result += `Victory! You gained ${exp} experience points.`;
+                result += `Victory! You gained ${exp} experience points.\n`;
                 
                 const loot = monster.dropLoot();
                 if (loot.length > 0) {
-                    result += `\nThe ${monster.name} dropped: `;
-                    result += loot.map(item => item.name).join(', ');
-                    loot.forEach(item => player.addItem(item));
+                    const lootNames = [];
+                    loot.forEach(lootStack => {
+                        if (this.currentRoom) {
+                            this.currentRoom.addItem(lootStack.item, lootStack.quantity);
+                        }
+                        lootNames.push(lootStack.quantity > 1 ? `${lootStack.quantity} ${lootStack.item.name}s` : lootStack.item.name);
+                    });
+                    result += `The defeated ${monster.name} dropped: ${lootNames.join(', ')}.`;
+                }
+
+                if (this.currentRoom) {
+                    this.currentRoom.removeMonster(monster);
                 }
                 break;
             case 'defeat':
@@ -173,6 +183,9 @@ export class BattleSystem {
                 result += 'You escaped from the battle.';
                 break;
         }
+
+        this.currentEnemy = null;
+        this.currentRoom = null;
         
         return result;
     }

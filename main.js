@@ -161,13 +161,6 @@ function appendText(text) {
             if (this.battleSystem.inBattle) {
                 if (this.battleSystem.currentEnemy) {
                     response = this.battleSystem.processBattleTurn(this.player, this.battleSystem.currentEnemy, verb, object);
-                    // If battle ended and monster was defeated, remove it from the room
-                    if (!this.battleSystem.inBattle && this.battleSystem.currentEnemy && !this.battleSystem.currentEnemy.isAlive) {
-                        this.currentRoom.removeMonster(this.battleSystem.currentEnemy);
-                        // The battle system's endBattle method already provides exp/loot messages.
-                        // Optionally, append current room description if player is back to exploring.
-                        // response += `\n\n${this.currentRoom.getDescription()}`; 
-                    }
                 } else {
                     response = "Error: In battle but no current enemy defined. Exiting battle mode.";
                     this.battleSystem.inBattle = false; // Reset battle state

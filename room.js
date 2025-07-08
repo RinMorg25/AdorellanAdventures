@@ -1,5 +1,5 @@
 import { Item } from './items.js';
-import { Monster } from './monsters.js';
+import { Monster, MonsterFactory } from './monsters.js';
 import { NPC } from './characters.js';
 
 export class Room {
@@ -296,8 +296,14 @@ export function createWorld() {
 
 
     const monsterPlacement = {
-        'chamber': [new Monster('Goblin', 30, 8, 3, 'A small, green creature with glowing red eyes.')]
+        'temple': [MonsterFactory.createDragon()],
+        'market': [
+            new Monster('Bald Troll', 60, 15, 8, 'A massive, bald troll with a crude iron ring piercing its nose. It glares at you with dull, hostile eyes.'),
+            new Monster('Bearded Troll', 65, 14, 9, 'This troll is ancient, with a long, tangled white beard that reaches its knees. It leans heavily on a massive stone club.'),
+            new Monster('Red-Haired Troll', 55, 16, 7, 'A younger, more frenzied-looking troll with a shock of short, choppy red hair. It snarls, eager for a fight.')
+        ]
     };
+
 
     const npcPlacement = {
         'grebs': [new NPC('Grebgela', 50, 0, 5, 'A small red imp with large, curious eyes. He fidgets with a collection of shiny trinkets on his makeshift counter, a wide, toothy grin spreading across his face when he notices you.', 
