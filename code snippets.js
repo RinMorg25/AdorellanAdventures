@@ -1,18 +1,15 @@
-// c:\Users\Owner\Desktop\software dev\Rin Games\Adorellan Adventures\AdorellanAdventures\actions.js
+   _findInList(partialName, list) {
+        if (!partialName || !list || list.length === 0) return null;
+        const lowerCasePartialName = partialName.toLowerCase();
 
-    _handleMovement(direction) {
-        // ... (movement logic) ...
+        // 1. Prioritize exact match.
+        // This prevents 'use potion' from using a 'super potion' if a regular 'potion' also exists.
+        let entity = list.find(e => e.name.toLowerCase() === lowerCasePartialName);
+        if (entity) return entity;
 
-        // Update the current room
-        this.game.currentRoom = newRoom;
-
-        // --- Post-movement triggers ---
-
-        const isEnteringMercurialDen = this.game.currentRoom.name === 'The Mercurial Den';
-        // If the den has been activated (crystal taken), it should change state upon entry.
-        if (isEnteringMercurialDen && this.game.gameStateFlags.mercurialDenActive) {
-            this._changeMercurialDen();
-        }
-
-        // ... (other post-movement logic) ...
+        // 2. Fallback to partial match (finds the first one).
+        // This allows 'inspect fan' to find 'blue feather hand fan'.
+        return list.find(e => e.name.toLowerCase().includes(lowerCasePartialName));
     }
+
+    

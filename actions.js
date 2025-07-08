@@ -79,6 +79,20 @@ export class ActionHandler {
         return "I don't understand that command. Try 'help' to see a list of available commands.";
     }
 
+    _findInList(partialName, list) {
+        if (!partialName || !list || list.length === 0) return null;
+        const lowerCasePartialName = partialName.toLowerCase();
+
+        // 1. Prioritize exact match.
+        // This prevents 'use potion' from using a 'super potion' if a regular 'potion' also exists.
+        let entity = list.find(e => e.name.toLowerCase() === lowerCasePartialName);
+        if (entity) return entity;
+
+        // 2. Fallback to partial match (finds the first one).
+        // This allows 'inspect fan' to find 'blue feather hand fan'.
+        return list.find(e => e.name.toLowerCase().includes(lowerCasePartialName));
+    }
+
     _changeMercurialDen() {
         const den = this.game.worldMap['chamber'];
         const numStates = this.mercurialDenStates.length;
@@ -216,17 +230,17 @@ export class ActionHandler {
             return "You approach the rustic cabin. The wooden planks are weathered but sturdy. You notice the door is slightly ajar, inviting you to go forward.";
         }
 
-        const item = this.game.currentRoom.items.find(i => i.name.toLowerCase() === target.toLowerCase());
+        const item = this._findInList(target, this.game.currentRoom.items);
         if (item) {
             return item.examine(); // Use item.examine() for consistency
         }
 
-        const monster = this.game.currentRoom.monsters.find(m => m.name.toLowerCase() === target.toLowerCase());
+        const monster = this._findInList(target, this.game.currentRoom.monsters);
         if (monster) {
             return monster.description;
         }
 
-        const npc = this.game.currentRoom.npcs.find(n => n.name.toLowerCase() === target.toLowerCase());
+        const npc = this._findInList(target, this.game.currentRoom.npcs);
         if (npc) {
             return npc.description;
         }
@@ -256,7 +270,7 @@ export class ActionHandler {
     }
 
     _handleTake(itemName) {
-        const item = this.game.currentRoom.items.find(i => i.name.toLowerCase() === itemName.toLowerCase());
+        const item = this._findInList(itemName, this.game.currentRoom.items);
 
         if (!item) {
             return `There is no ${itemName} here.`;
@@ -329,7 +343,7 @@ export class ActionHandler {
     _handleUse(itemName) {
         const player = this.game.player;
         const room = this.game.currentRoom;
-        const item = player.getItem(itemName.toLowerCase());
+        const item = this._findInList(itemName, player.inventory);
 
         if (item) {
             // --- Special Case: Vault Puzzle ---
@@ -367,7 +381,7 @@ export class ActionHandler {
     }
 
     _handleDrop(itemName) {
-        const item = this.game.player.getItem(itemName.toLowerCase());
+        const item = this._findInList(itemName, this.game.player.inventory);
         if (item) {
             this.game.player.removeItem(item); // Remove from player's inventory
             this.game.currentRoom.addItem(item); // Add to the current room's items
@@ -377,7 +391,14 @@ export class ActionHandler {
     }
 
     _handleBattle(target) {
-        const monster = this.game.currentRoom.monsters.find(m => m.name.toLowerCase() === target.toLowerCase() || (target === '' && this.game.currentRoom.monsters.length > 0));
+        let monster;
+        if (target) {
+            // Find monster by partial name
+            monster = this._findInList(target, this.game.currentRoom.monsters);
+        } else if (this.game.currentRoom.monsters.length > 0) {
+            // If no target is specified, attack the first monster in the room.
+            monster = this.game.currentRoom.monsters[0];
+        }
         if (monster) {
             return this.game.battleSystem.startBattle(this.game.player, monster);
         }
@@ -464,7 +485,7 @@ export class ActionHandler {
         const topic = parts.length > 1 ? parts[1].trim() : 'default';
 
         // Find the NPC in the current room
-        const npc = this.game.currentRoom.npcs.find(n => n.name.toLowerCase() === npcName);
+        const npc = this._findInList(npcName, this.game.currentRoom.npcs);
 
         if (npc) {
             return npc.speak(topic);
@@ -506,7 +527,13 @@ export class ActionHandler {
             return "There is no one here to buy from.";
         }
 
-        const itemToBuy = shopkeeper.shopInventory.find(stock => stock.item.name.toLowerCase() === itemName.toLowerCase());
+        const lowerCaseItemName = itemName.toLowerCase();
+        // Prioritize exact match
+        let itemToBuy = shopkeeper.shopInventory.find(stock => stock.item.name.toLowerCase() === lowerCaseItemName);
+        if (!itemToBuy) {
+            // Fallback to partial match
+            itemToBuy = shopkeeper.shopInventory.find(stock => stock.item.name.toLowerCase().includes(lowerCaseItemName));
+        }
 
         if (!itemToBuy) {
             return `${shopkeeper.name} doesn't have a "${itemName}" for sale.`;
