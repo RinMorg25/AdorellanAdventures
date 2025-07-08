@@ -169,8 +169,11 @@ export class ActionHandler {
             const market = this.game.worldMap['market'];
             const scriptorium = this.game.worldMap['scriptorium'];
 
-            temple.exits = {};
-            temple.lockedExits = {};
+            // Non-destructive update: Clear the existing exit objects instead of replacing them.
+            // This preserves the room object's integrity and fixes the item interaction bug.
+            for (const prop in temple.exits) { delete temple.exits[prop]; }
+            for (const prop in temple.lockedExits) { delete temple.lockedExits[prop]; }
+
             temple.setExit('left', market);
             temple.setExit('right', scriptorium);
             temple.setLockedExit('back', previousRoom, true);
@@ -195,92 +198,86 @@ export class ActionHandler {
             return "What do you want to inspect?";
         }
 
-        if (this.game.currentRoom.name === 'The Mercurial Den') {
-            if (target.toLowerCase() === 'coin purse') {
-                const purse = this.game.currentRoom.items.find(i => i.name.toLowerCase() === 'coin purse');
-                if (purse) {
-                    this.game.currentRoom.removeItem(purse);
+        // First, try to find an item in the room that matches the target.
+        const item = this._findInList(target, this.game.currentRoom.items);
+
+        // If an item is found, check for special inspection logic.
+        if (item) {
+            const itemName = item.name.toLowerCase();
+            const roomName = this.game.currentRoom.name;
+
+            // --- Special Item Inspections ---
+
+            // Mercurial Den Items
+            if (roomName === 'The Mercurial Den') {
+                if (itemName === 'coin purse') {
+                    this.game.currentRoom.removeItem(item);
                     const gold = new Item('4 gold coins', 'A small pile of four gold coins.', true, false);
                     gold.goldValue = 4; // Add goldValue property for the take handler
                     this.game.currentRoom.addItem(gold);
                     return 'You open the purse and find four gold coins inside.';
                 }
-            }
-            if (target.toLowerCase() === 'blue feather hand fan') {
-                const fan = this.game.currentRoom.items.find(i => i.name.toLowerCase() === 'blue feather hand fan');
-                if (fan) {
-                    this.game.currentRoom.removeItem(fan);
+                if (itemName === 'blue feather hand fan') {
+                    this.game.currentRoom.removeItem(item);
                     // The blue feather acts as the new blue key
                     this.game.currentRoom.addItem(new Item('blue feather', 'A single, large feather that seems to have a faint blue glow about it. It feels strangely sturdy.', true, true));
                     return "You pick up the hand fan for a closer look. As you handle it, one of the feathers comes loose and falls onto the chair. It seems to have a faint blue glow about it. The rest of the fan feels mundane.";
                 }
-            }
-            // Special case for the sticky pouch in the Goblin Casino state
-            if (target.toLowerCase().includes('pouch')) {
-                const pouch = this._findInList('sticky leather pouch', this.game.currentRoom.items);
-                if (pouch) {
+                if (itemName === 'sticky leather pouch') {
                     // The pouch is removed and replaced with gold. No flag is needed as the room state resets on re-entry.
-                    this.game.currentRoom.removeItem(pouch);
+                    this.game.currentRoom.removeItem(item);
                     const gold = new Item('13 gold coins', 'A small pile of thirteen gold coins.', true, false);
                     gold.goldValue = 13;
                     this.game.currentRoom.addItem(gold);
                     return 'You untie the rotting twine on the greasy pouch. It falls apart in your hands, revealing 13 gold coins!';
                 }
             }
-        }
 
-        // Special case for the dented helmet in Clinker's Armoury
-        if (this.game.currentRoom.name === 'Clinker\'s Armoury' && target.toLowerCase() === 'dented helmet') {
-            const helmet = this.game.currentRoom.items.find(i => i.name.toLowerCase() === 'dented helmet');
-            // Check if the potion has already been found using a game state flag
-            if (helmet && !this.game.gameStateFlags.foundHelmetPotion) {
-                this.game.gameStateFlags.foundHelmetPotion = true; // Set flag to prevent finding it again
-                const potion = new Item('medium health potion', 'A vial containing a swirling, red liquid.', true, true);
-                this.game.currentRoom.addItem(potion);
-                return 'You peer inside the dented helmet and find a medium health potion tucked away inside the padding. Lucky find!';
-            } else if (helmet) {
-                return 'It\'s just an old, dented helmet. You\'ve already checked it.';
+            // Dented Helmet in Armoury
+            if (roomName === 'Clinker\'s Armoury' && itemName === 'dented helmet') {
+                if (!this.game.gameStateFlags.foundHelmetPotion) {
+                    this.game.gameStateFlags.foundHelmetPotion = true; // Set flag to prevent finding it again
+                    const potion = new Item('medium health potion', 'A vial containing a swirling, red liquid.', true, true);
+                    this.game.currentRoom.addItem(potion);
+                    return 'You peer inside the dented helmet and find a medium health potion tucked away inside the padding. Lucky find!';
+                } else {
+                    return 'It\'s just an old, dented helmet. You\'ve already checked it.';
+                }
             }
-        }
 
-        // Special case for the writing desk in The Scriptorium
-        if (this.game.currentRoom.name === 'The Scriptorium' && target.toLowerCase() === 'writing desk') {
-            const desk = this.game.currentRoom.items.find(i => i.name.toLowerCase() === 'writing desk');
-            // Check if the potion has already been found using a game state flag
-            if (desk && !this.game.gameStateFlags.foundDeskPotion) {
-                this.game.gameStateFlags.foundDeskPotion = true; // Set flag
-                const potion = new Item('medium health potion', 'A vial containing a swirling, red liquid.', true, true);
-                this.game.currentRoom.addItem(potion);
-                return 'You rummage through the drawers of the writing desk. Tucked away beneath some old parchments, you discover a medium health potion.';
-            } else if (desk) {
-                return 'A large, imposing writing desk. You\'ve already checked it.';
+            // Writing Desk in Scriptorium
+            if (roomName === 'The Scriptorium' && itemName === 'writing desk') {
+                if (!this.game.gameStateFlags.foundDeskPotion) {
+                    this.game.gameStateFlags.foundDeskPotion = true; // Set flag
+                    const potion = new Item('medium health potion', 'A vial containing a swirling, red liquid.', true, true);
+                    this.game.currentRoom.addItem(potion);
+                    return 'You rummage through the drawers of the writing desk. Tucked away beneath some old parchments, you discover a medium health potion.';
+                } else {
+                    return 'A large, imposing writing desk. You\'ve already checked it.';
+                }
             }
-        }
 
-        // Special case for the fruit bowl in The Cabin
-        if (this.game.currentRoom.name === 'The Cabin' && target.toLowerCase() === 'fruit bowl') {
-            const fruitBowl = this.game.currentRoom.items.find(i => i.name.toLowerCase() === 'fruit bowl');
-            if (fruitBowl) {
-                this.game.currentRoom.removeItem(fruitBowl);
+            // Fruit Bowl in Cabin
+            if (roomName === 'The Cabin' && itemName === 'fruit bowl') {
+                this.game.currentRoom.removeItem(item);
                 // The apple is takeable and usable, the other fruits are just for flavor.
                 const apple = new Item('red apple', 'A shiny red apple that emits a faint, warm glow.', true, true);
                 this.game.currentRoom.addItem(apple);
                 return 'you empty the fruit bowl on to the table. It holds 3 peaches, 2 bananas, a bushel of green grapes, 1 kiwi and a red apple that seems to have a faint glow about it.';
             }
+
+            // If no special logic matches, return the default description.
+            return item.examine();
         }
+
+        // --- Non-Item Inspections ---
 
         // Special case for the cabin in Haven Shield
         if (this.game.currentRoom.name === 'Haven Shield' && target.toLowerCase() === 'cabin') {
-            // If the forward exit is locked, unlock it upon inspection.
             if (this.game.currentRoom.lockedExits['forward'] === 'inspect_cabin') {
                 this.game.currentRoom.unlockExit('forward');
             }
             return "You approach the rustic cabin. The wooden planks are weathered but sturdy. You notice the door is slightly ajar, inviting you to go forward.";
-        }
-
-        const item = this._findInList(target, this.game.currentRoom.items);
-        if (item) {
-            return item.examine(); // Use item.examine() for consistency
         }
 
         const monster = this._findInList(target, this.game.currentRoom.monsters);
