@@ -89,16 +89,9 @@ body {
     cursor: pointer;
     border: none;
     border-radius: 8px;
-    background-color: red; /* A green color, often used for "start" buttons */
     color: white;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-.cta-button:hover,
-#characterSelectionScreen .character-options button:hover {
-    background-color: gold; /* Darker green on hover */
-    color: black;
 }
 
 .cta-button:active,
@@ -106,15 +99,27 @@ body {
     transform: translateY(1px); /* Simple press effect */
 }
 
-/* The confirm button is now part of .character-options and inherits most styles. */
-/* We only need to override its background color and hover state. */
-#characterSelectionScreen #confirmCharacterButton {
-    background-color: #28a745; /* A distinct green */
+/* --- Primary Buttons (Green): Start, Confirm, Play Again --- */
+.cta-button, /* This now targets Start and Play Again */
+#confirmCharacterButton {
+    background-color: #28a745; /* A distinct green for primary actions */
 }
 
-/* Specific hover for the confirm button */
-#characterSelectionScreen #confirmCharacterButton:hover {
+.cta-button:hover,
+#confirmCharacterButton:hover {
     background-color: #218838; /* Darker green on hover */
+}
+
+/* --- Secondary Buttons (Red): Male/Female Selection --- */
+#selectMaleButton,
+#selectFemaleButton {
+    background-color: red;
+}
+
+#selectMaleButton:hover,
+#selectFemaleButton:hover {
+    background-color: gold;
+    color: black;
 }
 
 /* Specific layout for Character Selection Screen */
