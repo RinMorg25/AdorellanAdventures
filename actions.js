@@ -220,7 +220,8 @@ export class ActionHandler {
         }
 
         // First, try to find an item in the room that matches the target.
-        const item = this._findInList(target, this.game.currentRoom.items);
+        const itemStack = this._findItemStack(target, this.game.currentRoom.items);
+        const item = itemStack ? itemStack.item : null;
 
         // If an item is found, check for special inspection logic.
         if (item) {
@@ -506,10 +507,12 @@ export class ActionHandler {
     }
 
     _handleDrop(itemName) {
-        const item = this._findInList(itemName, this.game.player.inventory);
+        // Find the item stack in the player's inventory.
+        const itemStack = this._findItemStack(itemName, this.game.player.inventory);
+        const item = itemStack ? itemStack.item : null;
         if (item) {
-            this.game.player.removeItem(item); // Remove from player's inventory
-            this.game.currentRoom.addItem(item); // Add to the current room's items
+            this.game.player.removeItem(item, 1); // Remove one instance from player's inventory
+            this.game.currentRoom.addItem(item, 1); // Add one instance to the current room's items
             return `You drop the ${itemName}.`;
         }
         return `You don't have a ${itemName} to drop.`;
