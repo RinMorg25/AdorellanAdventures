@@ -60,26 +60,18 @@ export class BattleSystem {
     }
     
     playerAttack(player, monster) {
-        const baseDamageRoll = Math.floor(Math.random() * 13) + 1; // Rolls 1-13
-        let finalDamageToApply; // Damage before monster's defense
+        const CRIT_CHANCE = 0.15; // 15% chance to critically hit
+        let finalDamageToApply;
         let isCritical = false;
 
-        // Critical hits are triggered by the four highest numbers from the 1-13 roll (10, 11, 12, 13)
-        if (baseDamageRoll > 9) {
+        // Determine if the attack is a critical hit
+        if (Math.random() < CRIT_CHANCE) {
             isCritical = true;
-
-            // Calculate the maximum possible damage value for a critical hit based on player's level
-            let maxCritDamageValue = 11 + (player.level - 1) * 2;
-            maxCritDamageValue = Math.min(maxCritDamageValue, 18); // Cap at 18
-
-            // Minimum damage value for a critical hit output
-            const minCritDamageValue = 10;
-
-            // Critical damage is a random number between minCritDamageValue and maxCritDamageValue (inclusive)
-            finalDamageToApply = Math.floor(Math.random() * (maxCritDamageValue - minCritDamageValue + 1)) + minCritDamageValue;
+            // A critical hit deals the player's maximum possible damage
+            finalDamageToApply = player.attack;
         } else {
-            // Not a critical hit, damage is the base roll (1-9)
-            finalDamageToApply = baseDamageRoll;
+            // A normal hit is a random roll from 1 to the player's attack value
+            finalDamageToApply = Math.floor(Math.random() * player.attack) + 1;
         }
 
         const actualDamage = monster.takeDamage(finalDamageToApply);

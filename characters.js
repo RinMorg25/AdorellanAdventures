@@ -2,10 +2,21 @@ import { Item } from './items.js';
 
 // This data is inferred from the character selection screen setup in main.js
 export const archetypeData = [
-    { name: 'Valerius', health: 120, strength: 12, dexterity: 8, portrait: './assets/images/male_portrait_1.png', description: 'A stalwart warrior, trading speed for power and resilience.' },
-    { name: 'Kaelan', health: 100, strength: 10, dexterity: 12, portrait: './assets/images/male_portrait_2.png', description: 'A balanced fighter, quick on his feet and sharp with his blade.' },
-    { name: 'Seraphina', health: 90, strength: 8, dexterity: 15, portrait: './assets/images/female_portrait_1.png', description: 'A nimble rogue, whose swift strikes find any weakness.' },
-    { name: 'Lyra', health: 110, strength: 14, dexterity: 9, portrait: './assets/images/female_portrait_2.png', description: 'A fierce combatant, relying on overwhelming force to vanquish foes.' }
+    // --- Male (Index 0-5) ---
+    { name: 'Valerius', health: 120, strength: 12, dexterity: 6, description: 'A stalwart warrior, trading speed for power and resilience.' }, // Male Warrior
+    { name: 'Kaelan', health: 90, strength: 8, dexterity: 14, description: 'A nimble rogue, whose swift strikes find any weakness.' }, // Male Rogue
+    { name: 'Orion', health: 100, strength: 10, dexterity: 12, description: 'A keen-eyed ranger, at home in the wild and deadly with a bow.' }, // Male Ranger
+    { name: 'Lianor', health: 95, strength: 9, dexterity: 11, description: 'A charismatic bard, whose tales are as sharp as his wit.' }, // Male Bard
+    { name: 'Anselm', health: 110, strength: 7, dexterity: 9, description: 'A devoted healer, whose knowledge of herbs and salves is unmatched.' }, // Male Healer
+    { name: 'Zander', health: 80, strength: 15, dexterity: 7, description: 'A powerful mage, who channels raw arcane energy to devastate his foes.' }, // Male Mage
+    
+    // --- Female (Index 6-11) ---
+    { name: 'Lyra', health: 115, strength: 14, dexterity: 7, description: 'A fierce combatant, relying on overwhelming force to vanquish foes.' }, // Female Warrior
+    { name: 'Seraphina', health: 85, strength: 7, dexterity: 15, description: 'A deadly assassin, moving like a shadow and striking with precision.' }, // Female Rogue
+    { name: 'Faelan', health: 95, strength: 9, dexterity: 13, description: 'A swift huntress, her arrows never miss their mark.' }, // Female Ranger
+    { name: 'Elara', health: 90, strength: 8, dexterity: 12, description: 'A gifted songstress, weaving magic with her melodies and words.' }, // Female Bard
+    { name: 'Sorina', health: 105, strength: 6, dexterity: 10, description: 'A compassionate cleric, who mends wounds and protects the weak.' }, // Female Healer
+    { name: 'Morgana', health: 75, strength: 16, dexterity: 6, description: 'A formidable sorceress, commanding potent spells with ease.' } // Female Mage
 ];
 
 export class Character {
@@ -138,7 +149,9 @@ export class Character {
     }
 
     takeDamage(amount) {
-        const damageTaken = Math.max(0, amount - this.defense);
+        // Ensure at least 1 point of damage is taken from a hit, for consistency with monster's takeDamage.
+        // This prevents high defense from making the player completely immune to weaker monsters.
+        const damageTaken = Math.max(1, amount - this.defense);
         this.health -= damageTaken;
         if (this.health <= 0) {
             this.health = 0;

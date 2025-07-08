@@ -307,7 +307,7 @@ function appendText(text) {
                 // Select the first female portrait
                 if (femalePortraitsGrid.children.length > 0) {
                     femalePortraitsGrid.children[0].classList.add('selected');
-                    selectedArchetypeIndex = 0;
+                    selectedArchetypeIndex = 6; // Index of the first female archetype
                 }
             }
         },
