@@ -81,7 +81,7 @@ body {
     margin-bottom: 30px;
 }
 
-#titleScreen button#startButton,
+.cta-button,
 #characterSelectionScreen .character-options button {
     /* Make padding and font-size responsive */
     padding: clamp(10px, 2vh, 15px) clamp(20px, 4vw, 30px);
@@ -95,13 +95,13 @@ body {
     transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
-#titleScreen button#startButton:hover,
+.cta-button:hover,
 #characterSelectionScreen .character-options button:hover {
     background-color: gold; /* Darker green on hover */
     color: black;
 }
 
-#titleScreen button#startButton:active,
+.cta-button:active,
 #characterSelectionScreen .character-options button:active {
     transform: translateY(1px); /* Simple press effect */
 }
