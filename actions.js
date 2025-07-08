@@ -18,7 +18,10 @@ export class ActionHandler {
                 description: `The air grows damp and earthy as you push through a curtain of thick, hanging moss. You enter a cavern that glows with an eerie, beautiful light. The entire room is a forest of fungi, towering mushrooms, some as tall as trees, form a canopy of pulsating, bioluminescent caps in shades of deep blue, vibrant purple, and sickly green. The ground is a soft, springy carpet of white mycelium that muffles your footsteps. The air hums with a low, resonant frequency, and the only other sound is the slow drip-drip-drip of condensation falling from the giant caps onto smaller mushroom clusters below.
                 In the centre of the room, a ring of flat-topped, waist-high toadstools are arranged like chairs around a single, petrified stump that serves as a table. Upon this stump sits a half-finished game of chess, but the pieces are carved from different-coloured mushrooms.
                 Near the far wall, a small waterfall of phosphorescent slime trickles down the rock face into a crystal-clear pool, illuminating a skeleton lying at the bottom, its bony arms wrapped around a heavy-looking chest.`,
-                items: () => [new Item('singing stone', 'A smooth, grey stone that vibrates gently.', true, true)]
+                items: () => [
+                    new Item('singing stone', 'A smooth, grey stone that vibrates gently.', true, true),
+                    new Item('Iron-Skin Fungi', 'A small cluster of bright orange mushrooms growing on the petrified stump.', true, true)
+                ]
             },
             {
                 // State 3: The Geyser Powered Bathhouse
@@ -28,7 +31,10 @@ export class ActionHandler {
             {
                 // State 4: The Goblin Casino
                 description: `The room is a disaster. It was clearly once a makeshift, low-rent casino run by goblins. A roulette wheel made from a painted shield lies on its side, a card table is covered in crude, goblin-drawn cards depicting leering faces, and a "slot machine" built from scrap metal, gears, and a large bear trap for a lever stands in the corner. The floor is sticky with spilled grog, and the air smells of rust and disappointment.`,
-                items: () => []
+                items: () => [
+                    new Item('large health potion', 'A large, bubbling potion in a sturdy flask. It looks potent.', true, true),
+                    new Item('sticky leather pouch', 'A small, greasy coin pouch bound with rotting twine. It looks like it was left in the coin return of the busted slot machine.', false, false)
+                ]
             },
             {
                 // State 5: A Mini Metropolis
@@ -194,7 +200,9 @@ export class ActionHandler {
                 const purse = this.game.currentRoom.items.find(i => i.name.toLowerCase() === 'coin purse');
                 if (purse) {
                     this.game.currentRoom.removeItem(purse);
-                    this.game.currentRoom.addItem(new Item('4 gold coins', 'A small pile of four gold coins.', true, false));
+                    const gold = new Item('4 gold coins', 'A small pile of four gold coins.', true, false);
+                    gold.goldValue = 4; // Add goldValue property for the take handler
+                    this.game.currentRoom.addItem(gold);
                     return 'You open the purse and find four gold coins inside.';
                 }
             }
@@ -206,6 +214,46 @@ export class ActionHandler {
                     this.game.currentRoom.addItem(new Item('blue feather', 'A single, large feather that seems to have a faint blue glow about it. It feels strangely sturdy.', true, true));
                     return "You pick up the hand fan for a closer look. As you handle it, one of the feathers comes loose and falls onto the chair. It seems to have a faint blue glow about it. The rest of the fan feels mundane.";
                 }
+            }
+            // Special case for the sticky pouch in the Goblin Casino state
+            if (target.toLowerCase().includes('pouch')) {
+                const pouch = this._findInList('sticky leather pouch', this.game.currentRoom.items);
+                if (pouch) {
+                    // The pouch is removed and replaced with gold. No flag is needed as the room state resets on re-entry.
+                    this.game.currentRoom.removeItem(pouch);
+                    const gold = new Item('13 gold coins', 'A small pile of thirteen gold coins.', true, false);
+                    gold.goldValue = 13;
+                    this.game.currentRoom.addItem(gold);
+                    return 'You untie the rotting twine on the greasy pouch. It falls apart in your hands, revealing 13 gold coins!';
+                }
+            }
+        }
+
+        // Special case for the dented helmet in Clinker's Armoury
+        if (this.game.currentRoom.name === 'Clinker\'s Armoury' && target.toLowerCase() === 'dented helmet') {
+            const helmet = this.game.currentRoom.items.find(i => i.name.toLowerCase() === 'dented helmet');
+            // Check if the potion has already been found using a game state flag
+            if (helmet && !this.game.gameStateFlags.foundHelmetPotion) {
+                this.game.gameStateFlags.foundHelmetPotion = true; // Set flag to prevent finding it again
+                const potion = new Item('medium health potion', 'A vial containing a swirling, red liquid.', true, true);
+                this.game.currentRoom.addItem(potion);
+                return 'You peer inside the dented helmet and find a medium health potion tucked away inside the padding. Lucky find!';
+            } else if (helmet) {
+                return 'It\'s just an old, dented helmet. You\'ve already checked it.';
+            }
+        }
+
+        // Special case for the writing desk in The Scriptorium
+        if (this.game.currentRoom.name === 'The Scriptorium' && target.toLowerCase() === 'writing desk') {
+            const desk = this.game.currentRoom.items.find(i => i.name.toLowerCase() === 'writing desk');
+            // Check if the potion has already been found using a game state flag
+            if (desk && !this.game.gameStateFlags.foundDeskPotion) {
+                this.game.gameStateFlags.foundDeskPotion = true; // Set flag
+                const potion = new Item('medium health potion', 'A vial containing a swirling, red liquid.', true, true);
+                this.game.currentRoom.addItem(potion);
+                return 'You rummage through the drawers of the writing desk. Tucked away beneath some old parchments, you discover a medium health potion.';
+            } else if (desk) {
+                return 'A large, imposing writing desk. You\'ve already checked it.';
             }
         }
 
@@ -295,20 +343,14 @@ export class ActionHandler {
             return `You cannot take the ${item.name}.`;
         }
 
-        // Special handling for gold coins to be added directly to player's gold
-        if (item.name.toLowerCase() === 'gold coins') {
-            this.game.player.gold += 2; // The item's description implies 2 gold coins
+        // --- Refactored Gold Handling ---
+        // Checks for a 'goldValue' property on the item.
+        if (item.goldValue && item.goldValue > 0) {
+            this.game.player.gold += item.goldValue;
             this.game.currentRoom.removeItem(item);
-            return `You take the 2 gold coins and add them to your pouch. You now have ${this.game.player.gold} gold.`;
+            const coinString = item.goldValue === 1 ? 'coin' : 'coins';
+            return `You take the ${item.goldValue} gold ${coinString} and add it to your pouch. You now have ${this.game.player.gold} gold.`;
         }
-
-        // Special handling for the 4 gold coins from the coin purse
-        if (item.name.toLowerCase() === '4 gold coins') {
-            this.game.player.gold += 4;
-            this.game.currentRoom.removeItem(item);
-            return `You take the 4 gold coins and add them to your pouch. You now have ${this.game.player.gold} gold.`;
-        }
-
         // --- Special trigger for the Ornate Compass in the Treasure Room ---
         if (item.name.toLowerCase() === 'ornate compass' && this.game.currentRoom.name === 'The Treasure Room') {
             this.game.player.addItem(item);
@@ -346,6 +388,42 @@ export class ActionHandler {
         const item = this._findInList(itemName, player.inventory);
 
         if (item) {
+            // --- Special Case: Large Health Potion ---
+            if (item.name.toLowerCase() === 'large health potion') {
+                const healthRestored = 35;
+                const oldHealth = player.health;
+                player.health = Math.min(player.maxHealth, player.health + healthRestored);
+                const actualRestored = player.health - oldHealth;
+                // This item is consumed, so we must remove it.
+                player.removeItem(item);
+                this.game.updateStatusBars(); // Ensure UI updates immediately
+                return `You drink the large health potion and feel a powerful surge of vitality, restoring ${actualRestored} health. You now have ${player.health}/${player.maxHealth} health.`;
+            }
+
+            // --- Special Case: Medium Health Potion ---
+            if (item.name.toLowerCase() === 'medium health potion') {
+                const healthRestored = 20;
+                const oldHealth = player.health;
+                player.health = Math.min(player.maxHealth, player.health + healthRestored);
+                const actualRestored = player.health - oldHealth;
+                // This item is consumed, so we must remove it.
+                player.removeItem(item);
+                this.game.updateStatusBars(); // Ensure UI updates immediately
+                return `You drink the medium health potion, feeling a pleasant warmth spread through you. You restore ${actualRestored} health. You now have ${player.health}/${player.maxHealth} health.`;
+            }
+
+            // --- Special Case: Small Health Potion ---
+            if (item.name.toLowerCase() === 'small health potion') {
+                const healthRestored = 15;
+                const oldHealth = player.health;
+                player.health = Math.min(player.maxHealth, player.health + healthRestored);
+                const actualRestored = player.health - oldHealth;
+                // This item is consumed, so we must remove it.
+                player.removeItem(item);
+                this.game.updateStatusBars(); // Ensure UI updates immediately
+                return `You drink the small health potion and restore ${actualRestored} health. You now have ${player.health}/${player.maxHealth} health.`;
+            }
+
             // --- Special Case: Vault Puzzle ---
             if (room.name === 'The Vault') {
                 if (item.name.toLowerCase() === 'red apple') {
@@ -479,8 +557,14 @@ export class ActionHandler {
             return "Who do you want to talk to?";
         }
 
+        // Allow for "talk to [npc]" by stripping "to " if it exists.
+        let targetString = fullTarget.toLowerCase();
+        if (targetString.startsWith('to ')) {
+            targetString = targetString.substring(3).trim();
+        }
+
         // Parse the input for a target and an optional topic
-        const parts = fullTarget.toLowerCase().split(' about ');
+        const parts = targetString.split(' about ');
         const npcName = parts[0].trim();
         const topic = parts.length > 1 ? parts[1].trim() : 'default';
 
@@ -563,7 +647,7 @@ export class ActionHandler {
             "<strong>attack [monster]</strong>: Engage in combat with a monster.",
             "<strong>flee</strong>: Attempt to run away from a battle.",
             "<strong>play [choice]</strong>: Play a game of chance when prompted (e.g., 'play rock').",
-            "<strong>talk [person]</strong> or <strong>talk [person] about [topic]</strong>: Speak to a friendly character.",
+            "<strong>talk to [person]</strong> or <strong>talk to [person] about [topic]</strong>: Speak to a friendly character.",
             "<strong>list</strong>: Shows items for sale if a shopkeeper is present.",
             "<strong>buy [item]</strong>: Purchase an item from a shopkeeper."
         ];

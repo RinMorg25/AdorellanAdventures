@@ -120,6 +120,14 @@ export class Room {
 }
 
 export function createWorld() {
+    // Helper function to create gold items with a value property
+    const createGold = (amount) => {
+        const coinString = amount === 1 ? 'coin' : 'coins';
+        const gold = new Item(`${amount} gold ${coinString}`, `A small pile of ${amount} gold ${coinString}.`, true, false);
+        gold.goldValue = amount;
+        return gold;
+    };
+
     // --- 1. Define World Data ---
     const roomData = {
         'entrance': { name: 'The Glade', description: 'After what feels like an eternity of pushing through an unforgiving, dense forest, the trees finally part. You step into a secluded glade, a place that feels untouched by time. The air is crisp, filled with the scent of damp earth and decaying leaves. A circle of towering trees, their leaves a brilliant tapestry of gold, crimson, and amber, stands as silent sentinels, walling this place off from the outside world. It\'s clear why this glade has remained hidden for so long.\n\nBefore you stands the true prize of your journey: the entrance to The Labyrinth of Lyre, Adorellan\'s most ancient and storied site. The entrance is formidable. Tall, ancient stone walls, grey and weathered with age, rise up to meet the sky. Set within these walls are thick, heavy wrought-iron gates, their surface pitted with rust and age. A dense curtain of thick, dark green vines chokes the gates, weaving through the bars so completely that nothing of the labyrinth beyond can be seen. The silence here is profound, broken only by the rustle of leaves under your feet.' },
@@ -187,18 +195,51 @@ export function createWorld() {
     specialJournal.onTakeFailMessage = 'This Adventure is not ready for you YET Brave Adventurer!';
 
     const itemPlacement = {
+        'entrance': [new Item('small health potion', 'A small vial of red liquid, dropped near the entrance.', true, true)],
         'courtyard': [new Item('torch', 'A flickering torch that provides light in dark places.', true)],
         'chamber': [new Item('crystal', 'A glowing blue crystal that pulses with mystical energy.', true)],
-        'clinkers': [new Item('sword', 'An ancient sword with mysterious runes etched into the blade.', true)],
-        'armouryHallway': [new Item('lockpick', 'A set of lock picks, half-hidden under some debris. Useful for opening locked doors.', true)],
+        'clinkers': [
+            new Item('sword', 'An ancient sword with mysterious runes etched into the blade.', true),
+            new Item('dented helmet', 'A dented old helmet. Looks like it has seen many battles.', false, false),
+            createGold(2)
+        ],
+        'armouryHallway': [
+            new Item('lockpick', 'A set of lock picks, half-hidden under some debris. Useful for opening locked doors.', true),
+            new Item('small health potion', 'A small vial of red liquid, tucked behind a loose stone.', true, true)
+        ],
         'market': [new Item('potion', 'A healing potion, left behind on a stall.', true)], // Added a reward for getting into the market
         'grottoHallway': [new Item('potion', 'A healing potion, dropped carelessly on the floor.', true)],
         'safezone': [new Item('waterskin', 'A discarded waterskin, still half-full of clean water.', true)],
+        'bunkers': [new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, left on a dusty bunk.', true, true)],
+        'marketCorridor': [new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, lying on the floor.', true, true)],
+        'bunkerHallway': [
+            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, peeking out from under some debris.', true, true),
+            createGold(1)
+        ],
+        'vaultHallway': [new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, looking strangely out of place in the sterile hall.', true, true)],
+        'zHallway': [
+            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, tucked into a corner.', true, true),
+            new Item('small health potion', 'A small vial of red liquid, lying in the dust.', true, true)
+        ],
+        'temple': [
+            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, left on a stone altar.', true, true),
+            createGold(4)
+        ],
+        'scriptorium': [
+            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, used as a makeshift bookmark in a dusty tome.', true, true),
+            new Item('writing desk', 'A large, imposing writing desk made of dark wood. It has several small drawers.', false, false),
+            createGold(2)
+        ],
+        'bendyHallway': [
+            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, dropped on the floor of the quiet corridor.', true, true),
+            new Item('small health potion', 'A small vial of red liquid, resting on a ledge.', true, true)
+        ],
+        'hiddenCavern': [createGold(4)],
         'cabin': [
             new Item('leather vest', 'A simple vest made of hardened leather.', true),
-            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper.', true),
+            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper.', true, true),
             new Item('fruit bowl', 'A well-stocked fruit bowl. It looks delicious.', false),
-            new Item('gold coins', 'Two shiny gold coins.', true, false)
+            createGold(2)
         ],
         'treasureRoom': [
             new Item('ornate compass', 'An ornate compass. The plaque in front of it reads: Stay and Explore.', true),
