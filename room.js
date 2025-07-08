@@ -23,15 +23,40 @@ export class Room {
         this.lockedExits[direction] = keyName;
     }
 
-     addItem(item) {
-        this.items.push(item);
+    addItem(item, quantity = 1) {
+        // Non-stackable items are always added as a new stack of 1
+        if (!item.stackable) {
+            for (let i = 0; i < quantity; i++) {
+                this.items.push({ item: item, quantity: 1 });
+            }
+            return;
+        }
+
+        // For stackable items, find an existing stack
+        const existingStack = this.items.find(stack => stack.item.name === item.name);
+
+        if (existingStack) {
+            existingStack.quantity += quantity;
+        } else {
+            // If no stack exists, create a new one
+            this.items.push({ item: item, quantity: quantity });
+        }
     }
     
-    removeItem(item) {
-        const index = this.items.indexOf(item);
-        if (index > -1) {
-            this.items.splice(index, 1);
+    removeItem(item, quantity = 1) {
+        const stackIndex = this.items.findIndex(stack => stack.item.name === item.name);
+
+        if (stackIndex > -1) {
+            const stack = this.items[stackIndex];
+            stack.quantity -= quantity;
+
+            // If the stack is empty, remove it from the array
+            if (stack.quantity <= 0) {
+                this.items.splice(stackIndex, 1);
+            }
+            return true; // Indicate success
         }
+        return false; // Indicate item not found
     }
     
     addMonster(monster) {
@@ -61,7 +86,10 @@ export class Room {
         let desc = `${this.name}\n${baseDesc}`;
         
         if (this.items.length > 0) {
-            desc += `\n\nYou see: ${this.items.map(item => item.name).join(', ')}`;
+            const itemDescriptions = this.items.map(stack => {
+                return stack.quantity > 1 ? `${stack.quantity}x ${stack.item.name}` : stack.item.name;
+            });
+            desc += `\n\nYou see: ${itemDescriptions.join(', ')}`;
         }
         
         if (this.monsters.length > 0) {
@@ -120,15 +148,36 @@ export class Room {
 }
 
 export function createWorld() {
-    // Helper function to create gold items with a value property
-    const createGold = (amount) => {
-        const coinString = amount === 1 ? 'coin' : 'coins';
-        const gold = new Item(`${amount} gold ${coinString}`, `A small pile of ${amount} gold ${coinString}.`, true, false);
-        gold.goldValue = amount;
-        return gold;
-    };
+    // --- 1. Define All Game Items ---
+    // The `stackable` parameter is constructor(name, description, stackable, canTake, isUsable)
+    const gameItems = {
+        // Stackable Consumables & Currency
+        smallHealthPotion: new Item('small health potion', 'A small vial of green liquid that restores a minor amount of health.', true, true, true),
+        pieceOfCandy: new Item('piece of candy', 'A piece of candy in a blue and purple wrapper. Restores a bit of energy.', true, true, true),
+        goldCoin: new Item('gold coin', 'A shiny gold coin.', true, true, false), // Gold is now a stackable item
+        potion: new Item('potion', 'A healing potion, brewed by an unknown hand.', true, true, true),
+        mediumHealthPotion: new Item('medium health potion', 'A vial of shimmering red liquid that restores a moderate amount of health.', true, true, true),
 
-    // --- 1. Define World Data ---
+        // Non-Stackable Items (Key items, equipment, etc.)
+        torch: new Item('torch', 'A flickering torch that provides light in dark places.', false, true, true),
+        crystal: new Item('crystal', 'A glowing blue crystal that pulses with mystical energy.', false, true, true),
+        sword: new Item('sword', 'An ancient sword with mysterious runes etched into the blade.', false, true, true),
+        dentedHelmet: new Item('dented helmet', 'A dented old helmet. Looks like it has seen many battles.', false, false, false),
+        lockpick: new Item('lockpick', 'A set of lock picks, useful for opening locked doors.', false, true, true),
+        waterskin: new Item('waterskin', 'A discarded waterskin, still half-full of clean water.', false, true, true),
+        writingDesk: new Item('writing desk', 'A large, imposing writing desk made of dark wood.', false, false, false),
+        leatherVest: new Item('leather vest', 'A simple vest made of hardened leather.', false, true, true),
+        fruitBowl: new Item('fruit bowl', 'A well-stocked fruit bowl. It looks delicious.', false, false, false),
+        ornateCompass: new Item('ornate compass', 'An ornate compass. The plaque in front of it reads: Stay and Explore.', false, true, true),
+        treasureChest: new Item('treasure chest', 'A pocket-sized treasure chest. The plaque reads: For your grit & determination...', false, true, true),
+        specialJournal: new Item('old journal', 'A small old leather journal, similar to the one that led you here.', false, false, false),
+        skeletonKey: new Item('skeleton key', 'A key made from bone, said to open any locked chest.', false, true, true),
+        redApple: new Item('red apple', 'A perfectly ripe red apple. It feels strangely significant.', false, true, true),
+        blueFeather: new Item('blue feather', 'A vibrant blue feather that seems to hum with a faint energy.', false, true, true),
+    };
+    gameItems.specialJournal.onTakeFailMessage = 'This Adventure is not ready for you YET Brave Adventurer!';
+
+    // --- 2. Define World Data ---
     const roomData = {
         'entrance': { name: 'The Glade', description: 'After what feels like an eternity of pushing through an unforgiving, dense forest, the trees finally part. You step into a secluded glade, a place that feels untouched by time. The air is crisp, filled with the scent of damp earth and decaying leaves. A circle of towering trees, their leaves a brilliant tapestry of gold, crimson, and amber, stands as silent sentinels, walling this place off from the outside world. It\'s clear why this glade has remained hidden for so long.\n\nBefore you stands the true prize of your journey: the entrance to The Labyrinth of Lyre, Adorellan\'s most ancient and storied site. The entrance is formidable. Tall, ancient stone walls, grey and weathered with age, rise up to meet the sky. Set within these walls are thick, heavy wrought-iron gates, their surface pitted with rust and age. A dense curtain of thick, dark green vines chokes the gates, weaving through the bars so completely that nothing of the labyrinth beyond can be seen. The silence here is profound, broken only by the rustle of leaves under your feet.' },
         'courtyard': { name: 'The Garden of Grie', description: 'With a final, desperate shove, the ancient iron gates groan in protest, their rusted hinges screaming as they reluctantly give way. You stumble forward, catching your balance on the cracked flagstones of a vast, open courtyard. The air here is still and heavy, carrying the scent of dust and forgotten time. With a brief look you notice the discarded remains of old camps and items that belonged to brave adventures long since forgotten.\n\nIn the centre of the courtyard, a once-grand fountain lies in ruins. Its stone basin shattered, and the statue that once stood proudly at its heart is now a toppled, moss-covered casualty of age. A trickle of dark, stagnant water weeps from a crack, pooling on the ground below.\n\nYour eyes are drawn to the far side of the courtyard. Dominating the wall is a massive, intricate circular carving, its ancient design a complex web of interlocking lines and symbols that seem to writhe just at the edge of your vision. Flanking this mysterious emblem are two arched exits.\n\nTo the left, a sturdy iron gate, similar to the one you just forced open, blocks the archway, promising another challenge. To the right, the archway is filled with the splintered remains of a wooden door, hanging precariously from a single hinge, offering a seemingly easier, though perhaps more treacherous, path forward.' },
@@ -190,61 +239,57 @@ export function createWorld() {
         { from: 'windingPassage', to: 'temple', direction: 'forward', oneWay: true },
     ];
 
-    // Create a special journal item for the treasure room
-    const specialJournal = new Item('old journal', 'A small old leather journal, similar to the one that led you here. The plaque states: Knowledge is Power.', false);
-    specialJournal.onTakeFailMessage = 'This Adventure is not ready for you YET Brave Adventurer!';
-
     const itemPlacement = {
-        'entrance': [new Item('small health potion', 'A small vial of red liquid, dropped near the entrance.', true, true)],
-        'courtyard': [new Item('torch', 'A flickering torch that provides light in dark places.', true)],
-        'chamber': [new Item('crystal', 'A glowing blue crystal that pulses with mystical energy.', true)],
+        'entrance': [{ item: gameItems.smallHealthPotion, quantity: 1 }],
+        'courtyard': [{ item: gameItems.torch, quantity: 1 }],
+        'chamber': [{ item: gameItems.crystal, quantity: 1 }],
         'clinkers': [
-            new Item('sword', 'An ancient sword with mysterious runes etched into the blade.', true),
-            new Item('dented helmet', 'A dented old helmet. Looks like it has seen many battles.', false, false),
-            createGold(2)
+            { item: gameItems.sword, quantity: 1 },
+            { item: gameItems.dentedHelmet, quantity: 1 },
+            { item: gameItems.goldCoin, quantity: 2 }
         ],
         'armouryHallway': [
-            new Item('lockpick', 'A set of lock picks, half-hidden under some debris. Useful for opening locked doors.', true),
-            new Item('small health potion', 'A small vial of red liquid, tucked behind a loose stone.', true, true)
+            { item: gameItems.lockpick, quantity: 1 },
+            { item: gameItems.smallHealthPotion, quantity: 1 }
         ],
-        'market': [new Item('potion', 'A healing potion, left behind on a stall.', true)], // Added a reward for getting into the market
-        'grottoHallway': [new Item('potion', 'A healing potion, dropped carelessly on the floor.', true)],
-        'safezone': [new Item('waterskin', 'A discarded waterskin, still half-full of clean water.', true)],
-        'bunkers': [new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, left on a dusty bunk.', true, true)],
-        'marketCorridor': [new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, lying on the floor.', true, true)],
+        'market': [{ item: gameItems.potion, quantity: 1 }],
+        'grottoHallway': [{ item: gameItems.potion, quantity: 1 }],
+        'safezone': [{ item: gameItems.waterskin, quantity: 1 }],
+        'bunkers': [{ item: gameItems.pieceOfCandy, quantity: 1 }],
+        'marketCorridor': [{ item: gameItems.pieceOfCandy, quantity: 1 }],
         'bunkerHallway': [
-            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, peeking out from under some debris.', true, true),
-            createGold(1)
+            { item: gameItems.pieceOfCandy, quantity: 1 },
+            { item: gameItems.goldCoin, quantity: 1 }
         ],
-        'vaultHallway': [new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, looking strangely out of place in the sterile hall.', true, true)],
+        'vaultHallway': [{ item: gameItems.pieceOfCandy, quantity: 1 }],
         'zHallway': [
-            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, tucked into a corner.', true, true),
-            new Item('small health potion', 'A small vial of red liquid, lying in the dust.', true, true)
+            { item: gameItems.pieceOfCandy, quantity: 1 },
+            { item: gameItems.smallHealthPotion, quantity: 1 }
         ],
         'temple': [
-            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, left on a stone altar.', true, true),
-            createGold(4)
+            { item: gameItems.pieceOfCandy, quantity: 1 },
+            { item: gameItems.goldCoin, quantity: 4 }
         ],
         'scriptorium': [
-            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, used as a makeshift bookmark in a dusty tome.', true, true),
-            new Item('writing desk', 'A large, imposing writing desk made of dark wood. It has several small drawers.', false, false),
-            createGold(2)
+            { item: gameItems.pieceOfCandy, quantity: 1 },
+            { item: gameItems.writingDesk, quantity: 1 },
+            { item: gameItems.goldCoin, quantity: 2 }
         ],
         'bendyHallway': [
-            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper, dropped on the floor of the quiet corridor.', true, true),
-            new Item('small health potion', 'A small vial of red liquid, resting on a ledge.', true, true)
+            { item: gameItems.pieceOfCandy, quantity: 1 },
+            { item: gameItems.smallHealthPotion, quantity: 1 }
         ],
-        'hiddenCavern': [createGold(4)],
+        'hiddenCavern': [{ item: gameItems.goldCoin, quantity: 4 }],
         'cabin': [
-            new Item('leather vest', 'A simple vest made of hardened leather.', true),
-            new Item('piece of candy', 'A piece of candy in a blue and purple wrapper.', true, true),
-            new Item('fruit bowl', 'A well-stocked fruit bowl. It looks delicious.', false),
-            createGold(2)
+            { item: gameItems.leatherVest, quantity: 1 },
+            { item: gameItems.pieceOfCandy, quantity: 1 },
+            { item: gameItems.fruitBowl, quantity: 1 },
+            { item: gameItems.goldCoin, quantity: 2 }
         ],
         'treasureRoom': [
-            new Item('ornate compass', 'An ornate compass. The plaque in front of it reads: Stay and Explore.', true),
-            new Item('treasure chest', 'A pocket-sized treasure chest. The plaque in front of it reads: For your grit & determination Brave Adventure. May all the treasures of Lyre ever be in your pocket.', true),
-            specialJournal
+            { item: gameItems.ornateCompass, quantity: 1 },
+            { item: gameItems.treasureChest, quantity: 1 },
+            { item: gameItems.specialJournal, quantity: 1 }
         ],
     };
 
@@ -263,12 +308,12 @@ export function createWorld() {
             'shop': ["Everything here is for sale, friend! If you've got the coin, I've got the... well, the 'stuff'!", "Just 'list' what I've got, or 'buy [item name]' if you see something you fancy!"]
         },
         [ // Shop Inventory
-            { item: new Item('skeleton key', 'A key made from bone, said to open any locked chest.', true), price: 50 },
-            { item: new Item('potion', 'A healing potion, brewed by Grebgela himself. Smells faintly of swamp water.', true), price: 15 }
+            { item: gameItems.skeletonKey, price: 50 },
+            { item: gameItems.mediumHealthPotion, price: 15 }
         ])],
     };
 
-    // --- 2. Build the World from Data ---
+    // --- 3. Build the World from Data ---
     const rooms = {};
 
     // Create all room instances
@@ -300,7 +345,9 @@ export function createWorld() {
 
     // Place items and monsters in rooms
     for (const roomId in itemPlacement) {
-        itemPlacement[roomId].forEach(item => rooms[roomId].addItem(item));
+        itemPlacement[roomId].forEach(placement => {
+            rooms[roomId].addItem(placement.item, placement.quantity);
+        });
     }
     for (const roomId in monsterPlacement) {
         monsterPlacement[roomId].forEach(monster => rooms[roomId].addMonster(monster));
@@ -309,7 +356,7 @@ export function createWorld() {
         npcPlacement[roomId].forEach(npc => rooms[roomId].addNPC(npc));
     }
 
-    // --- 3. Return the Starting Room ---
+    // --- 4. Return the Starting Room ---
     return {
         startRoom: rooms['entrance'],
         rooms: rooms

@@ -1,8 +1,9 @@
 export class Item {
-    constructor(name, description, canTake = true, isUsable = true) {
+    constructor(name, description, stackable = false, canTake = true, isUsable = true) {
         this.name = name;
         this.description = description;
         this.canTake = canTake;
+        this.stackable = stackable;
         this.isUsable = isUsable;
         this.isConsumed = false;
     }

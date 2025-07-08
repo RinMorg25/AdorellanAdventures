@@ -99,6 +99,21 @@ export class ActionHandler {
         return list.find(e => e.name.toLowerCase().includes(lowerCasePartialName));
     }
 
+    _findItemStack(partialName, list) {
+        if (!partialName || !list || list.length === 0) return null;
+        const lowerCasePartialName = partialName.toLowerCase();
+
+        // This function assumes `list` is an array of stacks: [{item, quantity}, ...]
+        // It's designed to work with room and player inventories.
+
+        // 1. Prioritize exact match on item name.
+        let stack = list.find(s => s.item.name.toLowerCase() === lowerCasePartialName);
+        if (stack) return stack;
+
+        // 2. Fallback to partial match.
+        return list.find(s => s.item.name.toLowerCase().includes(lowerCasePartialName));
+    }
+
     _changeMercurialDen() {
         const den = this.game.worldMap['chamber'];
         const numStates = this.mercurialDenStates.length;
@@ -314,50 +329,58 @@ export class ActionHandler {
         return result;
     }
 
-    _handleTake(itemName) {
-        const item = this._findInList(itemName, this.game.currentRoom.items);
+    _handleTake(fullInput) {
+        // Step 1: Parse input for quantity and item name
+        if (!fullInput) {
+            return "What do you want to take?";
+        }
 
-        if (!item) {
+        const parts = fullInput.toLowerCase().split(' ');
+        let quantity = 1;
+        let itemName = fullInput.trim();
+
+        if (parts[0] === 'all') {
+            quantity = 'all';
+            itemName = parts.slice(1).join(' ').trim();
+        } else if (!isNaN(parseInt(parts[0], 10))) {
+            const num = parseInt(parts[0], 10);
+            if (num <= 0) {
+                return "You must take a positive number of items.";
+            }
+            quantity = num;
+            itemName = parts.slice(1).join(' ').trim();
+        }
+
+        if (!itemName) {
+            return "What do you want to take?";
+        }
+
+        // Step 2: Find the item stack in the room
+        const roomItemStack = this._findItemStack(itemName, this.game.currentRoom.items);
+
+        if (!roomItemStack) {
             return `There is no ${itemName} here.`;
         }
 
+        // Step 3: Determine quantities and identify the item
+        const item = roomItemStack.item;
+        const availableQuantity = roomItemStack.quantity;
+        const amountToTake = (quantity === 'all') ? availableQuantity : Math.min(quantity, availableQuantity);
+        const itemNameLower = item.name.toLowerCase();
+        const roomName = this.game.currentRoom.name;
+
+        // Step 4: Handle special-case items BEFORE the generic logic
         // --- Special trigger for the crystal in The Mercurial Den ---
-        if (item.name.toLowerCase() === 'crystal' && this.game.currentRoom.name === 'The Mercurial Den') {
-            this.game.player.addItem(item);
-            this.game.currentRoom.removeItem(item);
+        if (itemNameLower === 'crystal' && roomName === 'The Mercurial Den') {
+            this.game.player.addItem(item, 1); // It's a unique, single item
+            this.game.currentRoom.items = this.game.currentRoom.items.filter(stack => stack !== roomItemStack);
             this.game.gameStateFlags.mercurialDenActive = true;
-            // Set state index to -1 so the first change can be to any state.
-            this.game.gameStateFlags.mercurialDenStateIndex = -1;
-            // This message hints at the new room behavior.
+            this.game.gameStateFlags.mercurialDenStateIndex = -1; // Allows first change to be any state
             return `You take the glowing crystal. As your fingers touch it, the air in the chamber hums and the other crystals on the walls flare with a blinding light. You feel a strange, disorienting energy wash over you. The room seems to settle, but you have a feeling it will not remain the same.`;
         }
 
-        if (!item.canTake) {
-            // Check for a custom "can't take" message
-            if (item.onTakeFailMessage) {
-                return item.onTakeFailMessage;
-            }
-            return `You cannot take the ${item.name}.`;
-        }
-
-        // --- Refactored Gold Handling ---
-        // Checks for a 'goldValue' property on the item.
-        if (item.goldValue && item.goldValue > 0) {
-            this.game.player.gold += item.goldValue;
-            this.game.currentRoom.removeItem(item);
-            const coinString = item.goldValue === 1 ? 'coin' : 'coins';
-            return `You take the ${item.goldValue} gold ${coinString} and add it to your pouch. You now have ${this.game.player.gold} gold.`;
-        }
-        // --- Special trigger for the Ornate Compass in the Treasure Room ---
-        if (item.name.toLowerCase() === 'ornate compass' && this.game.currentRoom.name === 'The Treasure Room') {
-            this.game.player.addItem(item);
-            this.game.currentRoom.removeItem(item);
-            this.game.gameStateFlags.hasOrnateCompassQuest = true; // This flag will be used later for new content
-            return "You take the ornate compass. It feels warm to the touch and the needle spins wildly for a moment before settling. You feel a sense of new purpose, as if unseen paths are now open to you. The treasure can wait; adventure calls.";
-        }
-
         // --- Special trigger for the Treasure Chest (Game End) ---
-        if (item.name.toLowerCase() === 'treasure chest' && this.game.currentRoom.name === 'The Treasure Room') {
+        if (itemNameLower === 'treasure chest' && roomName === 'The Treasure Room') {
             const gameplayScreen = document.getElementById('gameplayScreen');
             const endGameScreen = document.getElementById('endGameScreen');
             const playAgainButton = document.getElementById('playAgainButton');
@@ -365,18 +388,48 @@ export class ActionHandler {
             if (gameplayScreen && endGameScreen && playAgainButton) {
                 gameplayScreen.classList.remove('active');
                 endGameScreen.classList.add('active');
-
-                // Add a one-time event listener to the button to prevent multiple bindings.
-                playAgainButton.addEventListener('click', () => {
-                    location.reload(); // Reload the page to restart the game.
-                }, { once: true });
+                playAgainButton.addEventListener('click', () => location.reload(), { once: true });
             }
-            return ' '; // Return a space to prevent "You take the..." message from appearing.
+            return ' '; // Return a space to prevent "You take the..." message
         }
 
-        this.game.player.addItem(item); // Use player's addItem method
-        this.game.currentRoom.removeItem(item);
-        return `You take the ${itemName}.`;
+        // --- Special trigger for the Ornate Compass in the Treasure Room ---
+        if (itemNameLower === 'ornate compass' && roomName === 'The Treasure Room') {
+            this.game.player.addItem(item, 1);
+            this.game.currentRoom.items = this.game.currentRoom.items.filter(stack => stack !== roomItemStack);
+            this.game.gameStateFlags.hasOrnateCompassQuest = true;
+            return "You take the ornate compass. It feels warm to the touch and the needle spins wildly for a moment before settling. You feel a sense of new purpose, as if unseen paths are now open to you. The treasure can wait; adventure calls.";
+        }
+
+        // Step 5: Handle generic take rules
+        if (!item.canTake) {
+            return item.onTakeFailMessage || `You cannot take the ${item.name}.`;
+        }
+
+        // --- Refactored Gold Handling (works with quantities) ---
+        if (item.goldValue && item.goldValue > 0) {
+            const totalGoldValue = item.goldValue * amountToTake;
+            this.game.player.gold += totalGoldValue;
+            roomItemStack.quantity -= amountToTake;
+            if (roomItemStack.quantity <= 0) {
+                this.game.currentRoom.items = this.game.currentRoom.items.filter(stack => stack !== roomItemStack);
+            }
+            const coinString = totalGoldValue === 1 ? 'coin' : 'coins';
+            return `You take the ${totalGoldValue} gold ${coinString} and add it to your pouch. You now have ${this.game.player.gold} gold.`;
+        }
+
+        // --- Default item transfer ---
+        this.game.player.addItem(item, amountToTake);
+        roomItemStack.quantity -= amountToTake;
+        if (roomItemStack.quantity <= 0) {
+            this.game.currentRoom.items = this.game.currentRoom.items.filter(stack => stack !== roomItemStack);
+        }
+
+        if (amountToTake > 1) {
+            return `You take ${amountToTake} ${item.name}s.`;
+        } else {
+            return `You take the ${item.name}.`;
+        }
     }
 
     _handleUse(itemName) {

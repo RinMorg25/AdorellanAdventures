@@ -1,128 +1,165 @@
+import { Item } from './items.js';
+
+// This data is inferred from the character selection screen setup in main.js
+export const archetypeData = [
+    { name: 'Valerius', health: 120, strength: 12, dexterity: 8, portrait: './assets/images/male_portrait_1.png', description: 'A stalwart warrior, trading speed for power and resilience.' },
+    { name: 'Kaelan', health: 100, strength: 10, dexterity: 12, portrait: './assets/images/male_portrait_2.png', description: 'A balanced fighter, quick on his feet and sharp with his blade.' },
+    { name: 'Seraphina', health: 90, strength: 8, dexterity: 15, portrait: './assets/images/female_portrait_1.png', description: 'A nimble rogue, whose swift strikes find any weakness.' },
+    { name: 'Lyra', health: 110, strength: 14, dexterity: 9, portrait: './assets/images/female_portrait_2.png', description: 'A fierce combatant, relying on overwhelming force to vanquish foes.' }
+];
+
 export class Character {
     constructor(name, health, attack, defense, gold = 0) {
         this.name = name;
-        this.health = health;
         this.maxHealth = health;
+        this.health = health;
         this.attack = attack;
         this.defense = defense;
-        this.inventory = [];
-        this.experience = 0;
+        this.inventory = []; // Will now store { item, quantity }
+        this.gold = gold; // Note: Gold is now handled as a stackable item. This property can be deprecated.
         this.level = 1;
-        this.gold = gold;
+        this.experience = 0;
+        this.isAlive = true;
     }
-    
-    takeDamage(damage) {
-        const actualDamage = Math.max(1, damage - this.defense);
-        this.health -= actualDamage;
-        this.health = Math.max(0, this.health);
-        return actualDamage;
-    }
-    
-    heal(amount) {
-        this.health += amount;
-        this.health = Math.min(this.maxHealth, this.health);
-    }
-    
-    isAlive() {
-        return this.health > 0;
-    }
-    
-    addItem(item) {
-        this.inventory.push(item);
-    }
-    
-    removeItem(item) {
-        const index = this.inventory.indexOf(item);
-        if (index > -1) {
-            this.inventory.splice(index, 1);
+
+    /**
+     * Adds an item or a stack of items to the player's inventory.
+     * @param {Item} item - The item object to add.
+     * @param {number} quantity - The number of items to add.
+     */
+    addItem(item, quantity = 1) {
+        if (!item.canTake) {
+            return; // Should not happen if logic is correct, but a good safeguard.
+        }
+
+        // Non-stackable items are always added as a new stack of 1
+        if (!item.stackable) {
+            for (let i = 0; i < quantity; i++) {
+                this.inventory.push({ item: item, quantity: 1 });
+            }
+            return;
+        }
+
+        // For stackable items, find an existing stack
+        const existingStack = this.inventory.find(stack => stack.item.name === item.name);
+
+        if (existingStack) {
+            existingStack.quantity += quantity;
+        } else {
+            // If no stack exists, create a new one
+            this.inventory.push({ item: item, quantity: quantity });
         }
     }
-    
+
+    /**
+     * Removes an item or a quantity of items from a stack in the player's inventory.
+     * @param {Item} item - The item object to remove.
+     * @param {number} quantity - The number of items to remove.
+     * @returns {boolean} - True if the item was successfully removed, false otherwise.
+     */
+    removeItem(item, quantity = 1) {
+        const stackIndex = this.inventory.findIndex(stack => stack.item.name === item.name);
+
+        if (stackIndex > -1) {
+            const stack = this.inventory[stackIndex];
+            stack.quantity -= quantity;
+
+            // If the stack is empty, remove it from the array
+            if (stack.quantity <= 0) {
+                this.inventory.splice(stackIndex, 1);
+            }
+            return true; // Indicate success
+        }
+        return false; // Indicate item not found
+    }
+
+    /**
+     * Checks if the player has at least one of a specific item.
+     * @param {string} itemName - The name of the item to check for.
+     * @returns {boolean} - True if the item is in the inventory.
+     */
     hasItem(itemName) {
-        // Make comparison case-insensitive to handle variations in user input
-        return this.inventory.some(item => item.name.toLowerCase() === itemName.toLowerCase());
+        return this.inventory.some(stack => stack.item.name.toLowerCase() === itemName.toLowerCase());
     }
     
-    getItem(itemName) {
-        return this.inventory.find(item => item.name.toLowerCase() === itemName.toLowerCase());
+    /**
+     * Finds an item in the inventory by name.
+     * @param {string} itemName - The name of the item to find.
+     * @returns {Item|null} - The item object if found, otherwise null.
+     */
+    findItem(itemName) {
+        const stack = this.inventory.find(stack => stack.item.name.toLowerCase() === itemName.toLowerCase());
+        return stack ? stack.item : null;
     }
-    
-    gainExperience(exp) {
-        this.experience += exp;
-        if (this.experience >= this.level * 100) {
+
+    /**
+     * Generates a formatted string of the player's inventory for display.
+     * @returns {string} - The formatted inventory list.
+     */
+    getInventoryList() {
+        if (this.inventory.length === 0) {
+            return 'Your inventory is empty.';
+        }
+
+        const itemDescriptions = this.inventory.map(stack => {
+            return stack.quantity > 1 ? `${stack.item.name} (x${stack.quantity})` : stack.item.name;
+        });
+
+        return 'You are carrying:\n' + itemDescriptions.join('\n');
+    }
+
+    heal(amount) {
+        this.health = Math.min(this.maxHealth, this.health + amount);
+    }
+
+    takeDamage(amount) {
+        const damageTaken = Math.max(0, amount - this.defense);
+        this.health -= damageTaken;
+        if (this.health <= 0) {
+            this.health = 0;
+            this.isAlive = false;
+        }
+        return damageTaken;
+    }
+
+    gainExperience(amount) {
+        this.experience += amount;
+        const expForNextLevel = this.level * 100;
+        if (this.experience >= expForNextLevel) {
             this.levelUp();
         }
     }
-    
+
     levelUp() {
         this.level++;
         this.maxHealth += 10;
-        this.health = this.maxHealth;
         this.attack += 2;
         this.defense += 1;
-        return `You reached level ${this.level}! Your stats have improved.`;
-    }
-    
-    getStats() {
-        return {
-            name: this.name,
-            level: this.level,
-            health: this.health,
-            maxHealth: this.maxHealth,
-            attack: this.attack,
-            defense: this.defense,
-            experience: this.experience,
-            gold: this.gold
-        };
+        this.health = this.maxHealth; // Fully heal on level up
+        // The actual display message for level up should be handled in the game logic.
     }
 }
 
 export class NPC extends Character {
-    constructor(name, health, attack, defense, description = '', responses = {}, shopInventory = []) {
+    constructor(name, health, attack, defense, description, dialogue, shopInventory = []) {
         super(name, health, attack, defense);
         this.description = description;
-        this.responses = responses; // e.g., { default: ["Hi"], shop: ["Want to buy?"] }
-        this.isHostile = false;
-        this.dialogueCounters = {}; // Tracks index for each topic, e.g., { default: 0, shop: 1 }
-        this.shopInventory = shopInventory;
+        this.dialogue = dialogue; // e.g., { default: [...], keys: [...] }
+        this.shopInventory = shopInventory; // e.g., [{ item, price }, ...]
     }
-    
+
+    /**
+     * Returns a line of dialogue based on a given topic.
+     * @param {string} topic - The topic of conversation.
+     * @returns {string} - A line of dialogue.
+     */
     speak(topic = 'default') {
-        const topicResponses = this.responses[topic] || this.responses['default'];
+        const lowerTopic = topic.toLowerCase();
+        const lines = this.dialogue[lowerTopic] || this.dialogue['default'];
 
-        if (!topicResponses || topicResponses.length === 0) {
-            return `${this.name} has nothing to say.`;
+        if (lines && lines.length > 0) {
+            return lines[Math.floor(Math.random() * lines.length)];
         }
-
-        // Initialize counter for this topic if it doesn't exist
-        if (this.dialogueCounters[topic] === undefined) {
-            this.dialogueCounters[topic] = 0;
-        }
-
-        // Get the current message and advance the counter for this topic
-        const messageIndex = this.dialogueCounters[topic];
-        const message = topicResponses[messageIndex];
-        this.dialogueCounters[topic] = (messageIndex + 1) % topicResponses.length;
-
-        return `${this.name} says: "${message}"`;
-    }
-    
-    setHostile(hostile) {
-        this.isHostile = hostile;
-    }
-
-    turnHostile() {
-        this.isHostile = true;
-        return `${this.name} becomes hostile!`;
+        return `${this.name} doesn't seem to have anything to say about that.`;
     }
 }
-
-// Define base stats for the 6 character archetypes/portraits
-export const archetypeData = [
-    { name: "Warrior", health: 120, strength: 15, dexterity: 10, agility: 8, intelligence: 5, charisma: 7 },
-    { name: "Rogue",   health: 90,  strength: 10, dexterity: 15, agility: 12, intelligence: 8, charisma: 10 },
-    { name: "Ranger",  health: 100, strength: 12, dexterity: 14, agility: 10, intelligence: 7, charisma: 8 },
-    { name: "Bard",    health: 85,  strength: 8,  dexterity: 12, agility: 9,  intelligence: 12, charisma: 15 },
-    { name: "Healer",  health: 95,  strength: 7,  dexterity: 9,  agility: 7,  intelligence: 14, charisma: 12 },
-    { name: "Mage",    health: 80,  strength: 6,  dexterity: 8,  agility: 6,  intelligence: 16, charisma: 9 }
-];
