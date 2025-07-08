@@ -30,8 +30,12 @@ export class Item {
                 return this.usePieceOfCandy(player, room);
             case 'red apple':
                 return this.useRedApple(player, room);
+            case 'large health potion':
+                return this.useLargeHealthPotion(player, room);
             case 'medium health potion':
                 return this.useMediumHealthPotion(player, room);
+            case 'small health potion':
+                return this.useSmallHealthPotion(player, room);
             case 'blue feather':
                 return this.useBlueFeather(player, room);
             default:
@@ -82,11 +86,31 @@ export class Item {
         return "You can't find a use for that here.";
     }
 
-    useMediumHealthPotion(player, room) {
-        const healthGained = Math.floor(Math.random() * (25 - 18 + 1)) + 18; // Random health between 18 and 25
-        player.heal(healthGained);
+    useLargeHealthPotion(player, room) {
+        const healthRestored = 35;
+        const oldHealth = player.health;
+        player.heal(healthRestored);
+        const actualRestored = player.health - oldHealth;
         this.isConsumed = true;
-        return `You drink the medium health potion and feel a surge of vitality. You recovered ${healthGained} health points.`;
+        return `You drink the large health potion and feel a powerful surge of vitality, restoring ${actualRestored} health. You now have ${player.health}/${player.maxHealth} health.`;
+    }
+
+    useMediumHealthPotion(player, room) {
+        const healthRestored = 20;
+        const oldHealth = player.health;
+        player.heal(healthRestored);
+        const actualRestored = player.health - oldHealth;
+        this.isConsumed = true;
+        return `You drink the medium health potion, feeling a pleasant warmth spread through you. You restore ${actualRestored} health. You now have ${player.health}/${player.maxHealth} health.`;
+    }
+
+    useSmallHealthPotion(player, room) {
+        const healthRestored = 15;
+        const oldHealth = player.health;
+        player.heal(healthRestored);
+        const actualRestored = player.health - oldHealth;
+        this.isConsumed = true;
+        return `You drink the small health potion and restore ${actualRestored} health. You now have ${player.health}/${player.maxHealth} health.`;
     }
 
     useBlueFeather(player, room) {

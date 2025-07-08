@@ -441,44 +441,14 @@ export class ActionHandler {
     _handleUse(itemName) {
         const player = this.game.player;
         const room = this.game.currentRoom;
-        const item = this._findInList(itemName, player.inventory);
+        // Find the item stack in the player's inventory.
+        const itemStack = this._findItemStack(itemName, player.inventory);
 
-        if (item) {
-            // --- Special Case: Large Health Potion ---
-            if (item.name.toLowerCase() === 'large health potion') {
-                const healthRestored = 35;
-                const oldHealth = player.health;
-                player.health = Math.min(player.maxHealth, player.health + healthRestored);
-                const actualRestored = player.health - oldHealth;
-                // This item is consumed, so we must remove it.
-                player.removeItem(item);
-                this.game.updateStatusBars(); // Ensure UI updates immediately
-                return `You drink the large health potion and feel a powerful surge of vitality, restoring ${actualRestored} health. You now have ${player.health}/${player.maxHealth} health.`;
-            }
+        if (itemStack) {
+            const item = itemStack.item;
 
-            // --- Special Case: Medium Health Potion ---
-            if (item.name.toLowerCase() === 'medium health potion') {
-                const healthRestored = 20;
-                const oldHealth = player.health;
-                player.health = Math.min(player.maxHealth, player.health + healthRestored);
-                const actualRestored = player.health - oldHealth;
-                // This item is consumed, so we must remove it.
-                player.removeItem(item);
-                this.game.updateStatusBars(); // Ensure UI updates immediately
-                return `You drink the medium health potion, feeling a pleasant warmth spread through you. You restore ${actualRestored} health. You now have ${player.health}/${player.maxHealth} health.`;
-            }
-
-            // --- Special Case: Small Health Potion ---
-            if (item.name.toLowerCase() === 'small health potion') {
-                const healthRestored = 15;
-                const oldHealth = player.health;
-                player.health = Math.min(player.maxHealth, player.health + healthRestored);
-                const actualRestored = player.health - oldHealth;
-                // This item is consumed, so we must remove it.
-                player.removeItem(item);
-                this.game.updateStatusBars(); // Ensure UI updates immediately
-                return `You drink the small health potion and restore ${actualRestored} health. You now have ${player.health}/${player.maxHealth} health.`;
-            }
+            // Potion logic is now centralized in item.js.
+            // We keep special contextual logic here, like for the Vault puzzle.
 
             // --- Special Case: Vault Puzzle ---
             if (room.name === 'The Vault') {
@@ -507,7 +477,8 @@ export class ActionHandler {
             const usageResult = item.use(player, room);
 
             if (item.isConsumed) {
-                player.removeItem(item);
+                player.removeItem(item, 1); // Explicitly remove one item from the stack
+                this.game.updateStatusBars(); // Update UI if a consumable was used (e.g., potion)
             }
             return usageResult;
         }
