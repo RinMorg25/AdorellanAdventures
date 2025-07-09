@@ -194,8 +194,16 @@ export class ActionHandler {
             }
         } else {
             newRoom = this.game.currentRoom.getExit(direction);
-            if (newRoom && this.game.currentRoom.lockedExits[direction]) {
-                return "That way is locked.";
+            const lockType = this.game.currentRoom.lockedExits[direction];
+
+            if (newRoom && lockType) {
+                // --- Special Lock Handling ---
+                if (lockType === 'rps') {
+                    this.game.interactionState = 'rps_prompt';
+                    return "The door is locked with a game of chance. Do you want to try your luck? (yes/no)";
+                }
+                // --- End Special Lock Handling ---
+                return `That way is locked.`;
             }
         }
 
