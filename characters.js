@@ -3,20 +3,20 @@ import { Item } from './items.js';
 // This data is inferred from the character selection screen setup in main.js
 export const archetypeData = [
     // --- Male (Index 0-5) ---
-    { name: 'Valerius', health: 120, strength: 12, dexterity: 6, agility: 5, intelligence: 5, charisma: 6, description: 'A stalwart warrior, trading speed for power and resilience.' }, // Male Warrior
-    { name: 'Kaelan', health: 90, strength: 8, dexterity: 14, agility: 14, intelligence: 9, charisma: 10, description: 'A nimble rogue, whose swift strikes find any weakness.' }, // Male Rogue
-    { name: 'Orion', health: 100, strength: 10, dexterity: 12, agility: 13, intelligence: 10, charisma: 8, description: 'A keen-eyed ranger, at home in the wild and deadly with a bow.' }, // Male Ranger
-    { name: 'Lianor', health: 95, strength: 9, dexterity: 11, agility: 10, intelligence: 12, charisma: 15, description: 'A charismatic bard, whose tales are as sharp as his wit.' }, // Male Bard
-    { name: 'Anselm', health: 110, strength: 7, dexterity: 9, agility: 6, intelligence: 14, charisma: 9, description: 'A devoted healer, whose knowledge of herbs and salves is unmatched.' }, // Male Healer
-    { name: 'Zander', health: 80, strength: 15, dexterity: 7, agility: 7, intelligence: 16, charisma: 5, description: 'A powerful mage, who channels raw arcane energy to devastate his foes.' }, // Male Mage
+    { name: 'Valerius', health: 120, strength: 12, dexterity: 6, agility: 5, intelligence: 5, charisma: 6, description: 'A stalwart warrior.' }, // Male Warrior
+    { name: 'Kaelan', health: 90, strength: 8, dexterity: 14, agility: 14, intelligence: 9, charisma: 10, description: 'A nimble rogue.' }, // Male Rogue
+    { name: 'Orion', health: 100, strength: 10, dexterity: 12, agility: 13, intelligence: 10, charisma: 8, description: 'A keen-eyed ranger.' }, // Male Ranger
+    { name: 'Lianor', health: 95, strength: 9, dexterity: 11, agility: 10, intelligence: 12, charisma: 15, description: 'A charismatic bard.' }, // Male Bard
+    { name: 'Anselm', health: 110, strength: 7, dexterity: 9, agility: 6, intelligence: 14, charisma: 9, description: 'A devoted healer.' }, // Male Healer
+    { name: 'Zander', health: 80, strength: 15, dexterity: 7, agility: 7, intelligence: 16, charisma: 5, description: 'A powerful mage.' }, // Male Mage
     
     // --- Female (Index 6-11) ---
-    { name: 'Lyra', health: 115, strength: 14, dexterity: 7, agility: 6, intelligence: 5, charisma: 7, description: 'A fierce combatant, relying on overwhelming force to vanquish foes.' }, // Female Warrior
-    { name: 'Seraphina', health: 85, strength: 7, dexterity: 15, agility: 15, intelligence: 8, charisma: 11, description: 'A deadly assassin, moving like a shadow and striking with precision.' }, // Female Rogue
-    { name: 'Faelan', health: 95, strength: 9, dexterity: 13, agility: 14, intelligence: 11, charisma: 9, description: 'A swift huntress, her arrows never miss their mark.' }, // Female Ranger
-    { name: 'Elara', health: 90, strength: 8, dexterity: 12, agility: 11, intelligence: 13, charisma: 16, description: 'A gifted songstress, weaving magic with her melodies and words.' }, // Female Bard
-    { name: 'Sorina', health: 105, strength: 6, dexterity: 10, agility: 7, intelligence: 15, charisma: 12, description: 'A compassionate cleric, who mends wounds and protects the weak.' }, // Female Healer
-    { name: 'Morgana', health: 75, strength: 16, dexterity: 6, agility: 8, intelligence: 17, charisma: 6, description: 'A formidable sorceress, commanding potent spells with ease.' } // Female Mage
+    { name: 'Lyra', health: 115, strength: 14, dexterity: 7, agility: 6, intelligence: 5, charisma: 7, description: 'A fierce combatant.' }, // Female Warrior
+    { name: 'Seraphina', health: 85, strength: 7, dexterity: 15, agility: 15, intelligence: 8, charisma: 11, description: 'A deadly assassin.' }, // Female Rogue
+    { name: 'Faelan', health: 95, strength: 9, dexterity: 13, agility: 14, intelligence: 11, charisma: 9, description: 'A swift huntress.' }, // Female Ranger
+    { name: 'Elara', health: 90, strength: 8, dexterity: 12, agility: 11, intelligence: 13, charisma: 16, description: 'A gifted songstress.' }, // Female Bard
+    { name: 'Sorina', health: 105, strength: 6, dexterity: 10, agility: 7, intelligence: 15, charisma: 12, description: 'A compassionate cleric.' }, // Female Healer
+    { name: 'Morgana', health: 75, strength: 16, dexterity: 6, agility: 8, intelligence: 17, charisma: 6, description: 'A formidable sorceress.' } // Female Mage
 ];
 
 export class Character {
