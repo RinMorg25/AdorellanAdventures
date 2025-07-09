@@ -60,7 +60,10 @@ function appendText(text) {
                     characterType.name,
                     characterType.health,
                     characterType.strength, // strength maps to attack
-                    characterType.dexterity // dexterity maps to defense
+                    characterType.dexterity, // dexterity maps to defense
+                    characterType.agility,
+                    characterType.intelligence,
+                    characterType.charisma
                 );
                 // Manually add starting gold as an item
                 const startingGold = new Item('gold coin', 'A shiny gold coin.', true, true, false, 1);

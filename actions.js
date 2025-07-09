@@ -741,7 +741,10 @@ export class ActionHandler {
         statsText += `Experience: ${player.experience}/${expForNextLevel}\n`;
         statsText += `Health: ${player.health}/${player.maxHealth}\n`;
         statsText += `Attack: ${player.attack}\n`;
-        statsText += `Defense: ${player.defense}`;
+        statsText += `Defense: ${player.defense}\n`;
+        statsText += `Agility: ${player.agility}\n`;
+        statsText += `Intelligence: ${player.intelligence}\n`;
+        statsText += `Charisma: ${player.charisma}`;
         // Total gold is shown in the inventory, not in stats.
         // statsText += `\n\nGold: ${this.game.player.gold}`;
         return statsText;

@@ -60,7 +60,7 @@ export class BattleSystem {
     }
     
     playerAttack(player, monster) {
-        const CRIT_CHANCE = 0.15; // 15% chance to critically hit
+        const CRIT_CHANCE = 0.20; // 20% chance to critically hit
         let finalDamageToApply;
         let isCritical = false;
 
