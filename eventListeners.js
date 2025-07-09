@@ -10,16 +10,16 @@ function _setupPortraitListeners(allPortraitImages, archetypeData, statTooltipEl
         imgElement.addEventListener('mouseenter', (event) => {
             const stats = archetypeData[archetypeIndex];
             if (stats) {
-                statTooltip.innerHTML = `
-                <strong>${data.name}</strong><br>
-                Health: ${data.health}<br>
-                Strength: ${data.strength}<br>
-                Dexterity: ${data.dexterity}<br>
-                Agility: ${data.agility}<br>
-                Intelligence: ${data.intelligence}<br>
-                Charisma: ${data.charisma}<br>
+                statTooltipElement.innerHTML = `
+                <strong>${stats.name}</strong><br>
+                Health: ${stats.health}<br>
+                Strength: ${stats.strength}<br>
+                Dexterity: ${stats.dexterity}<br>
+                Agility: ${stats.agility}<br>
+                Intelligence: ${stats.intelligence}<br>
+                Charisma: ${stats.charisma}<br>
                 <hr>
-                <em>${data.description}</em>
+                <em>${stats.description}</em>
             `;
                 statTooltipElement.style.left = (event.pageX + 15) + 'px';
                 statTooltipElement.style.top = (event.pageY + 15) + 'px';
