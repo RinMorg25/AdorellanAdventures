@@ -110,11 +110,14 @@ export class Character {
      * @returns {string} - The formatted inventory list.
      */
     getInventoryList() {
-        if (this.inventory.length === 0) {
+        // Filter out gold coins from the main inventory display, as it's shown separately.
+        const itemsToDisplay = this.inventory.filter(stack => stack.item.name.toLowerCase() !== 'gold coin');
+
+        if (itemsToDisplay.length === 0) {
             return 'Your inventory is empty.';
         }
 
-        const itemDescriptions = this.inventory.map(stack => {
+        const itemDescriptions = itemsToDisplay.map(stack => {
             return stack.quantity > 1 ? `${stack.item.name} (x${stack.quantity})` : stack.item.name;
         });
 
