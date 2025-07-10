@@ -175,20 +175,59 @@ body {
     display: grid; /* Show the active grid */
 }
 
-.portrait-img {
-    width: 100%;                            /* Fill the width of the grid cell */
-    aspect-ratio: 4 / 5;                    /* Adjust aspect ratio (e.g., 4:5 or 3:4 for portrait). This makes them less square. */
-    object-fit: contain;                    /* Show full image, may leave empty space if aspect ratios don't match. */
+/* New container for the portrait and its info panel */
+.portrait-card {
+    position: relative;
+    width: 100%; /* Take up the grid cell width */
+    aspect-ratio: 4 / 5; /* Maintain the aspect ratio */
     border-radius: 6px;
-    background-color: transparent;
-    /* Use a responsive border size that scales with the viewport */
+    overflow: hidden;
+    cursor: pointer;
     border: clamp(3px, 0.5vw, 6px) solid gold;
-    cursor: pointer; /* Add cursor to indicate they are clickable */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease; /* For selection effect */
 }
 
-.portrait-img.selected {
+/* The selection effect now applies to the card, not just the image */
+.portrait-card.selected {
     border-color: #00ff00; /* Bright green border for selected portrait */
     box-shadow: 0 0 15px #00ff00; /* Optional: add a glow effect */
+}
+
+/* The image itself no longer needs a border */
+.portrait-img {
+    width: 100%;
+    height: 100%; /* Fill the card */
+    object-fit: cover; /* Use cover to fill the space nicely */
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* The new info panel that appears on hover */
+.portrait-info {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: rgba(10, 10, 10, 0.95);
+    color: #e0e0e0;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* The hover effect for the portrait cards */
+.portrait-card:hover .portrait-img { opacity: 0.1; }
+.portrait-card:hover .portrait-info { opacity: 1; }
+
+/* Styling for text inside the info panel */
+.portrait-info h3 { margin: 0 0 5px 0; color: gold; font-size: clamp(0.9em, 2vw, 1.1em); }
+.portrait-info p { margin: 0; font-size: clamp(0.7em, 1.5vw, 0.85em); color: #ccc;
 }
 
 /* Gameplay screen specific active state */
@@ -296,6 +335,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Add relative positioning to act as a container for the absolute-positioned info panel */
+    position: relative;
+    cursor: pointer; /* Change cursor to indicate it's interactive */
     overflow: hidden; /* Ensure image fits */
     margin-bottom: 15px; /* Add some space below it before other panel items */
 }
@@ -304,6 +346,7 @@ body {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain; /* Show full image, maintaining aspect ratio */
+    transition: opacity 0.3s ease-in-out; /* Add transition for the fade effect */
 }
 
 .side-panel {
@@ -387,3 +430,46 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+/* --- Player Info Panel (Appears on Hover) --- */
+
+.player-info-panel {
+    position: absolute; /* Lays the panel on top of the image */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 15px;
+    box-sizing: border-box; /* Ensures padding doesn't add to the width/height */
+    background-color: rgba(10, 10, 30, 0.95); /* Dark, semi-transparent background to match side panel */
+    opacity: 0; /* Start hidden */
+    transition: opacity 0.3s ease-in-out; /* Smooth fade-in effect */
+    display: flex;
+    flex-direction: column;
+    color: #e0e0e0;
+}
+
+/* --- The Hover Magic for the Player Display --- */
+
+/* When you hover over the box, fade out the image slightly */
+#playerDisplayBox:hover #playerDisplayImage {
+    opacity: 0.1;
+}
+
+/* When you hover over the box, fade in the info panel */
+#playerDisplayBox:hover .player-info-panel {
+    opacity: 1;
+}
+
+/* --- Styling for the text inside the info panel --- */
+.player-info-panel h3 {
+    font-size: 1em;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: gold;
+    border-bottom: 1px solid #555;
+    padding-bottom: 8px;
+}
+.player-info-panel ul { list-style: none; padding: 0; margin: 0; font-size: 0.85em; }
+.player-info-panel li { margin-bottom: 6px; }
+.player-info-panel .description { margin-top: auto; font-style: italic; color: #aaa; font-size: 0.8em; }

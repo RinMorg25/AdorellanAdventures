@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adorellan Adventures</title>
-  <script type="module" crossorigin src="./assets/index-CHAbVokq.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-5HqDQrqH.css">
+  <script type="module" crossorigin src="./assets/index-D-IKThh_.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CSUvRmfV.css">
 </head>
 <body>
     <div class="game-container">
@@ -27,20 +27,56 @@
                 </div>
                 <div id="characterPortraits">
                     <div id="malePortraits" class="portrait-grid active">
-                        <img class="portrait-img" data-index="0" src="./assets/01-D5rwPZFa.png" alt="Warrior">
-                        <img class="portrait-img" data-index="1" src="./assets/02-C9Fi6S6q.png" alt="Rogue">
-                        <img class="portrait-img" data-index="2" src="./assets/03-BmU-j_GW.png" alt="Ranger">
-                        <img class="portrait-img" data-index="3" src="./assets/04-DL716icD.png" alt="Bard">
-                        <img class="portrait-img" data-index="4" src="./assets/05-DobfS24U.png" alt="Healer">
-                        <img class="portrait-img" data-index="5" src="./assets/06-DEXG121p.png" alt="Mage">
+                        <div class="portrait-card" data-index="0">
+                            <img class="portrait-img" src="./assets/01-D5rwPZFa.png" alt="Warrior">
+                            <div class="portrait-info"><h3>Warrior</h3><p>A brave fighter skilled with all manner of weapons.</p></div>
+                        </div>
+                        <div class="portrait-card" data-index="1">
+                            <img class="portrait-img" src="./assets/02-C9Fi6S6q.png" alt="Rogue">
+                            <div class="portrait-info"><h3>Rogue</h3><p>A cunning shadow who strikes from the darkness.</p></div>
+                        </div>
+                        <div class="portrait-card" data-index="2">
+                            <img class="portrait-img" src="./assets/03-BmU-j_GW.png" alt="Ranger">
+                            <div class="portrait-info"><h3>Ranger</h3><p>A master of the wild, lethal with a bow.</p></div>
+                        </div>
+                        <div class="portrait-card" data-index="3">
+                            <img class="portrait-img" src="./assets/04-DL716icD.png" alt="Bard">
+                            <div class="portrait-info"><h3>Bard</h3><p>A charismatic artist whose songs can inspire or destroy.</p></div>
+                        </div>
+                        <div class="portrait-card" data-index="4">
+                            <img class="portrait-img" src="./assets/05-DobfS24U.png" alt="Healer">
+                            <div class="portrait-info"><h3>Healer</h3><p>A devoted cleric who mends wounds and purifies corruption.</p></div>
+                        </div>
+                        <div class="portrait-card" data-index="5">
+                            <img class="portrait-img" src="./assets/06-DEXG121p.png" alt="Mage">
+                            <div class="portrait-info"><h3>Mage</h3><p>A scholar of the arcane who wields powerful magic.</p></div>
+                        </div>
                     </div>
                     <div id="femalePortraits" class="portrait-grid">
-                        <img class="portrait-img" data-index="6" src="./assets/07-Da2BtHeZ.png" alt="Warrior">
-                        <img class="portrait-img" data-index="7" src="./assets/08-DwHYqd0S.png" alt="Rogue">
-                        <img class="portrait-img" data-index="8" src="./assets/09-CFCrlb9S.png" alt="Ranger">
-                        <img class="portrait-img" data-index="9" src="./assets/10-QQMRJhZh.png" alt="Bard">
-                        <img class="portrait-img" data-index="10" src="./assets/11-D-WCKTk-.png" alt="Healer">
-                        <img class="portrait-img" data-index="11" src="./assets/12-C0_mgmYg.png" alt="Mage">
+                        <div class="portrait-card" data-index="6">
+                            <img class="portrait-img" src="./assets/07-Da2BtHeZ.png" alt="Warrior">
+                            <div class="portrait-info"><h3>Warrior</h3><p>A brave fighter skilled with all manner of weapons.</p></div>
+                        </div>
+                        <div class="portrait-card" data-index="7">
+                            <img class="portrait-img" src="./assets/08-DwHYqd0S.png" alt="Rogue">
+                            <div class="portrait-info"><h3>Rogue</h3><p>A cunning shadow who strikes from the darkness.</p></div>
+                        </div>
+                        <div class="portrait-card" data-index="8">
+                            <img class="portrait-img" src="./assets/09-CFCrlb9S.png" alt="Ranger">
+                            <div class="portrait-info"><h3>Ranger</h3><p>A master of the wild, lethal with a bow.</p></div>
+                        </div>
+                        <div class="portrait-card" data-index="9">
+                            <img class="portrait-img" src="./assets/10-QQMRJhZh.png" alt="Bard">
+                            <div class="portrait-info"><h3>Bard</h3><p>A charismatic artist whose songs can inspire or destroy.</p></div>
+                        </div>
+                        <div class="portrait-card" data-index="10">
+                            <img class="portrait-img" src="./assets/11-D-WCKTk-.png" alt="Healer">
+                            <div class="portrait-info"><h3>Healer</h3><p>A devoted cleric who mends wounds and purifies corruption.</p></div>
+                        </div>
+                        <div class="portrait-card" data-index="11">
+                            <img class="portrait-img" src="./assets/12-C0_mgmYg.png" alt="Mage">
+                            <div class="portrait-info"><h3>Mage</h3><p>A scholar of the arcane who wields powerful magic.</p></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -77,6 +113,14 @@
             <div class="side-panel">
                 <div id="playerDisplayBox" class="character-display-box">
                     <img id="playerDisplayImage" alt="Player Character"> <!-- src is set by JS -->
+                    <!-- This panel will be hidden by default and appear on hover -->
+                    <div id="playerInfoPanel" class="player-info-panel">
+                        <h3 id="playerInfoName">Player Name</h3>
+                        <ul id="playerInfoStats">
+                            <!-- Stats will be populated by JS -->
+                        </ul>
+                        <p id="playerInfoDescription" class="description">Character description.</p>
+                    </div>
                 </div>
                 <!-- Health Bar -->
                 <div class="stat-bar-container" id="healthBarContainer">
