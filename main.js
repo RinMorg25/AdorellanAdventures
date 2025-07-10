@@ -137,9 +137,29 @@ function appendText(text) {
                     this.gameState = 'playing';
                     response = `You steel your resolve and step towards the Labyrinth of Lyre.\n\n${this.currentRoom.getDescription(this.player)}`;
                 } else if (command === 'give up') {
-                    this.gameState = 'ended';
-                    response = "You close the journal, the challenge unanswered. The Labyrinth will wait for another hero. You turn and walk away.";
-                    this.commandInput.disabled = true;
+                    this.gameState = 'ended'; // Mark game as ended
+                    this.commandInput.disabled = true; // Disable further input
+
+                    const gameplayScreen = document.getElementById('gameplayScreen');
+                    const endGameScreen = document.getElementById('endGameScreen');
+                    const playAgainButton = document.getElementById('playAgainButton');
+
+                    if (gameplayScreen && endGameScreen && playAgainButton) {
+                        const endGameTitle = endGameScreen.querySelector('h2');
+                        const endGameMessage = endGameScreen.querySelector('p');
+
+                        if (endGameTitle && endGameMessage) {
+                            endGameTitle.textContent = 'An Adventure Refused';
+                            endGameMessage.textContent = 'You close the journal, the challenge unanswered. The Labyrinth will wait for another hero. You turn and walk away.';
+                        }
+
+                        gameplayScreen.classList.remove('active');
+                        endGameScreen.classList.add('active');
+                        playAgainButton.addEventListener('click', () => location.reload(), { once: true });
+                        response = ' '; // Prevent a message in the game output
+                    } else {
+                        response = "You close the journal, the challenge unanswered. The Labyrinth will wait for another hero. You turn and walk away.";
+                    }
                 } else {
                     response = "The choice is before you. Will you 'venture forth' or 'give up'?"
                 }
