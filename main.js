@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectFemaleButton = document.getElementById('selectFemaleButton');
     const malePortraitsGrid = document.getElementById('malePortraits');
     const femalePortraitsGrid = document.getElementById('femalePortraits');
-    const allPortraitImages = document.querySelectorAll('.portrait-img');
+    const allPortraitCards = document.querySelectorAll('.portrait-card');
     const gameplayScreen = document.getElementById('gameplayScreen');
     const confirmCharacterButton = document.getElementById('confirmCharacterButton');
     const commandInput = document.getElementById('commandInput'); // For re-focusing
@@ -225,13 +225,13 @@ function appendText(text) {
     function handleTransitionToGameplay(characterType) {
         // characterType is the selectedArchetype object
         console.log(characterType.name + " character selected.");
-        
+
         if (characterSelectionScreen && gameplayScreen) {
             // Set the player display image on the gameplay screen
             const playerDisplayImgElement = document.getElementById('playerDisplayImage');
             // Find the selected portrait in the active grid
             const activeGrid = document.querySelector('.portrait-grid.active');
-            const selectedPortrait = activeGrid.querySelector('.portrait-img.selected');
+            const selectedPortrait = activeGrid.querySelector('.portrait-card.selected .portrait-img');
 
             if (playerDisplayImgElement && selectedPortrait) {
                 // Just copy the src and alt directly! So much simpler.
@@ -242,7 +242,7 @@ function appendText(text) {
             characterSelectionScreen.classList.remove('active');
             gameplayScreen.classList.add('active');
         }
-        
+
         // Initialize the game *after* transitioning to gameplay screen
         if (!gameInstance) { // Ensure game is initialized only once
             gameInstance = new AdventureGame(characterType);
@@ -282,7 +282,7 @@ function appendText(text) {
             commandInput.focus(); // Focus on the command input when gameplay starts
         }
     }
-    
+
     // Callbacks for pre-gameplay event listeners
     const preGameplayCallbacks = {
         onStartGame: () => {
@@ -294,7 +294,7 @@ function appendText(text) {
         onGenderSelected: (gender) => {
             selectedCharacterType = gender;
             // Remove 'selected' from all portraits
-            allPortraitImages.forEach(img => img.classList.remove('selected'));
+            allPortraitCards.forEach(card => card.classList.remove('selected'));
 
             if (gender === 'Male') {
                 malePortraitsGrid.classList.add('active');
@@ -314,15 +314,15 @@ function appendText(text) {
                 }
             }
         },
-        onPortraitClicked: (clickedImgElement) => {
+        onPortraitClicked: (clickedCardElement) => {
             // Find all portraits in the currently active grid
-            const activeGrid = clickedImgElement.parentElement;
-            const activePortraits = activeGrid.querySelectorAll('.portrait-img');
+            const activeGrid = clickedCardElement.parentElement;
+            const activePortraits = activeGrid.querySelectorAll('.portrait-card');
 
-            activePortraits.forEach(img => img.classList.remove('selected'));
-            clickedImgElement.classList.add('selected');
+            activePortraits.forEach(card => card.classList.remove('selected'));
+            clickedCardElement.classList.add('selected');
             // Get the index from the data attribute
-            selectedArchetypeIndex = parseInt(clickedImgElement.dataset.index, 10);
+            selectedArchetypeIndex = parseInt(clickedCardElement.dataset.index, 10);
         },
         onConfirmCharacterClicked: () => {
             if (selectedArchetypeIndex !== null && archetypeData[selectedArchetypeIndex]) {
@@ -341,7 +341,7 @@ function appendText(text) {
         selectMaleButton,
         selectFemaleButton,
         confirmCharacterButton,
-        allPortraitImages,
+        allPortraitCards, // Pass the cards instead of the images
         statTooltip,
         archetypeData,
         ...preGameplayCallbacks
