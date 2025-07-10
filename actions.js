@@ -470,6 +470,14 @@ export class ActionHandler {
             const playAgainButton = document.getElementById('playAgainButton');
 
             if (gameplayScreen && endGameScreen && playAgainButton) {
+                const endGameTitle = endGameScreen.querySelector('h2');
+                const endGameMessage = endGameScreen.querySelector('p');
+
+                if (endGameTitle && endGameMessage) {
+                    endGameTitle.textContent = 'Congratulations!';
+                    endGameMessage.textContent = 'You have beaten the Labyrinth of Lyre and claimed its legendary treasure!';
+                }
+
                 gameplayScreen.classList.remove('active');
                 endGameScreen.classList.add('active');
                 playAgainButton.addEventListener('click', () => location.reload(), { once: true });
