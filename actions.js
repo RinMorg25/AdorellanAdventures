@@ -2,9 +2,10 @@ import { Item } from './items.js';
 import { MonsterFactory } from './monsters.js';
 
 export class ActionHandler {
-    constructor(gameInstance) {
+    constructor(gameInstance, gameItems) {
         this.game = gameInstance; // Provides access to game.player, game.currentRoom, game.battleSystem etc.
         this.randomEncounterChance = 0.25; // <-- Adjust this value for encounter rate (e.g., 0.1 for 10%, 0.5 for 50%)
+        this.gameItems = gameItems; // Store reference to all game items
         this.mercurialDenStates = [
             {
                 description: `You seem to be stood in the centre of a small island of calm. Here, an armchair, a side table, and a lamp rest on a worn rug, creating a single point of order in a room that has otherwise exploded into a chaos of costumes. Gowns, glittering jewellery, feather boas, and masks are strewn everywhere, spilling from wardrobes and covering every available surface in a colourful, cluttered mess.`,
@@ -12,17 +13,18 @@ export class ActionHandler {
                     new Item('coin purse', 'A small, heavy leather purse.', false, false),
                     new Item('blue feather hand fan', 'An elegant hand fan made with large, deep blue feathers.', false, false),
                     new Item('medium health potion', 'A vial containing a swirling, red liquid.', true, true),
-                    new Item('piece of candy', 'A piece of candy in a blue and purple wrapper.', true, true)
+                    new Item('piece of candy', 'A piece of candy in a blue and purple wrapper.', true, true, true)
                 ]
             },
             {
                 // State 2: The Fungi Forest
-                description: `The air grows damp and earthy as you push through a curtain of thick, hanging moss. You enter a cavern that glows with an eerie, beautiful light. The entire room is a forest of fungi, towering mushrooms, some as tall as trees, form a canopy of pulsating, bioluminescent caps in shades of deep blue, vibrant purple, and sickly green. The ground is a soft, springy carpet of white mycelium that muffles your footsteps. The air hums with a low, resonant frequency, and the only other sound is the slow drip-drip-drip of condensation falling from the giant caps onto smaller mushroom clusters below.
-                In the centre of the room, a ring of flat-topped, waist-high toadstools are arranged like chairs around a single, petrified stump that serves as a table. Upon this stump sits a half-finished game of chess, but the pieces are carved from different-coloured mushrooms.
+                description: `The air grows damp and earthy as you push through a curtain of thick, hanging moss. You enter a cavern that glows with an eerie, beautiful light. The entire room is a forest of fungi. Towering mushrooms, some as tall as trees, form a canopy of pulsating, bioluminescent caps in shades of deep blue, vibrant purple, and sickly green. The ground is a soft, springy carpet of white mycelium that muffles your footsteps. The air hums with a low, resonant frequency, and the only other sound is the slow drip-drip-drip of condensation falling from the giant caps onto smaller mushroom clusters below.
+                In the centre of the room, a ring of flat-topped, waist-high toadstools are arranged like chairs around a single, petrified stump that serves as a table. Upon this stump sits a half-finished game of chess. On the mushroom chessboard: The "White King" a mejestic dragon is carved from a rare, imperial, bone-white jadeite.
                 Near the far wall, a small waterfall of phosphorescent slime trickles down the rock face into a crystal-clear pool, illuminating a skeleton lying at the bottom, its bony arms wrapped around a heavy-looking chest.`,
                 items: () => [
-                    new Item('singing stone', 'A smooth, grey stone that vibrates gently.', true, true),
-                    new Item('Iron-Skin Fungi', 'A small cluster of bright orange mushrooms growing on the petrified stump.', true, true)
+                    this.gameItems.singingStone,
+                    this.gameItems.ironSkinFungi,
+                    this.gameItems.whiteKing
                 ]
             },
             {
@@ -35,7 +37,7 @@ export class ActionHandler {
                 description: `The room is a disaster. It was clearly once a makeshift, low-rent casino run by goblins. A roulette wheel made from a painted shield lies on its side, a card table is covered in crude, goblin-drawn cards depicting leering faces, and a "slot machine" built from scrap metal, gears, and a large bear trap for a lever stands in the corner. The floor is sticky with spilled grog, and the air smells of rust and disappointment.`,
                 items: () => [
                     new Item('large health potion', 'A large, bubbling potion in a sturdy flask. It looks potent.', true, true),
-                    new Item('sticky leather pouch', 'A small, greasy coin pouch bound with rotting twine. It looks like it was left in the coin return of the busted slot machine.', false, false)
+                    new Item('sticky leather pouch', 'A small, greasy coin pouch bound with rotting twine. It looks like it was left in the coin return of the busted slot machine.', false, false, false)
                 ]
             },
             {
@@ -202,6 +204,13 @@ export class ActionHandler {
                     this.game.interactionState = 'rps_prompt';
                     return "The door is locked with a game of chance. Do you want to try your luck? (yes/no)";
                 }
+                if (lockType === 'white_king') {
+                    if (this.game.player.hasItem('White King')) {
+                        // Player has the key, allow passage by not returning a locked message.
+                    } else {
+                        return "A secret passage is here, but it seems sealed by some ancient magic. A kingly artifact might be the key.";
+                    }
+                }
                 // --- End Special Lock Handling ---
                 return `That way is locked.`;
             }
@@ -280,20 +289,20 @@ export class ActionHandler {
 
             // Mercurial Den Items
             if (roomName === 'The Mercurial Den') {
-                if (itemName === 'coin purse') {
-                    const goldCoinItem = new Item('gold coin', 'A shiny gold coin.', true, true, false, 1);
+                if (itemName === this.gameItems.coinPurse.name.toLowerCase()) {
+                    const goldCoinItem = this.gameItems.goldCoin;
                     this.game.currentRoom.removeItem(item);
                     this.game.currentRoom.addItem(goldCoinItem, 4);
                     return 'You open the purse and find four gold coins inside.';
                 }
-                if (itemName === 'blue feather hand fan') {
+                if (itemName === this.gameItems.blueFeatherHandFan.name.toLowerCase()) {
                     this.game.currentRoom.removeItem(item);
                     // The blue feather acts as the new blue key
-                    this.game.currentRoom.addItem(new Item('blue feather', 'A vibrant blue feather that seems to hum with a faint energy.', false, true, true));
+                    this.game.currentRoom.addItem(this.gameItems.blueFeather);
                     return "You pick up the hand fan for a closer look. As you handle it, one of the feathers comes loose and falls onto the chair. It seems to have a faint blue glow about it. The rest of the fan feels mundane.";
                 }
-                if (itemName === 'sticky leather pouch') {
-                    const goldCoinItem = new Item('gold coin', 'A shiny gold coin.', true, true, false, 1);
+                if (itemName === this.gameItems.stickyLeatherPouch.name.toLowerCase()) {
+                    const goldCoinItem = this.gameItems.goldCoin;
                     this.game.currentRoom.removeItem(item);
                     this.game.currentRoom.addItem(goldCoinItem, 13);
                     return 'You untie the rotting twine on the greasy pouch. It falls apart in your hands, revealing 13 gold coins!';
@@ -304,7 +313,7 @@ export class ActionHandler {
             if (roomName === 'Clinker\'s Armoury' && itemName === 'dented helmet') {
                 if (!this.game.gameStateFlags.foundHelmetPotion) {
                     this.game.gameStateFlags.foundHelmetPotion = true; // Set flag to prevent finding it again
-                    const potion = new Item('medium health potion', 'A vial containing a swirling, red liquid.', true, true);
+                    const potion = this.gameItems.mediumHealthPotion;
                     this.game.currentRoom.addItem(potion);
                     return 'You peer inside the dented helmet and find a medium health potion tucked away inside the padding. Lucky find!';
                 } else {
@@ -315,8 +324,8 @@ export class ActionHandler {
             // Writing Desk in Scriptorium
             if (roomName === 'The Scriptorium' && itemName === 'writing desk') {
                 if (!this.game.gameStateFlags.foundDeskPotion) {
-                    this.game.gameStateFlags.foundDeskPotion = true; // Set flag
-                    const potion = new Item('medium health potion', 'A vial containing a swirling, red liquid.', true, true);
+                    this.game.gameStateFlags.foundDeskPotion = true;
+                    const potion = this.gameItems.mediumHealthPotion;
                     this.game.currentRoom.addItem(potion);
                     return 'You rummage through the drawers of the writing desk. Tucked away beneath some old parchments, you discover a medium health potion.';
                 } else {
@@ -327,8 +336,7 @@ export class ActionHandler {
             // Fruit Bowl in Cabin
             if (roomName === 'The Cabin' && itemName === 'fruit bowl') {
                 this.game.currentRoom.removeItem(item);
-                // The apple is takeable and usable, the other fruits are just for flavor.
-                const apple = new Item('red apple', 'A shiny red apple that emits a faint, warm glow.', true, true);
+                const apple = this.gameItems.redApple;
                 this.game.currentRoom.addItem(apple);
                 return 'you empty the fruit bowl on to the table. It holds 3 peaches, 2 bananas, a bushel of green grapes, 1 kiwi and a red apple that seems to have a faint glow about it.';
             }
@@ -413,7 +421,7 @@ export class ActionHandler {
             if (goldStacks.length === 0) {
                 return "There is no gold here.";
             }
-
+            
             let totalGoldTaken = 0;
             // Find the canonical 'gold coin' item to add to the player's inventory
             const goldCoinItem = goldStacks.find(stack => stack.item.name === 'gold coin')?.item || new Item('gold coin', 'A shiny gold coin.', true, true, false, 1);
@@ -421,13 +429,13 @@ export class ActionHandler {
             goldStacks.forEach(stack => {
                 totalGoldTaken += stack.item.goldValue * stack.quantity;
             });
-
+            
             // Remove all gold stacks from the room
             this.game.currentRoom.items = this.game.currentRoom.items.filter(stack => !stack.item.goldValue || stack.item.goldValue <= 0);
-
+            
             // Add the total to the player's inventory
             this.game.player.addItem(goldCoinItem, totalGoldTaken);
-
+            
             return `You scoop up all the gold, adding ${totalGoldTaken} coins to your pouch. You now have ${this.game.player.getGold()} gold.`;
         }
 
