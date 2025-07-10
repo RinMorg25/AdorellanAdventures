@@ -243,6 +243,7 @@ function appendText(text) {
             // to ensure the buttons and input field are correctly wired up.
             const commandInput = document.getElementById('commandInput');
             const inventoryButton = document.getElementById('inventoryButton');
+            const mapButton = document.getElementById('mapButton');
             const statsButton = document.getElementById('statsButton');
             const helpButton = document.getElementById('helpButton');
 
@@ -258,6 +259,9 @@ function appendText(text) {
             });
 
             // Sidebar Button Listeners
+            mapButton.addEventListener('click', () => {
+                gameInstance.displayManager.displayMap();
+            });
             inventoryButton.addEventListener('click', () => {
                 gameInstance.processCommand('inventory');
             });
