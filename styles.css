@@ -229,6 +229,9 @@ body {
 .portrait-info h3 { margin: 0 0 5px 0; color: gold; font-size: clamp(0.9em, 2vw, 1.1em); }
 .portrait-info p { margin: 0; font-size: clamp(0.7em, 1.5vw, 0.85em); color: #ccc;
 }
+.portrait-info ul {
+    list-style: none; padding: 0; margin: 10px 0; text-align: left; font-size: clamp(0.7em, 1.5vw, 0.8em);
+}
 
 /* Gameplay screen specific active state */
 #gameplayScreen.active {

@@ -5,7 +5,6 @@ import { Item } from './items.js';
 import { ActionHandler } from './actions.js'; // Import ActionHandler
 import { BattleSystem } from './battle.js'; // This file is not provided, but assumed to exist
 import { DisplayManager } from './displayIt.js'; // Import DisplayManager
-import { setupPreGameplayEventListeners } from './eventListeners.js'; // Import event listener setup functions
 
 document.addEventListener('DOMContentLoaded', () => {
     const titleScreen = document.getElementById('titleScreen');
@@ -19,14 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameplayScreen = document.getElementById('gameplayScreen');
     const confirmCharacterButton = document.getElementById('confirmCharacterButton');
     const commandInput = document.getElementById('commandInput'); // For re-focusing
-
-    // Create the tooltip element
-    const statTooltip = document.createElement('div');
-    statTooltip.id = 'statTooltip';
-    statTooltip.classList.add('tooltip');
-    // Append to body to avoid clipping issues with game-container's overflow:hidden
-    // and to simplify positioning relative to the viewport/mouse.
-    document.body.appendChild(statTooltip);
 
 const gameOutput = document.getElementById('gameOutput');
 const outputContainer = document.querySelector('.output-text-container'); // Get the container
@@ -294,7 +285,14 @@ function appendText(text) {
         onGenderSelected: (gender) => {
             selectedCharacterType = gender;
             // Remove 'selected' from all portraits
-            allPortraitCards.forEach(card => card.classList.remove('selected'));
+            allPortraitCards.forEach(card => {
+                card.classList.remove('selected');
+                // Also clear the info panel content to be repopulated on next hover
+                const infoPanel = card.querySelector('.portrait-info');
+                if (infoPanel) {
+                    infoPanel.innerHTML = '';
+                }
+            });
 
             if (gender === 'Male') {
                 malePortraitsGrid.classList.add('active');
@@ -335,16 +333,50 @@ function appendText(text) {
         }
     };
 
-    // Setup pre-gameplay event listeners
-    setupPreGameplayEventListeners({
-        startButton,
-        selectMaleButton,
-        selectFemaleButton,
-        confirmCharacterButton,
-        allPortraitCards, // Pass the cards instead of the images
-        statTooltip,
-        archetypeData,
-        ...preGameplayCallbacks
+    // --- Setup Pre-Gameplay Event Listeners (Implemented directly to ensure functionality) ---
+
+    // Start Button
+    startButton.addEventListener('click', preGameplayCallbacks.onStartGame);
+
+    // Gender Selection Buttons
+    selectMaleButton.addEventListener('click', () => preGameplayCallbacks.onGenderSelected('Male'));
+    selectFemaleButton.addEventListener('click', () => preGameplayCallbacks.onGenderSelected('Female'));
+
+    // Confirm Button
+    confirmCharacterButton.addEventListener('click', preGameplayCallbacks.onConfirmCharacterClicked);
+
+    // Portrait Card Listeners (Click and Hover)
+    allPortraitCards.forEach(card => {
+        card.addEventListener('click', () => {
+            preGameplayCallbacks.onPortraitClicked(card);
+        });
+
+        card.addEventListener('mouseenter', () => {
+            const infoPanel = card.querySelector('.portrait-info');
+            const archetypeIndex = parseInt(card.dataset.index, 10);
+            const stats = archetypeData[archetypeIndex];
+
+            if (infoPanel && stats) {
+                // Build the stats list HTML
+                const statsHtml = `
+                    <ul>
+                        <li><strong>Health:</strong> ${stats.health}</li>
+                        <li><strong>Strength:</strong> ${stats.strength}</li>
+                        <li><strong>Dexterity:</strong> ${stats.dexterity}</li>
+                        <li><strong>Agility:</strong> ${stats.agility}</li>
+                        <li><strong>Intelligence:</strong> ${stats.intelligence}</li>
+                        <li><strong>Charisma:</strong> ${stats.charisma}</li>
+                    </ul>
+                `;
+                
+                // Populate the panel
+                infoPanel.innerHTML = `
+                    <h3>${stats.name}</h3>
+                    ${statsHtml}
+                    <p>${stats.description}</p>
+                `;
+            }
+        });
     });
 
     // Initial setup: select the first male portrait by default.
