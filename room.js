@@ -256,7 +256,6 @@ export function createWorld() {
         'grottoHallway': [{ item: gameItems.potion, quantity: 1 }],
         'safezone': [{ item: gameItems.waterskin, quantity: 1 }],
         'bunkers': [{ item: gameItems.pieceOfCandy, quantity: 1 }],
-        'marketCorridor': [{ item: gameItems.pieceOfCandy, quantity: 1 }],
         'bunkerHallway': [
             { item: gameItems.pieceOfCandy, quantity: 1 },
             { item: gameItems.goldCoin, quantity: 1 }
@@ -314,7 +313,7 @@ export function createWorld() {
             'shop': ["Everything here is for sale, friend! If you've got the coin, I've got the... well, the 'stuff'!", "Just 'list' what I've got, or 'buy [item name]' if you see something you fancy!"]
         },
         [ // Shop Inventory
-            { item: gameItems.skeletonKey, price: 50 },
+            { item: gameItems.skeletonKey, price: 40 },
             { item: gameItems.mediumHealthPotion, price: 15 }
         ])],
     };

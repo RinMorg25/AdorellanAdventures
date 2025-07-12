@@ -145,8 +145,8 @@ function appendText(text) {
                     const playAgainButton = document.getElementById('playAgainButton');
 
                     if (gameplayScreen && endGameScreen && playAgainButton) {
-                        const endGameTitle = endGameScreen.querySelector('h2');
-                        const endGameMessage = endGameScreen.querySelector('p');
+                        const endGameTitle = document.getElementById('endGameTitle');
+                        const endGameMessage = document.getElementById('endGameMessage');
 
                         if (endGameTitle && endGameMessage) {
                             endGameTitle.textContent = 'An Adventure Refused';

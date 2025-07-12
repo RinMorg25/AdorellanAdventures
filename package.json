@@ -4,7 +4,8 @@
   "description": "A text-based adventure game.",
   "scripts": {
     "start": "vite",
-    "build": "vite build --outDir docs --base ./"
+    "build": "npm run clean && vite build --outDir docs --base ./",
+    "clean": "rimraf docs"
   },
   "author": "",
   "license": "ISC",
