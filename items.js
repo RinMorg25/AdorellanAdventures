@@ -1,5 +1,5 @@
 export class Item {
-    constructor(name, description, stackable = false, canTake = true, isUsable = true, goldValue = 0) {
+    constructor(name, description, canTake = true, stackable = false, isUsable = true, goldValue = 0) {
         this.name = name;
         this.description = description;
         this.canTake = canTake;
