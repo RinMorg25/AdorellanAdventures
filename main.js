@@ -60,7 +60,7 @@ function appendText(text) {
                 );
                 // Manually add starting gold as an item
                 const startingGold = new Item('gold coin', 'A shiny gold coin.', true, true, false, 1);
-                this.player.addItem(startingGold, 25);
+                this.player.addItem(startingGold, 23);
             }
             this.battleSystem = new BattleSystem();
             
