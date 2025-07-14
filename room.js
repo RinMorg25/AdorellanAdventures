@@ -274,13 +274,7 @@ export function createWorld() {
     const itemPlacement = {
         'entrance': [{ item: gameItems.smallHealthPotion, quantity: 1 }],
         'courtyard': [{ item: gameItems.torch, quantity: 1 }],
-        'chamber': [
-            { item: gameItems.crystal, quantity: 1 },
-            { item: gameItems.coinPurse, quantity: 1 },
-            { item: gameItems.blueFeatherHandFan, quantity: 1 },
-            { item: gameItems.mediumHealthPotion, quantity: 1 },
-            { item: gameItems.pieceOfCandy, quantity: 1 }
-        ],
+        'chamber': [{ item: gameItems.crystal, quantity: 1 }],
         'clinkers': [
             { item: gameItems.sword, quantity: 1 },
             { item: gameItems.dentedHelmet, quantity: 1 },
