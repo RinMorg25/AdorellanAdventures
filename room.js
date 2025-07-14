@@ -18,9 +18,11 @@ export class Room {
         this.exits[direction] = room;
     }
     
-    setLockedExit(direction, room, keyName = 'lockpick') {
+    setLockedExit(direction, room, lockType = 'lockpick') {
         this.exits[direction] = room;
-        this.lockedExits[direction] = keyName;
+        // If lockType is the boolean `true`, we use the default 'lockpick'.
+        // Otherwise, we use the specific string provided (e.g., 'rps', 'vault_puzzle').
+        this.lockedExits[direction] = (lockType === true) ? 'lockpick' : lockType;
     }
 
     addItem(item, quantity = 1) {
@@ -124,6 +126,12 @@ export class Room {
     }
 
     unlockExit(direction) {
+        // First, ensure the exit actually exists before trying to unlock it.
+        if (!this.hasExit(direction)) {
+            // This case should ideally be handled by the command parser, but this is a good safeguard.
+            return "You can't see an exit in that direction.";
+        }
+
         if (this.lockedExits[direction]) {
             const destinationRoom = this.exits[direction];
             const exitName = destinationRoom.name;
@@ -202,7 +210,7 @@ export function createWorld() {
         'safezone': { name: 'Haven Shield', description: 'The narrow corridor opens into a breathtaking, sun-dappled glade that feels entirely separate from the labyrinth. The walls are lined with ancient, towering trees, their leaves forming a dense canopy overhead. In the center of the glade is a serene, crystal-clear lake. On the far side of the lake stands a single, rustic-looking cabin. There are signs of others who have made it this far: the remnants of abandoned campfires and a discarded waterskin near the cabin\'s entrance.' },
         'grebs': { name: 'Greb\'s Grotto', description: 'This small, surprisingly cozy cavern is a chaotic mess of discarded adventuring gear. Piles of dented helmets, mismatched boots, and chipped shields are stacked against the walls. A small, friendly-looking red imp with large, curious eyes tends to a makeshift counter made from a large, flat rock. He seems to be sorting through a pile of rusty keys.' },
         'scriptorium': { name: 'The Scriptorium', description: 'You enter a large, almost grand chamber that feels like a sanctuary of knowledge. The walls are lined from floor to ceiling with towering shelves, heavy with ancient books, leather-bound tomes, and countless scrolls. In the center of the room, a large, imposing, writing desk stands beside a shorter shelf stacked high with fresh parchments and pots of ink. The air is still, carrying the faint scent of old paper and wax. Flickering lamps mounted on the walls cast a warm, dancing light across the room, making the shadows themselves seem to hold forgotten secrets.' },
-        'chamber': { name: 'The Mercurial Den', description: 'A vast, circular chamber where the walls shimmer with thousands of luminescent crystals, casting a beautiful, eerie light.' },
+        'chamber': { name: 'The Mercurial Den', description: 'You seem to be stood in the centre of a small island of calm. Here, an armchair, a side table, and a lamp rest on a worn rug, creating a single point of order in a room that has otherwise exploded into a chaos of costumes. Gowns, glittering jewellery, feather boas, and masks are strewn everywhere, spilling from wardrobes and covering every available surface in a colourful, cluttered mess.' },
         'grottoHallway': { name: 'Cluttered Passageway', description: 'A short passageway littered with discarded items - a broken lantern, a tattered cloak, and other adventuring debris. It seems to be a well-traveled route.' },
         'bendyHallway': { name: 'Winding Corridor', description: 'A long, winding corridor that bends out of sight. The air feels strangely calm and quiet here.' },
         'rockCrevice': { name: 'Rock Crevice', description: 'A narrow crevice in the rock face, almost hidden by overgrown vines. It looks like a tight squeeze.' },
@@ -250,7 +258,13 @@ export function createWorld() {
     const itemPlacement = {
         'entrance': [{ item: gameItems.smallHealthPotion, quantity: 1 }],
         'courtyard': [{ item: gameItems.torch, quantity: 1 }],
-        'chamber': [{ item: gameItems.crystal, quantity: 1 }],
+        'chamber': [
+            { item: gameItems.crystal, quantity: 1 },
+            { item: gameItems.coinPurse, quantity: 1 },
+            { item: gameItems.blueFeatherHandFan, quantity: 1 },
+            { item: gameItems.mediumHealthPotion, quantity: 1 },
+            { item: gameItems.pieceOfCandy, quantity: 1 }
+        ],
         'clinkers': [
             { item: gameItems.sword, quantity: 1 },
             { item: gameItems.dentedHelmet, quantity: 1 },
@@ -338,6 +352,12 @@ export function createWorld() {
     for (const conn of connectionData) {
         const fromRoom = rooms[conn.from];
         const toRoom = rooms[conn.to];
+
+        // Add a check to ensure room IDs from connectionData are valid.
+        if (!fromRoom || !toRoom) {
+            console.warn(`[World Creation] Skipping invalid connection: One or both room IDs not found.`, conn);
+            continue;
+        }
 
         if (conn.locked) {
             fromRoom.setLockedExit(conn.direction, toRoom, conn.locked);

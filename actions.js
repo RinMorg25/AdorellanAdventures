@@ -10,10 +10,10 @@ export class ActionHandler {
             {
                 description: `You seem to be stood in the centre of a small island of calm. Here, an armchair, a side table, and a lamp rest on a worn rug, creating a single point of order in a room that has otherwise exploded into a chaos of costumes. Gowns, glittering jewellery, feather boas, and masks are strewn everywhere, spilling from wardrobes and covering every available surface in a colourful, cluttered mess.`,
                 items: () => [
-                    new Item('coin purse', 'A small, heavy leather purse.', false, false),
-                    new Item('blue feather hand fan', 'An elegant hand fan made with large, deep blue feathers.', false, false),
-                    new Item('medium health potion', 'A vial containing a swirling, red liquid.', true, true),
-                    new Item('piece of candy', 'A piece of candy in a blue and purple wrapper.', true, true, true)
+                    this.gameItems.coinPurse,
+                    this.gameItems.blueFeatherHandFan,
+                    this.gameItems.mediumHealthPotion,
+                    this.gameItems.pieceOfCandy
                 ]
             },
             {
@@ -36,8 +36,8 @@ export class ActionHandler {
                 // State 4: The Goblin Casino
                 description: `The room is a disaster. It was clearly once a makeshift, low-rent casino run by goblins. A roulette wheel made from a painted shield lies on its side, a card table is covered in crude, goblin-drawn cards depicting leering faces, and a "slot machine" built from scrap metal, gears, and a large bear trap for a lever stands in the corner. The floor is sticky with spilled grog, and the air smells of rust and disappointment.`,
                 items: () => [
-                    new Item('large health potion', 'A large, bubbling potion in a sturdy flask. It looks potent.', true, true),
-                    new Item('sticky leather pouch', 'A small, greasy coin pouch bound with rotting twine. It looks like it was left in the coin return of the busted slot machine.', false, false, false)
+                    this.gameItems.largeHealthPotion,
+                    this.gameItems.stickyLeatherPouch
                 ]
             },
             {
@@ -338,7 +338,7 @@ export class ActionHandler {
                 this.game.currentRoom.removeItem(item);
                 const apple = this.gameItems.redApple;
                 this.game.currentRoom.addItem(apple);
-                return 'you empty the fruit bowl on to the table. It holds 3 peaches, 2 bananas, a bushel of green grapes, 1 kiwi and a red apple that seems to have a faint glow about it.';
+                return 'You look closer at the fruit bowl. Most of the fruit is mundane, but nestled among them is a single, perfect red apple that seems to have a faint glow about it. You take the apple, leaving the rest.';
             }
 
             // If no special logic matches, return the default description.
@@ -374,7 +374,10 @@ export class ActionHandler {
         let result = 'You search the area carefully...\n\n';
 
         if (items.length > 0) {
-            result += 'You find: ' + items.map(i => i.name).join(', ') + '\n';
+            const itemDescriptions = items.map(stack => {
+                return stack.quantity > 1 ? `${stack.quantity}x ${stack.item.name}` : stack.item.name;
+            });
+            result += 'You find: ' + itemDescriptions.join(', ') + '\n';
         }
         if (monsters.length > 0) {
             result += 'You notice: ' + monsters.map(m => m.name).join(', ') + '\n';
@@ -423,8 +426,13 @@ export class ActionHandler {
             }
             
             let totalGoldTaken = 0;
-            // Find the canonical 'gold coin' item to add to the player's inventory
-            const goldCoinItem = goldStacks.find(stack => stack.item.name === 'gold coin')?.item || new Item('gold coin', 'A shiny gold coin.', true, true, false, 1);
+            // Use the canonical 'goldCoin' item from the central game items list.
+            const goldCoinItem = this.gameItems.goldCoin;
+            if (!goldCoinItem) {
+                // This is a safeguard in case gameItems.goldCoin is not defined.
+                console.warn("ActionHandler: 'goldCoin' not found in gameItems. Cannot process 'take all gold'.");
+                return "An error occurred while trying to take the gold.";
+            }
 
             goldStacks.forEach(stack => {
                 totalGoldTaken += stack.item.goldValue * stack.quantity;
