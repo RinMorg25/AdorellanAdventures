@@ -400,6 +400,7 @@ export class ActionHandler {
 
         let quantity = 1;
         let itemName = fullInput.trim();
+        const parts = fullInput.split(' ');
 
         if (parts[0] === 'all') {
             quantity = 'all';
