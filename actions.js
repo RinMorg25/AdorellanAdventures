@@ -481,13 +481,7 @@ export class ActionHandler {
         // Use an if/else block to clearly separate gold from other items.
         // This fixes a subtle bug where the logic for non-gold items was not being correctly executed.
         if (item.goldValue && item.goldValue > 0) {
-            // --- Gold Handling ---
-            this.game.player.addItem(item, amountToTake);
-            roomItemStack.quantity -= amountToTake;
-            if (roomItemStack.quantity <= 0) {
-                this.game.currentRoom.items = this.game.currentRoom.items.filter(stack => stack !== roomItemStack);
-            }
-            return `You take ${amountToTake} ${item.name}(s). You now have ${this.game.player.getGold()} gold.`;
+            return this._handleGoldTake(item, roomItemStack, amountToTake);
         } else {
             // --- Default Item Handling ---
             this.game.player.addItem(item, amountToTake);
@@ -502,6 +496,15 @@ export class ActionHandler {
                 return `You take the ${item.name}.`;
             }
         }
+    }
+
+    _handleGoldTake(item, roomItemStack, amountToTake) {
+        this.game.player.addItem(item, amountToTake);
+        roomItemStack.quantity -= amountToTake;
+        if (roomItemStack.quantity <= 0) {
+            this.game.currentRoom.items = this.game.currentRoom.items.filter(stack => stack !== roomItemStack);
+        }
+        return `You take ${amountToTake} ${item.name}(s). You now have ${this.game.player.getGold()} gold.`;
     }
 
     _handleUse(itemName) {
