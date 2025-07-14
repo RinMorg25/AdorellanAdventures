@@ -36,8 +36,8 @@ export class ActionHandler {
                 // State 4: The Goblin Casino
                 description: `The room is a disaster. It was clearly once a makeshift, low-rent casino run by goblins. A roulette wheel made from a painted shield lies on its side, a card table is covered in crude, goblin-drawn cards depicting leering faces, and a "slot machine" built from scrap metal, gears, and a large bear trap for a lever stands in the corner. The floor is sticky with spilled grog, and the air smells of rust and disappointment.`,
                 items: () => [
-                    new Item('large health potion', 'A large, bubbling potion in a sturdy flask. It looks potent.', true, true),
-                    new Item('sticky leather pouch', 'A small, greasy coin pouch bound with rotting twine. It looks like it was left in the coin return of the busted slot machine.', false, false, false)
+                    this.gameItems.largeHealthPotion,
+                    this.gameItems.stickyLeatherPouch
                 ]
             },
             {
