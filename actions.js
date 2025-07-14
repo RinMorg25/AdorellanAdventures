@@ -159,16 +159,30 @@ export class ActionHandler {
 
     _changeMercurialDen() {
         const den = this.game.worldMap['chamber'];
-        const numStates = this.mercurialDenStates.length;
-        if (numStates <= 1) return; // Cannot change state if there's only one or zero states.
+        const lastStateIndex = this.game.gameStateFlags.mercurialDenStateIndex;
 
-        const currentStateIndex = this.game.gameStateFlags.mercurialDenStateIndex;
+        // Check if the cycle needs to be (re)shuffled.
+        // This happens on the first run or when the cycle is empty.
+        if (!this.game.gameStateFlags.mercurialDenCycle || this.game.gameStateFlags.mercurialDenCycle.length === 0) {
+            // Create a fresh, shuffled list of all state indices.
+            const stateIndices = Array.from(this.mercurialDenStates.keys());
+            for (let i = stateIndices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [stateIndices[i], stateIndices[j]] = [stateIndices[j], stateIndices[i]];
+            }
+            this.game.gameStateFlags.mercurialDenCycle = stateIndices;
 
-        let newStateIndex;
-        do {
-            newStateIndex = Math.floor(Math.random() * numStates);
-        } while (newStateIndex === currentStateIndex); // Ensure the new state is different
+            // Ensure the first state of the new cycle is not the same as the last state of the old one.
+            if (this.game.gameStateFlags.mercurialDenCycle[0] === lastStateIndex && this.game.gameStateFlags.mercurialDenCycle.length > 1) {
+                // Swap the first element with the last one by moving it to the end.
+                const first = this.game.gameStateFlags.mercurialDenCycle.shift();
+                this.game.gameStateFlags.mercurialDenCycle.push(first);
+            }
+        }
 
+        // Get the next state from the shuffled cycle. .shift() removes and returns the first element.
+        const newStateIndex = this.game.gameStateFlags.mercurialDenCycle.shift();
+        
         this.game.gameStateFlags.mercurialDenStateIndex = newStateIndex;
         const newState = this.mercurialDenStates[newStateIndex];
 
