@@ -398,7 +398,6 @@ export class ActionHandler {
             return "What do you want to take?";
         }
 
-        const parts = fullInput.toLowerCase().split(' ');
         let quantity = 1;
         let itemName = fullInput.trim();
 
