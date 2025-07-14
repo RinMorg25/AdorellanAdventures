@@ -1,11 +1,19 @@
 export class Item {
-    constructor(name, description, canTake = true, stackable = false, isUsable = true, goldValue = 0) {
+    constructor(name, description, options = {}) {
+        const {
+            canTake = true,
+            stackable = false,
+            isUsable = true,
+            isConsumed = false,
+            goldValue = 0
+        } = options;
+
         this.name = name;
         this.description = description;
         this.canTake = canTake;
         this.stackable = stackable;
         this.isUsable = isUsable;
-        this.isConsumed = false;
+        this.isConsumed = isConsumed;
         this.goldValue = goldValue;
     }
     
