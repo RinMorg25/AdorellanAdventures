@@ -138,12 +138,19 @@ export class ItemManager {
     initializeItems() {
         const itemData = [
             { name: 'torch', desc: 'A flickering torch that provides light.', take: true },
-            { name: 'crystal', desc: 'A mystical crystal that glows with inner light.', take: true },
-            { name: 'sword', desc: 'An ancient blade with mystical properties.', take: true },
+            { name: 'crystal', desc: 'A mystical crystal that glows with an inner light.', take: true },
+            { name: 'sword', desc: 'An ancient blade. Using it might awaken its properties.', take: true },
             { name: 'key', desc: 'An ornate key that looks very old.', take: true },
             { name: 'potion', desc: 'A small vial containing a healing elixir.', take: true },
             { name: 'chest', desc: 'A heavy wooden chest bound with iron.', take: false },
-            { name: 'statue', desc: 'An ancient statue covered in mysterious runes.', take: false }
+            { name: 'statue', desc: 'An ancient statue covered in mysterious runes.', take: false },
+            { name: 'leather vest', desc: 'A sturdy vest made of boiled leather. Provides a small boost to defense.', take: true },
+            { name: 'piece of candy', desc: 'A small, sugary treat. Might give you a burst of energy.', take: true },
+            { name: 'red apple', desc: 'A shiny red apple. It looks delicious and might be useful somewhere.', take: true },
+            { name: 'large health potion', desc: 'A large vial of swirling red liquid that restores a lot of health.', take: true },
+            { name: 'medium health potion', desc: 'A medium vial of swirling red liquid that restores some health.', take: true },
+            { name: 'small health potion', desc: 'A small vial of swirling red liquid that restores a little health.', take: true },
+            { name: 'blue feather', desc: 'A brilliant blue feather that seems to hum with a faint energy. It feels important.', take: true }
         ];
         
         itemData.forEach(data => {
