@@ -54,6 +54,7 @@ export class Item {
     
     useSword(player, room) {
         player.attack += 5;
+        this.isConsumed = true; // The sword is "consumed" to provide a permanent stat boost
         return 'You feel more confident with the sword in hand. Your attack power increases!';
     }
     
