@@ -174,6 +174,14 @@ export function createWorld() {
         skeletonKey: new Item('skeleton key', 'A key made from bone, said to open any locked chest.', false, true, true),
         redApple: new Item('red apple', 'A perfectly ripe red apple. It feels strangely significant.', false, true, true),
         blueFeather: new Item('blue feather', 'A vibrant blue feather that seems to hum with a faint energy.', false, true, true),
+        // Items for dynamic rooms like The Mercurial Den
+        coinPurse: new Item('coin purse', 'A small, heavy leather purse. It feels like there might be something inside.', false, false, false),
+        blueFeatherHandFan: new Item('blue feather hand fan', 'An elegant hand fan made with large, deep blue feathers.', false, false, false),
+        singingStone: new Item('singing stone', 'A smooth, grey river stone that emits a faint, melodic hum when held.', false, true, false),
+        ironSkinFungi: new Item('ironskin fungi', 'A tough, leathery mushroom. It is said to grant temporary resilience.', true, true, true),
+        whiteKing: new Item('White King', 'A majestic dragon chess piece carved from rare, imperial, bone-white jadeite. It feels ancient and powerful.', false, true, false),
+        stickyLeatherPouch: new Item('sticky leather pouch', 'A small, greasy coin pouch bound with rotting twine. It looks like it was left in the coin return of a busted slot machine.', false, false, false),
+        largeHealthPotion: new Item('large health potion', 'A large, bubbling potion in a sturdy flask. It looks potent.', true, true, true),
     };
     gameItems.specialJournal.onTakeFailMessage = 'This Adventure is not ready for you YET Brave Adventurer!';
 

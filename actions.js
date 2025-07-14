@@ -10,10 +10,10 @@ export class ActionHandler {
             {
                 description: `You seem to be stood in the centre of a small island of calm. Here, an armchair, a side table, and a lamp rest on a worn rug, creating a single point of order in a room that has otherwise exploded into a chaos of costumes. Gowns, glittering jewellery, feather boas, and masks are strewn everywhere, spilling from wardrobes and covering every available surface in a colourful, cluttered mess.`,
                 items: () => [
-                    new Item('coin purse', 'A small, heavy leather purse.', false, false),
-                    new Item('blue feather hand fan', 'An elegant hand fan made with large, deep blue feathers.', false, false),
-                    new Item('medium health potion', 'A vial containing a swirling, red liquid.', true, true),
-                    new Item('piece of candy', 'A piece of candy in a blue and purple wrapper.', true, true, true)
+                    this.gameItems.coinPurse,
+                    this.gameItems.blueFeatherHandFan,
+                    this.gameItems.mediumHealthPotion,
+                    this.gameItems.pieceOfCandy
                 ]
             },
             {
