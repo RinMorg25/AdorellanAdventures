@@ -478,28 +478,29 @@ export class ActionHandler {
             return item.onTakeFailMessage || `You cannot take the ${item.name}.`;
         }
 
-        // --- Refactored Gold Handling (works with quantities) ---
+        // Use an if/else block to clearly separate gold from other items.
+        // This fixes a subtle bug where the logic for non-gold items was not being correctly executed.
         if (item.goldValue && item.goldValue > 0) {
-            // The item being taken IS the gold, so add it directly to inventory.
+            // --- Gold Handling ---
             this.game.player.addItem(item, amountToTake);
             roomItemStack.quantity -= amountToTake;
             if (roomItemStack.quantity <= 0) {
                 this.game.currentRoom.items = this.game.currentRoom.items.filter(stack => stack !== roomItemStack);
             }
             return `You take ${amountToTake} ${item.name}(s). You now have ${this.game.player.getGold()} gold.`;
-        }
-
-        // --- Default item transfer ---
-        this.game.player.addItem(item, amountToTake);
-        roomItemStack.quantity -= amountToTake;
-        if (roomItemStack.quantity <= 0) {
-            this.game.currentRoom.items = this.game.currentRoom.items.filter(stack => stack !== roomItemStack);
-        }
-
-        if (amountToTake > 1) {
-            return `You take ${amountToTake} ${item.name}s.`;
         } else {
-            return `You take the ${item.name}.`;
+            // --- Default Item Handling ---
+            this.game.player.addItem(item, amountToTake);
+            roomItemStack.quantity -= amountToTake;
+            if (roomItemStack.quantity <= 0) {
+                this.game.currentRoom.items = this.game.currentRoom.items.filter(stack => stack !== roomItemStack);
+            }
+
+            if (amountToTake > 1) {
+                return `You take ${amountToTake} ${item.name}s.`;
+            } else {
+                return `You take the ${item.name}.`;
+            }
         }
     }
 
