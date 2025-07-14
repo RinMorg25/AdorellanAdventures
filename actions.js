@@ -414,37 +414,9 @@ export class ActionHandler {
             itemName = parts.slice(1).join(' ').trim();
         }
 
+        // After parsing, ensure an item name was actually provided.
         if (!itemName) {
             return "What do you want to take?";
-        }
-
-        // Special case to "take all gold"
-        if (itemName === 'gold' || itemName === 'gold coin' || itemName === 'coins') {
-            const goldStacks = this.game.currentRoom.items.filter(stack => stack.item.goldValue > 0);
-            if (goldStacks.length === 0) {
-                return "There is no gold here.";
-            }
-            
-            let totalGoldTaken = 0;
-            // Use the canonical 'goldCoin' item from the central game items list.
-            const goldCoinItem = this.gameItems.goldCoin;
-            if (!goldCoinItem) {
-                // This is a safeguard in case gameItems.goldCoin is not defined.
-                console.warn("ActionHandler: 'goldCoin' not found in gameItems. Cannot process 'take all gold'.");
-                return "An error occurred while trying to take the gold.";
-            }
-
-            goldStacks.forEach(stack => {
-                totalGoldTaken += stack.item.goldValue * stack.quantity;
-            });
-            
-            // Remove all gold stacks from the room
-            this.game.currentRoom.items = this.game.currentRoom.items.filter(stack => !stack.item.goldValue || stack.item.goldValue <= 0);
-            
-            // Add the total to the player's inventory
-            this.game.player.addItem(goldCoinItem, totalGoldTaken);
-            
-            return `You scoop up all the gold, adding ${totalGoldTaken} coins to your pouch. You now have ${this.game.player.getGold()} gold.`;
         }
 
         // Step 2: Find the item stack in the room

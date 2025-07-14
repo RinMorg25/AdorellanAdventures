@@ -11,6 +11,7 @@ export class Room {
         this.monsters = [];
         this.npcs = [];
         this.visited = false;
+        this.dynamicDescriptions = []; // New property for dynamic descriptions
         this.lockedExits = {}; // New property to store locked exits
     }
     
@@ -75,14 +76,21 @@ export class Room {
             this.monsters.splice(index, 1);
         }
     }
+
+    addDynamicDescription(condition, text) {
+        this.dynamicDescriptions.push({ condition, text });
+    }
     
     getDescription(player) { // Pass player to allow for dynamic descriptions
         this.visited = true;
         let baseDesc = this.description;
 
-        // Dynamic description for the Vault based on player inventory
-        if (this.name === 'The Vault' && player && player.hasItem('red apple') && player.hasItem('blue feather')) {
-            baseDesc = 'A massive, circular iron door dominates one wall of this room. It is sealed shut with no obvious handle or lock. Finely etched into its surface is the depiction of a great tree, its branches heavy with what look like round fruit. A small, empty nest is tucked among the boughs, and a dark, fist-sized hollow is visible in the trunk. The entire etching now emits a strong pulse, almost like a heartbeat, bathing the room in a rhythmic purple glow.';
+        // Check for a dynamic description that matches the current state
+        for (const dynamic of this.dynamicDescriptions) {
+            if (dynamic.condition(player)) {
+                baseDesc = dynamic.text;
+                break; // Use the first matching description
+            }
         }
 
         let desc = `${this.name}\n${baseDesc}`;
@@ -203,7 +211,15 @@ export function createWorld() {
         'marketCorridor': { name: 'Short Corridor', description: 'A short, narrow corridor. About halfway down, a sturdy-looking wooden door blocks the path forward. A strange inscription on the door depicts a hand, a stone, and some parchment. It seems to be a game of chance. Do you try your luck?' },
         'bunkerHallway': { name: 'Cluttered Hallway', description: 'This hallway is cluttered with scattered bits and bobs left behind by previous inhabitants - tattered clothes, worthless trinkets, and other debris. It continues forward towards Bunker\'s Bend.' },
         'armouryHallway': { name: 'Decrepit Hallway', description: 'The splintered remains of a wooden door lead into this short, dusty hallway. It continues forward, where you can see the entrance to another chamber.' },
-        'vault': { name: 'The Vault', description: 'A massive, circular iron door dominates one wall of this room. It is sealed shut with no obvious handle or lock. Finely etched into its surface is the depiction of a great tree, its branches heavy with what look like round fruit. A small, empty nest is tucked among the boughs, and a dark, fist-sized hollow is visible in the trunk. The entire etching glows with a faint, otherworldly purple light.' },
+        'vault': {
+            name: 'The Vault',
+            description: 'A massive, circular iron door dominates one wall of this room. It is sealed shut with no obvious handle or lock. Finely etched into its surface is the depiction of a great tree, its branches heavy with what look like round fruit. A small, empty nest is tucked among the boughs, and a dark, fist-sized hollow is visible in the trunk. The entire etching glows with a faint, otherworldly purple light.',
+            dynamic: [{
+                // This condition function will be evaluated in the game context
+                condition: (player) => player && player.hasItem('red apple') && player.hasItem('blue feather'),
+                text: 'A massive, circular iron door dominates one wall of this room. It is sealed shut with no obvious handle or lock. Finely etched into its surface is the depiction of a great tree, its branches heavy with what look like round fruit. A small, empty nest is tucked among the boughs, and a dark, fist-sized hollow is visible in the trunk. The entire etching now emits a strong pulse, almost like a heartbeat, bathing the room in a rhythmic purple glow.'
+            }]
+        },
         'vaultHallway': { name: 'Vault Hallway', description: 'A short, sterile hallway with smooth stone walls. A simple revolving iron gate stands behind you, leading back to the market. Ahead, the hallway ends at the massive circular door of The Vault.' },
         'zHallway': { name: 'Z-Shaped Hallway', description: 'A cramped, narrow hallway that takes a sharp turn before continuing. The stone is cold and damp to the touch. One way leads towards the market, while the path behind you returns to the bunkers.' },
         'temple': { name: 'The Forgotten Temple', description: 'An eerie silence hangs in this grand temple. Faded murals on the walls depict forgotten gods.' },
@@ -346,6 +362,10 @@ export function createWorld() {
     // Create all room instances
     for (const id in roomData) {
         rooms[id] = new Room(roomData[id].name, roomData[id].description);
+        // If the room has dynamic descriptions in its data, add them
+        if (roomData[id].dynamic) {
+            roomData[id].dynamic.forEach(dyn => rooms[id].addDynamicDescription(dyn.condition, dyn.text));
+        }
     }
 
     // Create all connections between rooms
