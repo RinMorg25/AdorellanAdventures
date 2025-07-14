@@ -36,14 +36,16 @@ function appendText(text) {
     let selectedArchetypeIndex = 0;     // Default to the first portrait
 
     class AdventureGame {
-        constructor(characterType) { // Accept characterType if needed for player setup
-            this.currentRoom = null;
-            this.worldMap = {}; // To store all rooms by ID
+        constructor(characterType, worldData) { // Accept characterType and the created world
+            // Initialize world state from worldData
+            this.currentRoom = worldData.startRoom;
+            this.worldMap = worldData.rooms;
+            this.gameItems = worldData.gameItems; // Store the master list of items
+
             this.roomHistory = []; // To track visited rooms for the 'back' command
             this.gameState = 'pre-start'; // Add game state: pre-start, intro, playing, ended
             this.interactionState = null; // For special interactions like RPS door
             this.gameStateFlags = {}; // For tracking special world states
-            // Potentially use characterType to customize the player
             this.player = new Character(characterType || 'Player', 100, 10, 5);
             // If characterType is an archetype object, use its stats
             if (typeof characterType === 'object' && characterType !== null && characterType.name) {
@@ -70,16 +72,14 @@ function appendText(text) {
             this.statsButton = document.getElementById('statsButton');
             this.helpButton = document.getElementById('helpButton');
             
-            this.actionHandler = new ActionHandler(this); // Initialize ActionHandler
+            // Pass the game instance AND the master item list to the ActionHandler
+            this.actionHandler = new ActionHandler(this, this.gameItems);
             this.displayManager = new DisplayManager(this, appendText); // Initialize DisplayManager
             this.initializeGame();
             this.updateStatusBars(); // Initial update of status bars
         }
         
         initializeGame() {
-            const world = createWorld();
-            this.worldMap = world.rooms;
-            this.currentRoom = world.startRoom;
             this.gameState = 'intro'; // Set state to intro
 
             // Initial message for the game start
@@ -256,7 +256,9 @@ function appendText(text) {
 
         // Initialize the game *after* transitioning to gameplay screen
         if (!gameInstance) { // Ensure game is initialized only once
-            gameInstance = new AdventureGame(characterType);
+            // Create the world data first, which includes all items
+            const worldData = createWorld();
+            gameInstance = new AdventureGame(characterType, worldData);
 
             // --- Setup Gameplay Event Listeners ---
             // The original call to setupGameplayEventListeners is replaced with this inline implementation
