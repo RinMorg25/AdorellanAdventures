@@ -10,10 +10,10 @@ export class ActionHandler {
             {
                 description: `You seem to be stood in the centre of a small island of calm. Here, an armchair, a side table, and a lamp rest on a worn rug, creating a single point of order in a room that has otherwise exploded into a chaos of costumes. Gowns, glittering jewellery, feather boas, and masks are strewn everywhere, spilling from wardrobes and covering every available surface in a colourful, cluttered mess.`,
                 items: () => [
-                    this.gameItems.coinPurse,
-                    this.gameItems.blueFeatherHandFan,
-                    this.gameItems.mediumHealthPotion,
-                    this.gameItems.pieceOfCandy
+                    new Item('coin purse', 'A small, heavy leather purse.', false, false),
+                    new Item('blue feather hand fan', 'An elegant hand fan made with large, deep blue feathers.', false, false),
+                    new Item('medium health potion', 'A vial containing a swirling, red liquid.', true, true),
+                    new Item('piece of candy', 'A piece of candy in a blue and purple wrapper.', true, true, true)
                 ]
             },
             {
@@ -36,8 +36,8 @@ export class ActionHandler {
                 // State 4: The Goblin Casino
                 description: `The room is a disaster. It was clearly once a makeshift, low-rent casino run by goblins. A roulette wheel made from a painted shield lies on its side, a card table is covered in crude, goblin-drawn cards depicting leering faces, and a "slot machine" built from scrap metal, gears, and a large bear trap for a lever stands in the corner. The floor is sticky with spilled grog, and the air smells of rust and disappointment.`,
                 items: () => [
-                    this.gameItems.largeHealthPotion,
-                    this.gameItems.stickyLeatherPouch
+                    new Item('large health potion', 'A large, bubbling potion in a sturdy flask. It looks potent.', true, true),
+                    new Item('sticky leather pouch', 'A small, greasy coin pouch bound with rotting twine. It looks like it was left in the coin return of the busted slot machine.', false, false, false)
                 ]
             },
             {
@@ -159,30 +159,16 @@ export class ActionHandler {
 
     _changeMercurialDen() {
         const den = this.game.worldMap['chamber'];
-        const lastStateIndex = this.game.gameStateFlags.mercurialDenStateIndex;
+        const numStates = this.mercurialDenStates.length;
+        if (numStates <= 1) return; // Cannot change state if there's only one or zero states.
 
-        // Check if the cycle needs to be (re)shuffled.
-        // This happens on the first run or when the cycle is empty.
-        if (!this.game.gameStateFlags.mercurialDenCycle || this.game.gameStateFlags.mercurialDenCycle.length === 0) {
-            // Create a fresh, shuffled list of all state indices.
-            const stateIndices = Array.from(this.mercurialDenStates.keys());
-            for (let i = stateIndices.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [stateIndices[i], stateIndices[j]] = [stateIndices[j], stateIndices[i]];
-            }
-            this.game.gameStateFlags.mercurialDenCycle = stateIndices;
+        const currentStateIndex = this.game.gameStateFlags.mercurialDenStateIndex;
 
-            // Ensure the first state of the new cycle is not the same as the last state of the old one.
-            if (this.game.gameStateFlags.mercurialDenCycle[0] === lastStateIndex && this.game.gameStateFlags.mercurialDenCycle.length > 1) {
-                // Swap the first element with the last one by moving it to the end.
-                const first = this.game.gameStateFlags.mercurialDenCycle.shift();
-                this.game.gameStateFlags.mercurialDenCycle.push(first);
-            }
-        }
+        let newStateIndex;
+        do {
+            newStateIndex = Math.floor(Math.random() * numStates);
+        } while (newStateIndex === currentStateIndex); // Ensure the new state is different
 
-        // Get the next state from the shuffled cycle. .shift() removes and returns the first element.
-        const newStateIndex = this.game.gameStateFlags.mercurialDenCycle.shift();
-        
         this.game.gameStateFlags.mercurialDenStateIndex = newStateIndex;
         const newState = this.mercurialDenStates[newStateIndex];
 
