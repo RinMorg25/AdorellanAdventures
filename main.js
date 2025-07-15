@@ -58,8 +58,10 @@ function appendText(text) {
                     characterType.intelligence,
                     characterType.charisma
                 );
-                // Manually add starting gold as an item
-                const startingGold = new Item('gold coin', 'A shiny gold coin.', true, true, false, 1);
+                // Manually add starting gold as an item, using the correct constructor format.
+                const startingGold = new Item('gold coin', 'A shiny gold coin.', {
+                    stackable: true, isUsable: false, goldValue: 1
+                });
                 this.player.addItem(startingGold, 23);
             }
             this.battleSystem = new BattleSystem();

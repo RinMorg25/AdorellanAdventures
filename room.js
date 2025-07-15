@@ -165,39 +165,40 @@ export class Room {
 
 export function createWorld() {
     // --- 1. Define All Game Items ---
-    // The `stackable` parameter is constructor(name, description, stackable, canTake, isUsable)
+    // NOTE: The constructor takes an options object: constructor(name, description, options = {})
+    // This has been corrected for all items below.
     const gameItems = {
         // Stackable Consumables & Currency
-        smallHealthPotion: new Item('small health potion', 'A small vial of green liquid that restores a minor amount of health.', true, true, true),
-        pieceOfCandy: new Item('piece of candy', 'A piece of candy in a blue and purple wrapper. Restores a bit of energy.', true, true, true),
-        goldCoin: new Item('gold coin', 'A shiny gold coin.', true, true, false, 25), // Gold is now a stackable item
-        potion: new Item('potion', 'A healing potion, brewed by an unknown hand.', true, true, true),
-        mediumHealthPotion: new Item('medium health potion', 'A vial of shimmering red liquid that restores a moderate amount of health.', true, true, true),
+        smallHealthPotion: new Item('small health potion', 'A small vial of green liquid that restores a minor amount of health.', { stackable: true, isConsumed: true }),
+        pieceOfCandy: new Item('piece of candy', 'A piece of candy in a blue and purple wrapper. Restores a bit of energy.', { stackable: true, isConsumed: true }),
+        goldCoin: new Item('gold coin', 'A shiny gold coin.', { stackable: true, isUsable: false, goldValue: 1 }),
+        potion: new Item('potion', 'A healing potion, brewed by an unknown hand.', { stackable: true, isConsumed: true }),
+        mediumHealthPotion: new Item('medium health potion', 'A vial of shimmering red liquid that restores a moderate amount of health.', { stackable: true, isConsumed: true }),
 
         // Non-Stackable Items (Key items, equipment, etc.)
-        torch: new Item('torch', 'A flickering torch that provides light in dark places.', true, false, true),
-        crystal: new Item('crystal', 'A glowing blue crystal that pulses with mystical energy.', true, false, false),
-        sword: new Item('sword', 'An ancient sword with mysterious runes etched into the blade.', true, false, true),
-        dentedHelmet: new Item('dented helmet', 'A dented old helmet. Looks like it has seen many battles.', false, false, false),
-        lockpick: new Item('lockpick', 'A set of lock picks, useful for opening locked doors.', true, false, true),
-        waterskin: new Item('waterskin', 'A discarded waterskin, still half-full of clean water.', true, false, true),
-        writingDesk: new Item('writing desk', 'A large, imposing writing desk made of dark wood.', false, false, false),
-        leatherVest: new Item('leather vest', 'A simple vest made of hardened leather.', true, false, true),
-        fruitBowl: new Item('fruit bowl', 'A well-stocked fruit bowl. It looks delicious.', false, false, false),
-        ornateCompass: new Item('ornate compass', 'An ornate compass. The plaque in front of it reads: Stay and Explore.', true, false, false),
-        treasureChest: new Item('treasure chest', 'A pocket-sized treasure chest. The plaque reads: For your grit & determination...', true, false, false),
-        specialJournal: new Item('old journal', 'A small old leather journal, similar to the one that led you here.', false, false, false),
-        skeletonKey: new Item('skeleton key', 'A key made from bone, said to open any locked chest.', false, true, true),
-        redApple: new Item('red apple', 'A perfectly ripe red apple. It feels strangely significant.', true, false, true),
-        blueFeather: new Item('blue feather', 'A vibrant blue feather that seems to hum with a faint energy.', true, false, true),
+        torch: new Item('torch', 'A flickering torch that provides light in dark places.', { stackable: false }),
+        crystal: new Item('crystal', 'A glowing blue crystal that pulses with mystical energy.', { stackable: false, isUsable: false }),
+        sword: new Item('sword', 'An ancient sword with mysterious runes etched into the blade.', { stackable: false, isConsumed: true }),
+        dentedHelmet: new Item('dented helmet', 'A dented old helmet. Looks like it has seen many battles.', { canTake: false, isUsable: false }),
+        lockpick: new Item('lockpick', 'A set of lock picks, useful for opening locked doors.', { stackable: true, isUsable: false }),
+        waterskin: new Item('waterskin', 'A discarded waterskin, still half-full of clean water.', { stackable: false }),
+        writingDesk: new Item('writing desk', 'A large, imposing writing desk made of dark wood.', { canTake: false, isUsable: false }),
+        leatherVest: new Item('leather vest', 'A simple vest made of hardened leather.', { stackable: false, isConsumed: true }),
+        fruitBowl: new Item('fruit bowl', 'A well-stocked fruit bowl. It looks delicious.', { canTake: false, isUsable: false }),
+        ornateCompass: new Item('ornate compass', 'An ornate compass. The plaque in front of it reads: Stay and Explore.', { stackable: false, isUsable: false }),
+        treasureChest: new Item('treasure chest', 'A pocket-sized treasure chest. The plaque reads: For your grit & determination...', { stackable: false, isUsable: false }),
+        specialJournal: new Item('old journal', 'A small old leather journal, similar to the one that led you here.', { canTake: false, isUsable: false }),
+        skeletonKey: new Item('skeleton key', 'A key made from bone, said to open any locked chest.', { stackable: false, isUsable: true }),
+        redApple: new Item('red apple', 'A perfectly ripe red apple. It feels strangely significant.', { stackable: false }),
+        blueFeather: new Item('blue feather', 'A vibrant blue feather that seems to hum with a faint energy.', { stackable: false }),
         // Items for dynamic rooms like The Mercurial Den
-        coinPurse: new Item('coin purse', 'A small, heavy leather purse. It feels like there might be something inside.', false, false, false),
-        blueFeatherHandFan: new Item('blue feather hand fan', 'An elegant hand fan made with large, deep blue feathers.', false, false, false),
-        singingStone: new Item('singing stone', 'A smooth, grey river stone that emits a faint, melodic hum when held.', false, true, false),
-        ironSkinFungi: new Item('ironskin fungi', 'A tough, leathery mushroom. It is said to grant temporary resilience.', true, true, true),
-        whiteKing: new Item('White King', 'A majestic dragon chess piece carved from rare, imperial, bone-white jadeite. It feels ancient and powerful.', true, false, true),
-        stickyLeatherPouch: new Item('sticky leather pouch', 'A small, greasy coin pouch bound with rotting twine. It looks like it was left in the coin return of a busted slot machine.', false, false, false),
-        largeHealthPotion: new Item('large health potion', 'A large, bubbling potion in a sturdy flask. It looks potent.', true, true, true),
+        coinPurse: new Item('coin purse', 'A small, heavy leather purse. It feels like there might be something inside.', { canTake: false, isUsable: false }),
+        blueFeatherHandFan: new Item('blue feather hand fan', 'An elegant hand fan made with large, deep blue feathers.', { canTake: false, isUsable: false }),
+        singingStone: new Item('singing stone', 'A smooth, grey river stone that emits a faint, melodic hum when held.', { canTake: false, isUsable: false }),
+        ironSkinFungi: new Item('ironskin fungi', 'A tough, leathery mushroom. It is said to grant temporary resilience.', { stackable: true, isConsumed: true }),
+        whiteKing: new Item('White King', 'A majestic dragon chess piece carved from rare, imperial, bone-white jadeite. It feels ancient and powerful.', { stackable: false }),
+        stickyLeatherPouch: new Item('sticky leather pouch', 'A small, greasy coin pouch bound with rotting twine. It looks like it was left in the coin return of a busted slot machine.', { canTake: false, isUsable: false }),
+        largeHealthPotion: new Item('large health potion', 'A large, bubbling potion in a sturdy flask. It looks potent.', { stackable: true, isConsumed: true }),
     };
     gameItems.specialJournal.onTakeFailMessage = 'This Adventure is not ready for you YET Brave Adventurer!';
 
