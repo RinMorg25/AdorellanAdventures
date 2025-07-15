@@ -177,6 +177,29 @@ function appendText(text) {
             if (this.battleSystem.inBattle) {
                 if (this.battleSystem.currentEnemy) {
                     response = this.battleSystem.processBattleTurn(this.player, this.battleSystem.currentEnemy, verb, object);
+
+                    // Check if the player's health is zero after a battle turn.
+                    if (this.player.health <= 0) {
+                        this.gameState = 'ended'; // Set game state to 'ended'
+                        this.commandInput.disabled = true; // Disable input
+
+                        const gameplayScreen = document.getElementById('gameplayScreen');
+                        const endGameScreen = document.getElementById('endGameScreen');
+                        const playAgainButton = document.getElementById('playAgainButton');
+
+                        if (gameplayScreen && endGameScreen && playAgainButton) {
+                            const endGameTitle = document.getElementById('endGameTitle');
+                            const endGameMessage = document.getElementById('endGameMessage');
+
+                            if (endGameTitle && endGameMessage) {
+                                endGameTitle.textContent = 'You Have Perished';
+                                endGameMessage.textContent = 'Your adventure has come to a tragic end. But fear not, another hero can rise! Will you try again?';
+                            }
+                            gameplayScreen.classList.remove('active');
+                            endGameScreen.classList.add('active');
+                            playAgainButton.addEventListener('click', () => location.reload(), { once: true });
+                        }
+                    }
                 } else {
                     response = "Error: In battle but no current enemy defined. Exiting battle mode.";
                     this.battleSystem.inBattle = false; // Reset battle state
