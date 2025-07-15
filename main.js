@@ -23,25 +23,12 @@ const gameOutput = document.getElementById('gameOutput');
 const outputContainer = document.querySelector('.output-text-container'); // Get the container
 
 function appendText(text) {
-    // Convert newlines to HTML breaks and wrap the entire text in a paragraph
-    const paragraph = document.createElement('p');
-    paragraph.innerHTML = text.replace(/\n/g, '<br>');
-    gameOutput.appendChild(paragraph); // Append the paragraph element
+    // Replace all newline characters with <br> tags for proper HTML rendering
+    const formattedText = text.replace(/\n/g, '<br>');
+    gameOutput.innerHTML += `<p>${formattedText}</p>`; // Append as a paragraph
 
-    outputContainer.scrollTop = outputContainer.scrollHeight;
-}
-
-function slowPrint(text, delay = 20) {
-    let i = 0;
-    const intervalId = setInterval(() => {
-        if (i < text.length) {
-            appendText(text.substring(i, i + 1));
-            i++;
-        } else {
-            clearInterval(intervalId);
-            appendText('\n'); // Add a newline after the complete text
-        }
-    }, delay);
+    // After adding text, scroll to the bottom
+    outputContainer.scrollTop = outputContainer.scrollHeight; 
 }
 
     let gameInstance = null; // To hold the AdventureGame instance
@@ -100,12 +87,12 @@ function slowPrint(text, delay = 20) {
             // Initial message for the game start
             if (this.gameOutput) { // Ensure gameOutput is available
                 // Use appendText for initial messages
-                slowPrint("In the shadowed alleys of the local bazaar, amidst discarded trinkets and whispered secrets, you find it: a tattered journal, its leather cover cracked with age. The pages are brittle, stained, and filled with a frantic, faded script. It speaks of a place of legend, Adorellan's most ancient site—the Labyrinth of Lyre.");
-                slowPrint("The author writes of unimaginable treasure and riches waiting in its depths, but also of a challenge that has broken all who came before. It is a legendary, dangerous place, where the very walls are said to test the sanity of those who walk them.");
-                slowPrint("Beyond the promise of gold, the journal hints at a greater prize: the chance to uncover lost knowledge and solve a mystery buried for millennia. The final entries are a scrawl of fear and regret, a tale of an expedition lost to the darkness.");
-                slowPrint("The last legible line is not a plea, but a direct challenge that seems to lift from the page and settle upon you:");
-                slowPrint("<strong>Will you succeed where they have failed?</strong>");
-                slowPrint("<em>Type 'venture forth' to begin your adventure, or 'give up' to walk away.</em>");
+                appendText("In the shadowed alleys of the local bazaar, amidst discarded trinkets and whispered secrets, you find it: a tattered journal, its leather cover cracked with age. The pages are brittle, stained, and filled with a frantic, faded script. It speaks of a place of legend, Adorellan's most ancient site—the Labyrinth of Lyre.");
+                appendText("The author writes of unimaginable treasure and riches waiting in its depths, but also of a challenge that has broken all who came before. It is a legendary, dangerous place, where the very walls are said to test the sanity of those who walk them.");
+                appendText("Beyond the promise of gold, the journal hints at a greater prize: the chance to uncover lost knowledge and solve a mystery buried for millennia. The final entries are a scrawl of fear and regret, a tale of an expedition lost to the darkness.");
+                appendText("The last legible line is not a plea, but a direct challenge that seems to lift from the page and settle upon you:");
+                appendText("<strong>Will you succeed where they have failed?</strong>");
+                appendText("<em>Type 'venture forth' to begin your adventure, or 'give up' to walk away.</em>");
                 this.updateStatusBars(); // Update bars after player is fully initialized
             }
         }
@@ -124,7 +111,7 @@ function slowPrint(text, delay = 20) {
                     response = this.actionHandler._handleMovement('back');
                 } else {
                     response = "A simple 'yes' or 'no' will suffice.";
-                }                    slowPrint(response);
+                }
                 this.displayMessage(response);
                 this.updateStatusBars();
                 return;
@@ -139,7 +126,7 @@ function slowPrint(text, delay = 20) {
                     }
                     // If it's a draw or loss, the state remains 'rps_choice' for another try.
                 } else {
-                    response = "That's not a valid move. Choose rock, paper, or scissors.";                    slowPrint(response);
+                    response = "That's not a valid move. Choose rock, paper, or scissors.";
                 }
                 this.displayMessage(response);
                 this.updateStatusBars();
@@ -150,7 +137,7 @@ function slowPrint(text, delay = 20) {
             if (this.gameState === 'intro') {
                 if (command === 'venture forth') {
                     this.gameState = 'playing';
-                    response = `You steel your resolve and step towards the Labyrinth of Lyre.\n\n${this.currentRoom.getDescription(this.player)}`
+                    response = `You steel your resolve and step towards the Labyrinth of Lyre.\n\n${this.currentRoom.getDescription(this.player)}`;
                 } else if (command === 'give up') {
                     this.gameState = 'ended'; // Mark game as ended
                     this.commandInput.disabled = true; // Disable further input
@@ -175,7 +162,7 @@ function slowPrint(text, delay = 20) {
                     } else {
                         response = "You close the journal, the challenge unanswered. The Labyrinth will wait for another hero. You turn and walk away.";
                     }
-                }                 else {
+                } else {
                     response = "The choice is before you. Will you 'venture forth' or 'give up'?"
                 }
                 this.displayMessage(response);
@@ -215,7 +202,7 @@ function slowPrint(text, delay = 20) {
         // displayMessage now solely relies on appendText for output
         displayMessage(message, isCommandResponse = true) {
             if (this.gameOutput) {
-                slowPrint(isCommandResponse ? `> ${message}` : message)           }
+                appendText(isCommandResponse ? `> ${message}` : message);            }
         }
 
         updateStatusBars() {
