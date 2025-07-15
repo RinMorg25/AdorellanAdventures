@@ -19,21 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmCharacterButton = document.getElementById('confirmCharacterButton');
     const commandInput = document.getElementById('commandInput'); // For re-focusing
 
-    const delay = 25; // Delay in milliseconds between each character
-
 const gameOutput = document.getElementById('gameOutput');
 const outputContainer = document.querySelector('.output-text-container'); // Get the container
 
-async function appendText(text) {
-    const formattedText = text.replace(/\n/g, '<br>'); // Format newlines
-    let output = '';
-
-    for (let i = 0; i < formattedText.length; i++) {
-        output += formattedText[i]; // Append one character at a time
-        gameOutput.innerHTML = `<p>${output}</p>`; // Update the game output
-        outputContainer.scrollTop = outputContainer.scrollHeight; // Scroll to bottom
-        await new Promise(resolve => setTimeout(resolve, delay)); // Wait for the delay
-    }
+function appendText(text) {
+    // Replace all newline characters with <br> tags for proper HTML rendering
+    const formattedText = text.replace(/\n/g, '<br>');
+    gameOutput.innerHTML += `<p>${formattedText}</p>`; // Append as a paragraph
 
     // After adding text, scroll to the bottom
     outputContainer.scrollTop = outputContainer.scrollHeight; 
@@ -89,17 +81,17 @@ async function appendText(text) {
             this.updateStatusBars(); // Initial update of status bars
         }
         
-        async initializeGame() {
+        initializeGame() {
             this.gameState = 'intro'; // Set state to intro
 
             // Initial message for the game start
             if (this.gameOutput) { // Ensure gameOutput is available
                 // Use appendText for initial messages
-                await appendText("In the shadowed alleys of the local bazaar, amidst discarded trinkets and whispered secrets, you find it: a tattered journal, its leather cover cracked with age. The pages are brittle, stained, and filled with a frantic, faded script. It speaks of a place of legend, Adorellan's most ancient site—the Labyrinth of Lyre.");
-                await appendText("The author writes of unimaginable treasure and riches waiting in its depths, but also of a challenge that has broken all who came before. It is a legendary, dangerous place, where the very walls are said to test the sanity of those who walk them.");
-                await appendText("Beyond the promise of gold, the journal hints at a greater prize: the chance to uncover lost knowledge and solve a mystery buried for millennia. The final entries are a scrawl of fear and regret, a tale of an expedition lost to the darkness.");
-                await appendText("The last legible line is not a plea, but a direct challenge that seems to lift from the page and settle upon you:");
-                await appendText("<strong>Will you succeed where they have failed?</strong>");
+                appendText("In the shadowed alleys of the local bazaar, amidst discarded trinkets and whispered secrets, you find it: a tattered journal, its leather cover cracked with age. The pages are brittle, stained, and filled with a frantic, faded script. It speaks of a place of legend, Adorellan's most ancient site—the Labyrinth of Lyre.");
+                appendText("The author writes of unimaginable treasure and riches waiting in its depths, but also of a challenge that has broken all who came before. It is a legendary, dangerous place, where the very walls are said to test the sanity of those who walk them.");
+                appendText("Beyond the promise of gold, the journal hints at a greater prize: the chance to uncover lost knowledge and solve a mystery buried for millennia. The final entries are a scrawl of fear and regret, a tale of an expedition lost to the darkness.");
+                appendText("The last legible line is not a plea, but a direct challenge that seems to lift from the page and settle upon you:");
+                appendText("<strong>Will you succeed where they have failed?</strong>");
                 appendText("<em>Type 'venture forth' to begin your adventure, or 'give up' to walk away.</em>");
                 this.updateStatusBars(); // Update bars after player is fully initialized
             }
@@ -210,7 +202,7 @@ async function appendText(text) {
         // displayMessage now solely relies on appendText for output
         displayMessage(message, isCommandResponse = true) {
             if (this.gameOutput) {
-                appendText(isCommandResponse ? `> ${message}` : message); }
+                appendText(isCommandResponse ? `> ${message}` : message);            }
         }
 
         updateStatusBars() {
